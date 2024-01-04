@@ -1,9 +1,27 @@
-apply plugin: 'java'
-apply plugin: 'distribution'
+
+
+buildscript {
+    dependencies {
+        classpath "io.github.gradle-nexus:publish-plugin:1.1.0"
+    }
+}
+
+plugins {
+    id 'java'
+    id 'distribution'
+}
+
+
+apply plugin: 'io.github.gradle-nexus.publish-plugin'
+apply from: "${rootDir}/scripts/publish-maven.gradle"
+apply from: 'publish.gradle'
+
+
+
 
 group 'com.clipsoft'
-// 부모 프로젝트의  properties 로부터 version 을 가져온다.
-version = project.hasProperty('version') ? project.version : '0.0.0'
+version getProperty("version")
+
 
 sourceCompatibility = 1.6
 compileJava {
@@ -18,12 +36,6 @@ compileTestJava {
 
 compileJava.options.encoding = 'UTF-8'
 
-jar {
-    manifest {
-        attributes 'Implementation-Title': 'LogExpress-slf4j',
-                   'Implementation-Version': project.version
-    }
-}
 
 project.jar.exclude('**/*.txt')
 project.jar.exclude('**/*.log')
@@ -42,37 +54,6 @@ sourceSets {
 }
 
 
-task clearBuildDir {
-    doFirst {
-        println 'ClearBuild'
-        delete file(project.projectDir.toString() + '/build').getAbsolutePath()
-    }
-}
-
-test.onlyIf { !("true".equalsIgnoreCase(project.getProperties().get("passTest") as String)) }
-testClasses.onlyIf { !("true".equalsIgnoreCase(project.getProperties().get("passTest") as String)) }
-
-project.build.dependsOn(project.clearBuildDir)
-project.build.mustRunAfter(project.clearBuildDir, project.distTar)
-
-
-project.build.doLast {
-    copy {
-        from file(project.projectDir.toString() + '/build/libs')
-        into file(rootProject.projectDir.toString() + '/build/libs')
-        include '**/*.jar'
-    }
-}
-
-
-project.build.doLast {
-    file(rootProject.projectDir.toString() + '/build/libs').mkdirs()
-    copy {
-        from file(project.projectDir.toString() + '/build/libs')
-        into file(rootProject.projectDir.toString() + '/build/libs')
-        include '**/*.jar'
-    }
-}
 
 
 
@@ -81,11 +62,13 @@ repositories {
 }
 
 
+test.onlyIf { !project.hasProperty("skipTests") }
+
 
 
 dependencies {
 
-    implementation project(':LogExpressCore')
+    implementation fileTree(dir: '../LogExpressCore/build/libs/', include: ['*.jar'])
 
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
     testImplementation group: 'junit', name: 'junit', version: '4.+'

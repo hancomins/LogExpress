@@ -72,3 +72,6 @@ rebel.xml
 *.log
 *.txt
 *.out
+
+local.properties
+libs/

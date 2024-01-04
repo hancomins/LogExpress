@@ -1,0 +1,15 @@
+ext {
+    PUBLISH_GROUP_ID ='io.github.clipsoft-rnd'
+    PUBLISH_VERSION =getProperty("version")
+    PUBLISH_ARTIFACT_ID ='LogExpressCore'
+    PUBLISH_DESCRIPTION = 'A fast and simple asynchronous logging module.'
+    PUBLISH_URL = 'https://github.com/clipsoft-rnd/LogExpress'
+    PUBLISH_LICENSE_NAME ='Apache 2.0'
+    PUBLISH_LICENSE_URL = 'https://github.com/clipsoft-rnd/LogExpress/blob/main/LICENSE'
+    PUBLISH_DEVELOPER_ID ='ice3x2'
+    PUBLISH_DEVELOPER_NAME = 'Sungbeom Hong'
+    PUBLISH_DEVELOPER_EMAIL = 'ice3x2@gmail.com'
+    PUBLISH_SCM_CONNECTION = 'scm:git:github.com/clipsoft-rnd/LogExpress.git'
+    PUBLISH_SCM_DEVELOPER_CONNECTION ='scm:git:ssh://github.com:clipsoft-rnd/LogExpress.git'
+    PUBLISH_SCM_URL ='https://github.com/clipsoft-rnd/LogExpress'
+}
