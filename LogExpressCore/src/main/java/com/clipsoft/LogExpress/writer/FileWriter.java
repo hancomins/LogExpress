@@ -3,6 +3,7 @@ package com.clipsoft.LogExpress.writer;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
@@ -54,7 +55,7 @@ public class FileWriter {
 			dataPos += readLen;
 			leftLen -= readLen;
 			if(mBuffer.position() == mBufferSize) {
-				mBuffer.flip();
+				((Buffer)mBuffer).flip();
 				writeFile(mChannel, mBuffer);
 				mBuffer.clear();
 				bufferPos = 0;
@@ -105,7 +106,7 @@ public class FileWriter {
 				mFile.createNewFile();
 				initStream(mFile); 
 				mCurrentFileSize = 0;
-				mBuffer.flip();
+				((Buffer)mBuffer).flip();
 				return true;
 			} catch (Exception e1) {
 				e1.printStackTrace();
@@ -117,7 +118,7 @@ public class FileWriter {
 	
 	void flush() {
 		if(mBuffer.position() > 0) {
-			mBuffer.flip();
+			((Buffer)mBuffer).flip();
 			writeFile(mChannel, mBuffer);
 			mBuffer.clear();
 		}

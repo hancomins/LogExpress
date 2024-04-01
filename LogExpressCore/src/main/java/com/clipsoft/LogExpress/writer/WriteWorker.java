@@ -223,6 +223,7 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 	
 	private void flushWrite() {
 		if(mDefaultWriterRack.fileWriter != null) {
+
 			mDefaultWriterRack.fileWriter.flush();
 		}
 		if(mWriterRackArray != null) {

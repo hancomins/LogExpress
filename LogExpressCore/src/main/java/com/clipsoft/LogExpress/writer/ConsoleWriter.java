@@ -1,6 +1,7 @@
 package com.clipsoft.LogExpress.writer;
 
 import java.io.PrintStream;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
 public class ConsoleWriter {
@@ -36,7 +37,7 @@ public class ConsoleWriter {
 			dataPos += readLen;
 			leftLen -= readLen;
 			if(mBuffer.position() == mBufferSize) {
-				mBuffer.flip();
+				((Buffer)mBuffer).flip();
 				System.out.write(mRawBuffer, 0, mRawBuffer.length);
 				mBuffer.clear();
 				bufferPos = 0;
@@ -51,7 +52,7 @@ public class ConsoleWriter {
 	
 	void flush() {
 		if(mBuffer != null && mBuffer.position() > 0) {
-			mBuffer.flip();
+			((Buffer)mBuffer).flip();
 			System.out.write(mRawBuffer, 0, mBuffer.limit());
 			mBuffer.clear();
 		}
