@@ -1,5 +1,6 @@
 package com.clipsoft.LogExpress.writer;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -19,7 +20,7 @@ public class FileWriter {
 
 	private FileOutputStream mOutputStream;
 	private FileChannel mChannel;
-	private ByteBuffer mBuffer;
+	private Buffer mBuffer;
 
 
 	
@@ -51,12 +52,12 @@ public class FileWriter {
 		int readLen = Math.min(mBufferSize - bufferPos, data.length);// - bufferPos;
 		
 		do {
-			mBuffer.put(data, dataPos, readLen);
+			((ByteBuffer) mBuffer).put(data, dataPos, readLen);
 			dataPos += readLen;
 			leftLen -= readLen;
 			if(mBuffer.position() == mBufferSize) {
-				((Buffer)mBuffer).flip();
-				writeFile(mChannel, mBuffer);
+				mBuffer.flip();
+				writeFile(mChannel, (ByteBuffer) mBuffer);
 				mBuffer.clear();
 				bufferPos = 0;
 				readLen = Math.min(mBufferSize,leftLen);// - bufferPos;
@@ -106,7 +107,7 @@ public class FileWriter {
 				mFile.createNewFile();
 				initStream(mFile); 
 				mCurrentFileSize = 0;
-				((Buffer)mBuffer).flip();
+				mBuffer.flip();
 				return true;
 			} catch (Exception e1) {
 				e1.printStackTrace();
@@ -118,8 +119,8 @@ public class FileWriter {
 	
 	void flush() {
 		if(mBuffer.position() > 0) {
-			((Buffer)mBuffer).flip();
-			writeFile(mChannel, mBuffer);
+			mBuffer.flip();
+			writeFile(mChannel,(ByteBuffer) mBuffer);
 			mBuffer.clear();
 		}
 	}

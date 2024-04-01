@@ -6,11 +6,9 @@ import java.nio.ByteBuffer;
 
 public class ConsoleWriter {
 
-	//private final static PrintStream OriginalOut = System.out;
-	//private final static PrintStream OriginalErr = System.err;
-	
 	private final int mBufferSize;
-	private ByteBuffer mBuffer;
+	private Buffer mBuffer;
+
 	private byte[] mRawBuffer;
 	
 	ConsoleWriter(int bufferSize) {
@@ -33,11 +31,12 @@ public class ConsoleWriter {
 		int readLen = Math.min(mBufferSize - bufferPos, data.length);// - bufferPos;
 		
 		do {
-			mBuffer.put(data, dataPos, readLen);
+			((ByteBuffer)mBuffer).put(data, dataPos, readLen);
 			dataPos += readLen;
 			leftLen -= readLen;
 			if(mBuffer.position() == mBufferSize) {
-				((Buffer)mBuffer).flip();
+				Buffer buffer = mBuffer;
+				mBuffer.flip();
 				System.out.write(mRawBuffer, 0, mRawBuffer.length);
 				mBuffer.clear();
 				bufferPos = 0;
@@ -52,7 +51,7 @@ public class ConsoleWriter {
 	
 	void flush() {
 		if(mBuffer != null && mBuffer.position() > 0) {
-			((Buffer)mBuffer).flip();
+			mBuffer.flip();
 			System.out.write(mRawBuffer, 0, mBuffer.limit());
 			mBuffer.clear();
 		}
