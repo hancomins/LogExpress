@@ -5,6 +5,16 @@
 * JAVA6 부터 호환됩니다. 
 
 ## 사용법
+### gradle 프로젝트에 추가
+```gradle
+dependencies {
+    // LogExpress core 프로젝트.
+    implementation 'io.github.clipsoft-rnd:LogExpressCore:0.10.8'
+    // SLF4j 지원.
+    //implementation 'io.github.clipsoft-rnd:LogExpressSlf4j:0.10.6'
+}
+```
+
 ### 튜토리얼
 * 다음 예제와 같이 사용할 수 있습니다. <br/>
   ```java
