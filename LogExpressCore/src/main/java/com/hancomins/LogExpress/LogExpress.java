@@ -42,7 +42,12 @@ public class LogExpress {
 			if (LoggerContextRef.get() == null) {
 				initLogger();
 			}
-			return LoggerContextRef.get().getConfiguration().clone();
+			LoggerContext loggerContext = LoggerContextRef.get();
+			if(loggerContext == null) {
+				 return Configuration.fromDefaultConfigurationFile();
+			} else {
+				return loggerContext.getConfiguration().clone();
+			}
 		} finally {
 			if(lock.isLocked()) {
 				lock.unlock();

@@ -2,6 +2,7 @@ package com.hancomins.LogExpress.writer;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -22,6 +23,8 @@ public class FileWriter {
 	private FileOutputStream outputStream;
 	private FileChannel channel;
 	private Buffer buffer;
+	// 참조 카운터
+	private int refCount;
 
 	private static final AtomicInteger OPEN_FILE_COUNT = new AtomicInteger(0);
 	
@@ -31,8 +34,15 @@ public class FileWriter {
 		this.bufferSize = bufferSize;
 		buffer = ByteBuffer.allocateDirect(bufferSize);
 		maxFileSize = (long) maxSize * 1024 * 1024;
-		initStream(file);;
+		initStream(file);
+		refCount = 1;
 	}
+
+	FileWriter increaseRefCount() {
+		refCount++;
+		return this;
+	}
+
 
 	public static int getOpenFileCount() {
 		return OPEN_FILE_COUNT.get();
@@ -91,10 +101,22 @@ public class FileWriter {
             e.printStackTrace();
 		}
 	}
+	void close() {
+		refCount = 0;
+		end();
+	}
 	
 	void end() {
-		if(isClosed()) return;
+		if(closed) {
+			return;
+		}
 		flush();
+		if(refCount > 0) {
+			refCount--;
+			if(refCount > 0) {
+				return;
+			}
+		}
 		closed = true;
 		buffer = null;
 		try {
@@ -144,7 +166,25 @@ public class FileWriter {
 			writeFile(channel,(ByteBuffer) buffer);
 			buffer.clear();
 		}
+	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof FileWriter) {
+			if(file == null && ((FileWriter) obj).file == null) {
+				return super.equals(obj);
+			}
+			return file != null && file.equals(((FileWriter) obj).file);
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		if(file == null) {
+			return super.hashCode();
+		}
+		return file.hashCode();
 	}
 
 	@Override

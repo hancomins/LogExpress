@@ -115,6 +115,7 @@ public class LogExpressTest {
 			});
 		}
 
+
 		countDownLatch.await();
 		Thread.sleep(100);
 		assertEquals(1, FileWriter.getOpenFileCount());

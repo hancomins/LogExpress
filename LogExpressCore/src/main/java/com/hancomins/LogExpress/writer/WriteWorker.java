@@ -14,9 +14,7 @@ import com.hancomins.LogExpress.Line;
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -224,7 +222,7 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 				File newFile = pattern.toFileOverMaxSize(marker,maxSize);
 				makeDirParentsOf(newFile);
 				FileWriter fileWriter = findFileWriter(newFile);
-				rack.fileWriter = fileWriter == null ? new FileWriter(newFile, configure.getBufferSize(), configure.getMaxSize()) : fileWriter;
+				rack.fileWriter = fileWriter == null ? new FileWriter(newFile, configure.getBufferSize(), configure.getMaxSize()) : fileWriter.increaseRefCount();
 			 } else if(type == WriterType.Console) {
 				 rack.isWriteConsole = true;
 			 }
@@ -364,10 +362,6 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 		if(rack.fileWriter != null) {
 			// 파일 패턴에 파일 번호가 있고, 설정한 최대 파일 크기를 넘어갈 경우.
 
-			//todo 지워야함.
-			String tomorrowDate = formatter.format(rack.tomorrow);
-			String todayDate = formatter.format(rack.today);
-			String current = formatter.format(time);
 
 			if(rack.fileNamePattern.isDateInPattern() && time >= rack.tomorrow) {
 				cleanupLogFileByHistory(rack);
@@ -422,7 +416,7 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 				 InLogger.INFO("Write to the next file. `" + newFile + "` (" + getName() + ")" );
 			 }
 			FileWriter fileWriter = findFileWriter(newFile);
-            rack.fileWriter = fileWriter == null ? new FileWriter(newFile, rack.fileBufferSize, rack.fileMaxSize) : fileWriter;
+            rack.fileWriter = fileWriter == null ? new FileWriter(newFile, rack.fileBufferSize, rack.fileMaxSize) : fileWriter.increaseRefCount();
 		} catch (IOException e) {
 			InLogger.ERROR("Cannot advance to the next file of marker `" + rack.marker + "`.", e);
 		}
@@ -445,7 +439,11 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 			isWait = false;
 			isAlive = false;
 			lineQueue = null;
+			// fd 누수를 막기위한 안전장치
+			Set<FileWriter> set = new HashSet<FileWriter>();
 			for (WriterRackStruct rack : writerMap.values()) {
+				if(rack.fileWriter == null) continue;
+				set.add(rack.fileWriter);
 				rack.end();
 			}
 			writerMap.clear();
@@ -459,6 +457,9 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 				onTerminatedListener.onTerminated();
 			}
 			onTerminatedListener = null;
+			for (FileWriter writer : set) {
+				writer.close();
+			}
 		}
 	}
 
