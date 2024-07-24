@@ -158,7 +158,9 @@ public final class Configuration implements Cloneable {
 	private void loadFile(File configFile) throws IOException {
 		 byte[] buffer = Files.readAllBytes(configFile);
 		 ByteArrayInputStream bais = new ByteArrayInputStream(buffer);
-		 ConfigurationParser.parse(new FileReader(configFile), this);
+		 FileReader fileReader = new FileReader(configFile);
+		 ConfigurationParser.parse(fileReader, this);
+		 fileReader.close();;
 		 bais.close();
 	}
 
