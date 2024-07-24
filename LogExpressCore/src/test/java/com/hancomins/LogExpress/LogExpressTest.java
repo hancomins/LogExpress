@@ -5,6 +5,7 @@ import com.hancomins.LogExpress.configuration.WriterOption;
 import com.hancomins.LogExpress.configuration.WriterType;
 import com.hancomins.LogExpress.writer.CurrentTimeMillisGetter;
 import com.hancomins.LogExpress.writer.FileWriter;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
@@ -18,9 +19,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class LogExpressTest {
 
@@ -133,13 +134,13 @@ public class LogExpressTest {
 		deleteAllFile(testLogDir);
 
 
-
-
 	}
+
+
 
 	@Test
 	public void duplicatedWriteTest() throws InterruptedException, IOException {
-		File file = new File("test.log");
+		File file = new File("testx.log");
 		file.delete();
 		LogExpress.shutdown().await();
 
@@ -182,6 +183,7 @@ public class LogExpressTest {
 
 		future.await();
 
+
 		assertEquals(0,FileWriter.getOpenFileCount());
 
 		String logs = readFileToString(file);
@@ -194,10 +196,13 @@ public class LogExpressTest {
 				"INFO LOGExpress shutdown called.\n";
 
 		//assertEquals(logs, endData);
+
+
 		assertTrue(logs.endsWith(endData));
 
+		file.delete();
 
-		assertTrue(file.delete());
+		assertFalse(file.exists());
 
 
 	}
@@ -275,7 +280,7 @@ public class LogExpressTest {
 
 	@Test
 	public void unlimitIntervalTest() throws InterruptedException, IOException {
-		final File testFile = new File("test.log");
+		final File testFile = new File("unlimitIntervalTest.log");
 		testFile.delete();
 		testFile.createNewFile();
 		Configuration configuration = LogExpress.cloneConfiguration();
@@ -285,6 +290,9 @@ public class LogExpressTest {
 		option.addWriterType(WriterType.File);
 		option.setFile(testFile.getAbsolutePath());
 		LogExpress.updateConfig(configuration);
+		final CountDownLatch countDownLatch = new CountDownLatch(1);
+
+		final AtomicReference<AssertionError> throwableAtomicReference = new AtomicReference<AssertionError>();
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -293,21 +301,49 @@ public class LogExpressTest {
 					InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
 					BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 					String line = null;
+					boolean countStart = false;
+					long count = 0;
 					while(testFile.exists()) {
 						line = bufferedReader.readLine();
 						if(line != null) {
+							if(line.endsWith("0;") && !countStart) {
+								countStart = true;
+
+							}
+							else if(countStart) {
+								++count;
+								try {
+									assertTrue(line.endsWith(count + ";"));
+								} catch (AssertionError e) {
+									System.out.println("count : " + count);
+									System.out.println("line : " + line);
+									throwableAtomicReference.set(e);
+									countDownLatch.countDown();
+									throw e;
+								}
+
+
+							}
 							System.out.println(line);
+							if(line.endsWith("999;")) {
+								break;
+							}
 						}
 						try {
-							Thread.sleep(10);
+							Thread.sleep(5);
 						} catch (InterruptedException e) {
-							throw new RuntimeException(e);
 						}
 					}
 
-					fileInputStream.close();
-					inputStreamReader.close();
-					bufferedReader.close();
+					try {
+						fileInputStream.close();
+						inputStreamReader.close();
+						bufferedReader.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+					countDownLatch.countDown();
 
 				}  catch (IOException e) {
 				}
@@ -315,6 +351,7 @@ public class LogExpressTest {
 
 			}
 		}).start();
+
 
 
 		Logger LOG = LogExpress.defaultLogger();
@@ -330,13 +367,31 @@ public class LogExpressTest {
 			LOG.info(i + "");
 		}
 		Thread.sleep(1000);
+
+
+		countDownLatch.await();
+
+		if(throwableAtomicReference.get() != null) {
+			throw throwableAtomicReference.get();
+		}
+		LogExpress.shutdown().await();
 		testFile.delete();
+
+		assertEquals(0, FileWriter.getOpenFileCount());
+
+		assertFalse(testFile.exists());
 	}
+
+	@Before
+	public void before() throws InterruptedException {
+		LogExpress.shutdown().await();
+	}
+
 
 
 	@Test
 	public void shutdownTest() throws InterruptedException, IOException {
-		File file = new File("test.log");
+		File file = new File("shutdownTest.log");
 		file.delete();
 		Configuration configuration = LogExpress.cloneConfiguration();
 		int testCase = 1000000;
@@ -359,16 +414,12 @@ public class LogExpressTest {
 		callLogTime = System.currentTimeMillis() - startTime;
 		ShutdownFuture future = LogExpress.shutdown();
 		System.out.println("endendendend");
-		System.out.println("endendendend");
-		System.out.println("endendendend");
-		System.out.println("endendendend");
-		System.out.println("endendendend");
 		final AtomicInteger atomicInteger = new AtomicInteger(0);
 		future.setOnEndCallback(new Runnable() {
 			@Override
 			public void run() {
 				atomicInteger.addAndGet(10);
-				System.out.println("==================끝1====================");
+				System.out.println("==================끝1====================" + atomicInteger.get());
 			}
 		});
 
@@ -376,7 +427,7 @@ public class LogExpressTest {
 			@Override
 			public void run() {
 				atomicInteger.addAndGet(22);
-				System.out.println("==================끝2=====================");
+				System.out.println("==================끝2=====================" + atomicInteger.get());
 			}
 		});
 		future.await();
@@ -384,7 +435,6 @@ public class LogExpressTest {
 
 		System.out.println("callLogTime : " + callLogTime);
 		System.out.println("endFileWriteTime : " + endFileWriteTime);
-
 
 		assertEquals(32, atomicInteger.get());
 		assertEquals(future.isEnd(), true);

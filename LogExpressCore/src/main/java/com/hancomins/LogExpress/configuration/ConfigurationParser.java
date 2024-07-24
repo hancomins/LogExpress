@@ -245,12 +245,36 @@ class ConfigurationParser {
 	            if (header.startsWith("[") && header.endsWith("]"))
 	                return result.put(header.substring(1, header.length() - 1),  section = new Properties());
 	            else
-	                return section.put(key, value);
+					try {
+						return section.put(key, value);
+					} catch (Exception e) {
+						ConfigurationIniParsingException error;
+						if(e instanceof NullPointerException) {
+							error = new ConfigurationIniParsingException("Unable parse configuration data in 'ini' format.");
+						} else {
+							error = new ConfigurationIniParsingException("Unable parse configuration data in 'ini' format.",e);
+						}
+						InLogger.ERROR(error);
+						return "";
+					}
 	        }
 	        
 	    }.load(reader);
 	    return result;
 	}
+
+	public static class ConfigurationIniParsingException extends Exception {
+		public ConfigurationIniParsingException(String message) {
+			super(message);
+		}
+
+		public ConfigurationIniParsingException(String message, Throwable cause) {
+			super(message, cause);
+		}
+	}
+
+
+
 	
 
 }

@@ -19,7 +19,7 @@ class UserShutdownFuture implements ShutdownFuture {
     public void onEnd() {
         synchronized (monitor) {
             isEnd.set(true);
-            countDownLatch.countDown();
+
             for (Runnable runnable : eventList) {
                 try {
                     runnable.run();
@@ -29,6 +29,7 @@ class UserShutdownFuture implements ShutdownFuture {
                     }
                 }
             }
+            countDownLatch.countDown();
             eventList.clear();
         }
     }

@@ -64,7 +64,7 @@ public class InLogger {
     }
 
     public static void reset() {
-        enabled = "true".equalsIgnoreCase((System.getProperty("LogExpress.debug", "false") + "").trim() );
+        enabled = "true".equalsIgnoreCase(  String.valueOf(System.getProperty("LogExpress.debug", "false")).trim() );
     }
 
     public static boolean isEnabled() {
@@ -87,6 +87,7 @@ public class InLogger {
         if(path != null) {
             inLogDir = new File(path);
             try {
+                //noinspection ResultOfMethodCallIgnored
                 inLogDir.mkdirs();
             } catch (Exception ignored) {}
             if(!inLogDir.isDirectory()) {
@@ -97,31 +98,37 @@ public class InLogger {
     }
 
     public static void ERROR(String message, Throwable e)  {
-        writeLog( new StringBuilder("[LogExpress::ERROR] ").append(TimeFormat.format(new Date(CurrentTimeMillisGetter.currentTimeMillis()))).append(' ').append(message).toString(), e, true);
+        writeLog("[LogExpress::ERROR] " + TimeFormat.format(new Date(CurrentTimeMillisGetter.currentTimeMillis())) + ' ' + message, e, true);
     }
 
     public static void ERROR(String message)  {
-        writeLog( new StringBuilder("[LogExpress::ERROR] ").append(TimeFormat.format(new Date(CurrentTimeMillisGetter.currentTimeMillis()))).append(' ').append(message).toString(), null, true);
+        writeLog("[LogExpress::ERROR] " + TimeFormat.format(new Date(CurrentTimeMillisGetter.currentTimeMillis())) + ' ' + message, null, true);
+    }
+
+
+    public static void ERROR(Throwable e)  {
+        writeLog("[LogExpress::ERROR] " + TimeFormat.format(new Date(CurrentTimeMillisGetter.currentTimeMillis())) + ' ' + e.getMessage(), e, true);
     }
 
     public static void INFO(String message)  {
         if(!enabled) return;
-        writeLog(new StringBuilder("[LogExpress::INFO] ").append(TimeFormat.format(new Date(CurrentTimeMillisGetter.currentTimeMillis()))).append(' ').append(message).toString(), null, false);
+        writeLog("[LogExpress::INFO] " + TimeFormat.format(new Date(CurrentTimeMillisGetter.currentTimeMillis())) + ' ' + message, null, false);
     }
 
-    public static void WARN(String message)  {
+    public static void WARN(String message, Throwable e)  {
         if(!enabled) return;
-        writeLog(new StringBuilder("[LogExpress::WARN] ").append(TimeFormat.format(new Date(CurrentTimeMillisGetter.currentTimeMillis()))).append(' ').append(message).toString(), null, false);
+        writeLog("[LogExpress::WARN] " + TimeFormat.format(new Date(CurrentTimeMillisGetter.currentTimeMillis())) + ' ' + message, e, false);
     }
 
     public static void DEBUG(String message)  {
         if(!enabled) return;
-        writeLog(new StringBuilder("[LogExpress::DEBUG] ").append(TimeFormat.format(new Date(CurrentTimeMillisGetter.currentTimeMillis()))).append(' ').append(message).toString(), null, false);
+        writeLog("[LogExpress::DEBUG] " + TimeFormat.format(new Date(CurrentTimeMillisGetter.currentTimeMillis())) + ' ' + message, null, false);
     }
 
     private static void writeLog(String message, Throwable e, boolean isError)  {
         if(!enabled && !isError) return;
         try {
+            //noinspection ResultOfMethodCallIgnored
             lock.tryLock(LOCK_TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (InterruptedException ignored) {}
 
@@ -137,6 +144,7 @@ public class InLogger {
         }
 
         if(e != null) {
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
             if(isWriteFile) {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -154,6 +162,7 @@ public class InLogger {
         try {
             if(!file.isFile()) {
                 try {
+                    //noinspection ResultOfMethodCallIgnored
                     file.createNewFile();
                 } catch (IOException ignored2) {}
             }

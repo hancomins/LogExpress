@@ -12,7 +12,6 @@ import com.hancomins.LogExpress.InLogger;
 import com.hancomins.LogExpress.Line;
 
 import java.io.*;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -221,8 +220,7 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 				int maxSize = configure.getMaxSize();
 				File newFile = pattern.toFileOverMaxSize(marker,maxSize);
 				makeDirParentsOf(newFile);
-				FileWriter fileWriter = findFileWriter(newFile);
-				rack.fileWriter = fileWriter == null ? new FileWriter(newFile, configure.getBufferSize(), configure.getMaxSize()) : fileWriter.increaseRefCount();
+				injectFileWriterToRack(rack, newFile);
 			 } else if(type == WriterType.Console) {
 				 rack.isWriteConsole = true;
 			 }
@@ -232,31 +230,46 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 	
 	private void checkExist() {
 		if(defaultWriterRack != null && defaultWriterRack.fileWriter != null) {
-			if(defaultWriterRack.fileWriter.checkExist() && isDebug) {
-				InLogger.ERROR("Log file could not be found. regenerate `" + defaultWriterRack.fileWriter.getFile() + "` (" + getName() + ")" );
+			try {
+				defaultWriterRack.fileWriter.ensureFileExists();
+			} catch (IOException e) {
+				InLogger.ERROR(e);
 			}
 		}
 		//noinspection ForLoopReplaceableByForEach
 		for(int i = 0; i < writerRackArray.length; ++i) {
 			WriterRackStruct rack =  writerRackArray[i];
-			if(rack.fileWriter != null && rack.fileWriter.checkExist() && isDebug && defaultWriterRack != null) {
-				InLogger.ERROR("Log file could not be found. regenerate `" + defaultWriterRack.fileWriter.getFile() + "` (" + getName() + ")" );
+			if(rack.fileWriter != null) {
+				try {
+					rack.fileWriter.ensureFileExists();
+				} catch (IOException e) {
+					InLogger.ERROR(e);
+				}
 			}
 		}
 	}
 	
 	
-	private void flushWrite() {
+	private void flushWrite()  {
 		if(defaultWriterRack != null && defaultWriterRack.fileWriter != null) {
-			defaultWriterRack.fileWriter.flush();
-		}
+            try {
+                defaultWriterRack.fileWriter.flush();
+            } catch (IOException e) {
+                InLogger.ERROR("Cannot flush the write buffer.", e);
+            }
+        }
 		if(writerRackArray != null) {
 			//noinspection ForLoopReplaceableByForEach
 			for(int i = 0; i < writerRackArray.length; ++i) {
 				WriterRackStruct rack =  writerRackArray[i];
-				if(rack.fileWriter != null) rack.fileWriter.flush();
+				if(rack.fileWriter != null) {
+                    try {
+                        rack.fileWriter.flush();
+                    } catch (IOException e) {
+                        InLogger.ERROR("Cannot flush the write buffer.", e);
+                    }
+                }
 			}
-			//mConsoleWriter.flush();
 		}
 
 	}
@@ -286,7 +299,7 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 				if(!isWait) {
 					if(isExistCheck) checkExist();
 					flushWrite();
-					line = lineQueue.pop();
+                    line = lineQueue.pop();
 				}
 			}
 
@@ -325,21 +338,22 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 			if(rack != null) {
 				writeConsole(rack, message);
 				byte[] stringBuffer = message.getBytes(rack.charset);
-				writeFile(rack, line.getTime(), stringBuffer);
+				try {
+					writeFile(rack, line.getTime(), stringBuffer);
+				} catch (IOException e) {
+					InLogger.WARN("Cannot write to the file `" + rack.fileWriter.getFile() + "`. (" + message + ")", e);
+				}
 			} else {
 				InLogger.ERROR("Cannot find the writer for the marker `" + line.getMarker() + "`.", null);
-				InLogger.DEBUG(message);
 			}
 			line = null;
-
-
 		}
 		endLoop();
 	}
 
 	private void endLoop() {
 		flushWrite();
-		terminate();
+        terminate();
 		if(isDebug) {
 			InLogger.DEBUG("WriteWorker Terminated (" + getName() + ")" );
 		}
@@ -355,14 +369,10 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 		return false;
 	}
 
-	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-	
-	private void writeFile(WriterRackStruct rack,long time,  byte[] stringBuffer) {
+	private void writeFile(WriterRackStruct rack,long time,  byte[] stringBuffer) throws IOException {
 
 		if(rack.fileWriter != null) {
 			// 파일 패턴에 파일 번호가 있고, 설정한 최대 파일 크기를 넘어갈 경우.
-
-
 			if(rack.fileNamePattern.isDateInPattern() && time >= rack.tomorrow) {
 				cleanupLogFileByHistory(rack);
 				rack.newDate();
@@ -408,17 +418,21 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 
 	
 	private void nextFile(WriterRackStruct rack) {
-		rack.fileWriter.end();
+		FileWriter oldFileWriter = rack.fileWriter;
+		rack.fileWriter = null;
 		try {
 			File newFile = rack.fileNamePattern.toFileOverMaxSize(rack.marker, rack.fileMaxSize);
 			makeDirParentsOf(newFile);
 			if(isDebug) {
 				 InLogger.INFO("Write to the next file. `" + newFile + "` (" + getName() + ")" );
 			 }
-			FileWriter fileWriter = findFileWriter(newFile);
-            rack.fileWriter = fileWriter == null ? new FileWriter(newFile, rack.fileBufferSize, rack.fileMaxSize) : fileWriter.increaseRefCount();
+			injectFileWriterToRack(rack, newFile);
 		} catch (IOException e) {
 			InLogger.ERROR("Cannot advance to the next file of marker `" + rack.marker + "`.", e);
+		} finally {
+			if(oldFileWriter != null) {
+				oldFileWriter.end();
+			}
 		}
 	}
 	
@@ -462,6 +476,12 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 			}
 		}
 	}
+
+	private void injectFileWriterToRack(WriterRackStruct rack, File newFile) throws IOException {
+		FileWriter fileWriter = findFileWriter(newFile);
+		rack.fileWriter = fileWriter == null ? new FileWriter(newFile, rack.fileBufferSize, rack.fileMaxSize) : fileWriter.addReference();
+	}
+
 
 	private FileWriter findFileWriter(File file) {
 		for(WriterRackStruct rack : writerMap.values()) {

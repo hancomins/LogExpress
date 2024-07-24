@@ -46,7 +46,11 @@ public class LogExpress {
 			if(loggerContext == null) {
 				 return Configuration.fromDefaultConfigurationFile();
 			} else {
-				return loggerContext.getConfiguration().clone();
+				 Configuration configuration = loggerContext.getConfiguration();
+				 if(configuration == null) {
+					 return Configuration.fromDefaultConfigurationFile();
+				 }
+				 return configuration.clone();
 			}
 		} finally {
 			if(lock.isLocked()) {
@@ -56,9 +60,13 @@ public class LogExpress {
 	}
 	
 	public static void updateConfig(Configuration configure) {
-		if(configure.isClosed()) {
+		if(configure == null) {
+			configure = cloneConfiguration();
+		}
+		else if(configure.isClosed()) {
 			throw new IllegalStateException("Configuration is closed. Please create a new Configuration or clone the existing one.");
 		}
+
 		lock.lock();
 		if(configure.isDebug()) {
 			InLogger.enable();
@@ -182,23 +190,23 @@ public class LogExpress {
 	
 	
 	public static Logger newLogger(String marker) {
-		return new LoggerImpl(LoggerContextRef.get().logger(marker));
+		return new LoggerImpl(requireLoggerContext().logger(marker));
 	}
 
 	public static Logger newLogger() {
-		return new LoggerImpl(LoggerContextRef.get().defaultLogger());
+		return new LoggerImpl(requireLoggerContext().defaultLogger());
 	}
 
 	public static Logger newLogger(Class<?> caller, String marker) {
-		return new LoggerWithCallerImpl(caller.getName(),LoggerContextRef.get().logger(marker));
+		return new LoggerWithCallerImpl(caller.getName(), requireLoggerContext().logger(marker));
 	}
 
 	public static Logger newLogger(Class<?> caller) {
-		return new LoggerWithCallerImpl(caller.getName(), LoggerContextRef.get().defaultLogger());
+		return new LoggerWithCallerImpl(caller.getName(), requireLoggerContext().defaultLogger());
 	}
 
 	public static Logger newLogger(String callerFQCN, String marker) {
-		LoggerContext context = LoggerContextRef.get();
+		LoggerContext context = requireLoggerContext();
 		return new LoggerWithCallerImpl(callerFQCN,marker == null ? context.defaultLogger() : context.logger(marker));
 	}
 
@@ -221,12 +229,12 @@ public class LogExpress {
 	}
 
 	public static BaseLogger baseLogger() {
-		LoggerContext context =  LoggerContextRef.get();
+		LoggerContext context =  requireLoggerContext();
 		return context.defaultLogger();
 	}
 
 	public static BaseLogger baseLogger(String marker) {
-		return LoggerContextRef.get().logger(marker);
+		return requireLoggerContext().logger(marker);
 	}
 	
 	public static void info(CharSequence log) {
@@ -315,6 +323,15 @@ public class LogExpress {
 	
 	public static void warn(CharSequence log,Throwable e) {
 		baseLogger().warn("",log,e, 1);
+	}
+
+	private static LoggerContext requireLoggerContext() {
+		LoggerContext loggerContext = LoggerContextRef.get();
+		// LoggerContext가 상태 예외 발생. "shutdown 된 상태입니다. updateConfig 를 호출하여 다시 초기화 해야 합니다." 메시지 출력.
+		if(loggerContext == null) {
+			throw new IllegalStateException("LogExpress is currently shut down. Please use the 'LogExpress.updateConfig(Configuration)' method to reinitialize it.");
+		}
+		return loggerContext;
 	}
 	
 }

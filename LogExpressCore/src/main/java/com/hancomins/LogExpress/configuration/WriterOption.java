@@ -14,7 +14,6 @@ public class WriterOption implements Cloneable {
 	public final static int DEFAULT_HISTORY = 60;
 	public final static int DEFAULT_MAXSIZE = 512;
 	public final static int DEFAULT_BUFFER_SIZE = 1024;
-	//public final static int DEFAULT_CLOSER_BUFFER_SIZE = 1024 * 1024 * 16;
 	public final static int DEFAULT_ADDED_INDEX_OF_STACKTRACE_ELEMENTS = 1;
 	
 	
