@@ -35,7 +35,7 @@ compileJava.options.encoding = 'UTF-8'
 
 /*jar {
     manifest {
-        attributes 'Implementation-Title': 'LogExpress-core',
+        attributes 'Implementation-Title': 'logexpress-core',
                 'Implementation-Version': project.version
     }
 }*/
