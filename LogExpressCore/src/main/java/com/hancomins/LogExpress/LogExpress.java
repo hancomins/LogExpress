@@ -30,11 +30,11 @@ public class LogExpress {
 	 */
 	public static final String PROPERTY_PID = "LogExpress.pid";
 
-	private static final AtomicReference<ShutdownFuture> ShutdownFutureRef = new AtomicReference<>();
+	private static final AtomicReference<ShutdownFuture> ShutdownFutureRef = new AtomicReference<ShutdownFuture>();
 
 	private final static ReentrantLock lock = new ReentrantLock();
 
-	static AtomicReference<LoggerContext> LoggerContextRef = new AtomicReference<>();
+	static AtomicReference<LoggerContext> LoggerContextRef = new AtomicReference<LoggerContext>();
 
 	static {
 		lock.lock();
@@ -86,7 +86,8 @@ public class LogExpress {
 
 	/**
 	 * Updates the logger configuration.
-	 * 로거 구성을 업데이트합니다.
+	 * 로거 구성을 업데이트합니다. 이 메서드 인자로 들어온 설정 객체는 재활용 할 수 없습니다.
+	 *
 	 *
 	 * @param configure the new configuration
 	 *                  새로운 구성
