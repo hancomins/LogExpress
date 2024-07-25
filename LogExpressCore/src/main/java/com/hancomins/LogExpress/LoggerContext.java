@@ -93,6 +93,14 @@ public class LoggerContext {
 		absLineQueue = LineQueueFactory.create(configuration.isNonBlockingQueue() ? LineQueueFactory.LineQueueType.NonBlocking : LineQueueFactory.LineQueueType.Blocking,
 				configuration.getQueueSize());
 		logWriter = new WriteWorker(configuration);
+		if(configuration.isAutoShutdown()) {
+			logWriter.setOnRequestShutdown(new Runnable() {
+				@Override
+				public void run() {
+					LogExpress.shutdown();
+				}
+			});
+		}
 		logWriter.setLineQueue(absLineQueue);
 	}
 	

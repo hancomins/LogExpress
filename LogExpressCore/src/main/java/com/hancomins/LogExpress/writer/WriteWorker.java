@@ -12,7 +12,6 @@ import com.hancomins.LogExpress.InLogger;
 import com.hancomins.LogExpress.Line;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -36,6 +35,7 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 	private WriterRackStruct[] writerRackArray = null;
 	private WriterRackStruct defaultWriterRack;
 	private OnTerminatedListener onTerminatedListener = null;
+	private Runnable onCallShutdown = null;
 
 
 
@@ -291,7 +291,7 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 
 		setUncaughtExceptionHandler();
 
-		boolean callShutdown = false;
+		//boolean callShutdown = false;
 
 		while(isAlive) {
 			Line line = lineQueue.pop();
@@ -304,7 +304,7 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 			}
 
 			if(line == null) {
-				if(onTerminatedListener != null || callShutdown) {
+				if(onTerminatedListener != null ) {
 					endLoop();
 					return;
 				}
@@ -317,10 +317,10 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 							}
 							isWait = true;
 							if(isAutoShutdown && !isMainThread()) {
-								callShutdown = true;
 								if(InLogger.isEnabled()) {
 									InLogger.INFO("Thread id 1 has ended. WriteWorker in AutoShutdown (" + getName() + ")");
 								}
+								shutdownAsync();
 								continue;
 							}
 							monitor.wait(waitTimeout);
@@ -349,6 +349,21 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 			line = null;
 		}
 		endLoop();
+	}
+
+	private void shutdownAsync() {
+		Thread thread = new Thread() {
+			@Override
+			public void run() {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ignored) {}
+                if(onCallShutdown != null) {
+					onCallShutdown.run();
+				}
+			}
+		};
+		thread.start();
 	}
 
 	private void endLoop() {
@@ -492,7 +507,11 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 		return null;
 	}
 	
-	
+	public void setOnRequestShutdown(Runnable onCallShutdown) {
+		this.onCallShutdown = onCallShutdown;
+	}
+
+
 	
 	public void end(OnTerminatedListener onTerminatedListener) {
 		if(!isAlive() || !isAlive) {
