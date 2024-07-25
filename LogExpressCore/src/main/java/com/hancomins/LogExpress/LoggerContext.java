@@ -14,7 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class LoggerContext {
+class LoggerContext {
 	
 	
 	private final AtomicReference<LinkedHashMap<String, BaseLogger>> markerLoggerMapRef = new AtomicReference<LinkedHashMap<String,BaseLogger>>(new LinkedHashMap<String, BaseLogger>());

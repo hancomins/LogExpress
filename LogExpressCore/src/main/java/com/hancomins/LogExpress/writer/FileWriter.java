@@ -10,9 +10,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 데이터를 파일에 버퍼링하고 크기 관리를 통해 쓰기 위한 클래스입니다.
- * @author ice3x2@hancomins.com
+ * @author beom
  */
-public class FileWriter implements IFileWriter {
+public class FileWriter {
 
 	/**
 	 * 최소 버퍼 크기
@@ -220,8 +220,8 @@ public class FileWriter implements IFileWriter {
 		if(this == obj) {
 			return true;
 		}
-		if (obj instanceof IFileWriter) {
-			File destFile = ((IFileWriter) obj).getFile();
+		if (obj instanceof FileWriter) {
+			File destFile = ((FileWriter) obj).getFile();
 			if (file == null && destFile == null) {
 				return super.equals(obj);
 			}

@@ -5,7 +5,7 @@ import com.hancomins.LogExpress.util.SysTool;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 
-public class LineCombiner {
+class LineCombiner {
 
     private final LineFormatter.FormatItem[] formatItems;
 

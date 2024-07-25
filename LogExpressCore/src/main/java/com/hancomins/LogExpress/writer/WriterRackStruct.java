@@ -6,6 +6,9 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 final class WriterRackStruct {
+
+	private final static long ONE_DAY_MILLIS = 1000 * 60 * 60 * 24;
+
 	final String marker;
 	final int fileMaxSize;
 	final int fileBufferSize;
@@ -54,16 +57,12 @@ final class WriterRackStruct {
 	}
 
 
-	final static long ONE_DAY_MILLIS = 1000 * 60 * 60 * 24;
 
 
 
 
 
 	// 현재 시간에 대한 TimeZone의 offset을 계산합니다.
-
-
-
 	private static long addDate(final long current, int add) {
 		// 현재 시간을 밀리초 단위로 가져옵니다.
         TimeZone timeZone = TimeZone.getDefault();
