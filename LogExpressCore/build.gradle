@@ -1,30 +1,20 @@
-
-
 buildscript {
+
     dependencies {
-        //classpath "io.github.gradle-nexus:publish-plugin:1.1.0"
-        classpath 'org.bouncycastle:bcpg-jdk15on:1.68'
-        classpath 'org.bouncycastle:bcpkix-jdk15on:1.68'
+        classpath 'org.bouncycastle:bcpg-jdk15on:1.70'
+        classpath 'org.bouncycastle:bcpg-jdk15on:1.70'
+        def path = new File("${projectDir}/../libs-build").getCanonicalFile().getAbsolutePath();
+
+        classpath fileTree(dir:path, include: ['*.jar'])
     }
 }
-
-
-import java.security.MessageDigest
-import java.nio.file.Files
-import java.nio.file.Paths
-
-import org.bouncycastle.bcpg.ArmoredOutputStream
-import org.bouncycastle.openpgp.*
-import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentSignerBuilder
-import org.bouncycastle.openpgp.operator.jcajce.JcaPGPDigestCalculatorProviderBuilder
-import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyDecryptorBuilder
-import org.bouncycastle.openpgp.operator.jcajce.JcaKeyFingerprintCalculator
+import com.hancomins.util.JarSign
+import com.hancomins.util.PomBuilder
 
 
 plugins {
     id 'java'
     id 'distribution'
-
 }
 
 
@@ -40,20 +30,14 @@ compileJava {
 }
 
 compileJava.options.encoding = 'UTF-8'
+File signPropsFile = project.rootProject.file("${projectDir}/../sign.properties")
+        .getCanonicalFile();
+Properties signProperties = new Properties()
+if (signPropsFile.exists()) {
+    try(InputStream inputStream = new FileInputStream(signPropsFile)) {
+        signProperties.load(inputStream)
+    }
 
-
-def signingKeyId = ''
-def signingPassword = ''
-def secretKeyRingFile = ''
-
-File secretPropsFile = project.rootProject.file('publish.properties')
-def hasSecretProps = secretPropsFile.exists()
-if (hasSecretProps) {
-    Properties p = new Properties()
-    p.load(new FileInputStream(secretPropsFile))
-    signingKeyId =  p.getProperty('signing.keyId', '')
-    signingPassword = p.getProperty('signing.password', '')
-    secretKeyRingFile = p.getProperty('signing.secretKeyRingFile', '')
 }
 
 
@@ -105,45 +89,6 @@ javadoc {
     }
 }
 
-/**
- * 주어진 파일 경로의 파일에 대한 MD5 해시를 계산하고,
- * 파일명 뒤에 ".md5"를 붙인 파일에 저장합니다.
- *
- * @param filePath 원본 파일 경로
- */
-def generateMd5File(String filePath) {
-    // 원본 파일의 바이트 배열 읽기
-    byte[] fileBytes = Files.readAllBytes(Paths.get(filePath))
-
-    // MD5 해시 계산
-    MessageDigest md = MessageDigest.getInstance("MD5")
-    byte[] md5Bytes = md.digest(fileBytes)
-
-    // 바이트 배열을 16진수 문자열로 변환
-    def md5Hex = md5Bytes.collect { String.format("%02x", it) }.join()
-
-    // 결과를 파일명 뒤에 ".md5" 확장자로 붙인 파일에 저장
-    def md5FilePath = filePath + ".md5"
-    def md5File = new File(md5FilePath)
-    md5File.text = md5Hex
-}
-
-def generateSha1File(String filePath) {
-    // 원본 파일의 바이트 배열 읽기
-    byte[] fileBytes = Files.readAllBytes(Paths.get(filePath))
-
-    // SHA-1 해시 계산
-    MessageDigest md = MessageDigest.getInstance("SHA-1")
-    byte[] sha1Bytes = md.digest(fileBytes)
-
-    // 바이트 배열을 16진수 문자열로 변환
-    def sha1Hex = sha1Bytes.collect { String.format("%02x", it) }.join()
-
-    // 결과를 파일명 뒤에 ".sha1" 확장자로 붙인 파일에 저장
-    def sha1FilePath = filePath + ".sha1"
-    def sha1File = new File(sha1FilePath)
-    sha1File.text = sha1Hex
-}
 
 
 jar {
@@ -152,7 +97,7 @@ jar {
 
     manifest {
         attributes(
-                'Implementation-Title': ':LogExpress',       // 프로젝트 제목
+                'Implementation-Title': 'LogExpress',       // 프로젝트 제목
                 'Implementation-Version': project.version,          // 프로젝트 버전
                 'Implementation-Vendor': 'HANCOM INNOSTREAM',      // 제작자 또는 회사 이름
                 'Built-By': 'Sungbeom HONG', // 빌드한 사람
@@ -167,13 +112,9 @@ jar {
 
     doLast {
         def jarFilePath = archiveFile.get().asFile.path
-        generateMd5File(jarFilePath)
-        generateSha1File(jarFilePath)
-        pgpSignFile(jarFilePath, jarFilePath + ".asc",secretKeyRingFile,signingKeyId, signingPassword)
+        JarSign.sign(jarFilePath, signProperties);
     }
 }
-
-
 
 
 task jarJavadoc(type: Jar, dependsOn: javadoc) {
@@ -200,9 +141,7 @@ task jarJavadoc(type: Jar, dependsOn: javadoc) {
 
     doLast {
         def jarFilePath = archiveFile.get().asFile.path
-        generateMd5File(jarFilePath)
-        generateSha1File(jarFilePath)
-        pgpSignFile(jarFilePath, jarFilePath + ".asc",secretKeyRingFile, signingKeyId, signingPassword)
+        JarSign.sign(jarFilePath, signProperties);
     }
 }
 
@@ -231,21 +170,33 @@ task jarSources(type: Jar) {
 
     doLast {
         def jarFilePath = archiveFile.get().asFile.path
-        generateMd5File(jarFilePath)
-        generateSha1File(jarFilePath)
-        pgpSignFile(jarFilePath, jarFilePath + ".asc",secretKeyRingFile, signingKeyId, signingPassword)
+        JarSign.sign(jarFilePath, signProperties);
     }
 }
 
-task updatePom {
+task makePom {
     group = 'build'
     doLast {
-        def baseFile = file("$projectDir/pom.base")
-        def pomFile = file("$buildDir/libs/logexpress-${version}.pom")
-        pomFile.text = baseFile.text.replace("{version}", version)
-        generateMd5File(pomFile.getAbsolutePath())
-        generateSha1File(pomFile.getAbsolutePath())
-        pgpSignFile(pomFile.getAbsolutePath(), pomFile.getAbsolutePath() + ".asc",secretKeyRingFile, signingKeyId, signingPassword)
+        def pomFilePath = "${buildDir}/libs/logexpress-${version}.pom"
+
+        PomBuilder.builder()
+        PomBuilder.Developer developer = PomBuilder.newDeveloper("Sungbeom Hong")
+                .setEmail("ice3x2@gmail.com")
+                .setOrganization("HANCOM INNOSTREAM")
+                .setOrganizationUrl("https://github.com/hancomins").setId("ice3x2");
+
+        PomBuilder.SCM scm = PomBuilder.newSCM("hancomins/LogExpress");
+
+        PomBuilder.builder().setGroupId("io.github.hancomins")
+                .setArtifactId("logexpress")
+                .setVersion("${version}")
+                .setName("LogExpress")
+                .setUrl("https://github.com/hancomins/LogExpress")
+                .addDeveloper(developer)
+                .setScm(scm)
+                .writeFile(pomFilePath);
+
+        JarSign.sign(pomFilePath, signProperties);
     }
 }
 
@@ -254,7 +205,7 @@ distTar.mustRunAfter(clean)
 build.dependsOn(clean)
 build.dependsOn(jarJavadoc)
 build.dependsOn(jarSources)
-build.dependsOn(updatePom)
+
 
 repositories {
     mavenCentral()
@@ -270,8 +221,9 @@ dependencies {
 
 
 task dist() {
-    group = 'build'
+    group = 'distribution'
     dependsOn build
+    dependsOn makePom
     doLast {
         def sourceDir = new File("${buildDir}/libs")
         def targetDir = new File("${buildDir}/dist/io/github/hancomins/logexpress/${version}")
@@ -313,75 +265,3 @@ task dist() {
     }
 }
 
-
-
-// PGP 서명을 수행하는 함수
-def pgpSignFile(String inputFilePath, String outputFilePath, String secretKeyRingFilePath, String keyId, String passphrase) {
-    boolean existSignSources = true
-    if(keyId == null || keyId.isEmpty()) {
-        System.err.println("PGP Sign File: ${inputFilePath} => No key ID provided for signing. Skipping PGP signing.")
-        existSignSources = false
-    }
-    if(passphrase == null || passphrase.isEmpty()) {
-        System.err.println("PGP Sign File: ${inputFilePath} => No passphrase provided for signing. Skipping PGP signing.")
-        existSignSources = false
-    }
-    if(secretKeyRingFilePath == null || secretKeyRingFilePath.isEmpty()) {
-        System.err.println("PGP Sign File: ${inputFilePath} => No secret key ring file provided for signing. Skipping PGP signing.")
-        existSignSources = false
-    }
-    if(!existSignSources) {
-        return
-    }
-
-    if(keyId.length() > 16) {
-        keyId = keyId.substring(keyId.length() - 16)
-    }
-    keyId = keyId.toLowerCase()
-
-    // 비밀 키 링 파일 읽기
-    def secretKeyRingFile = new File(secretKeyRingFilePath)
-    if (!secretKeyRingFile.exists()) {
-        throw new IllegalArgumentException("Secret key ring file not found: $secretKeyRingFilePath")
-    }
-
-    def pgpSecretKeys = new PGPSecretKeyRingCollection(
-            PGPUtil.getDecoderStream(new FileInputStream(secretKeyRingFile)),
-            new JcaKeyFingerprintCalculator()
-    )
-
-    // 비밀 키 추출
-    def longKeyId = Long.parseLong(keyId, 16) // 16진수 키 ID 변환
-    def secretKey = pgpSecretKeys.getSecretKey(longKeyId)
-    if (secretKey == null) {
-        throw new IllegalArgumentException("No secret key found with key ID: $keyId")
-    }
-
-    def privateKey = secretKey.extractPrivateKey(
-            new JcePBESecretKeyDecryptorBuilder(new JcaPGPDigestCalculatorProviderBuilder().build())
-                    .build(passphrase.toCharArray())
-    )
-
-    // 파일 서명
-    new FileInputStream(inputFilePath).withCloseable { fis ->
-        new FileOutputStream(outputFilePath).withCloseable { fos ->
-            new ArmoredOutputStream(fos).withCloseable { aos ->
-                def signerBuilder = new JcaPGPContentSignerBuilder(
-                        secretKey.getPublicKey().getAlgorithm(), PGPUtil.SHA256).setProvider("BC")
-
-                def signatureGenerator = new PGPSignatureGenerator(signerBuilder)
-                signatureGenerator.init(PGPSignature.BINARY_DOCUMENT, privateKey)
-
-                byte[] buffer = new byte[1024]
-                int bytesRead
-                while ((bytesRead = fis.read(buffer)) != -1) {
-                    signatureGenerator.update(buffer, 0, bytesRead)
-                }
-
-                signatureGenerator.generate().encode(aos)
-            }
-        }
-    }
-
-    println("File signed and saved to: $outputFilePath")
-}

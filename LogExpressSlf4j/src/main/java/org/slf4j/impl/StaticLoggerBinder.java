@@ -1,6 +1,6 @@
 package org.slf4j.impl;
 
-import com.clipsoft.LogExpress.slf4j.LogExpressLoggerFactory;
+import com.hancomins.logexpress.slf4j.LogExpressLoggerFactory;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.spi.LoggerFactoryBinder;
 
@@ -46,4 +46,6 @@ public class StaticLoggerBinder implements LoggerFactoryBinder {
             throw new RuntimeException(e);
         }
     }
+
+
 }
