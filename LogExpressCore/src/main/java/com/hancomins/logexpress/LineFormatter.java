@@ -37,6 +37,7 @@ class LineFormatter {
 	static LineFormatter parse(String format) {
 		final int MODE_TEXT = 0;
 		final int MODE_IN_TYPE = 1;
+		;
 
 		StringBuilder itemBuffer = new StringBuilder();
 		ArrayList<FormatItem> items = new ArrayList<FormatItem>();
@@ -58,22 +59,30 @@ class LineFormatter {
 
 
 			else if(ch == '}' && mode == MODE_IN_TYPE) {
+
+
 				itemBuffer.append(ch);
 				String itemType = itemBuffer.toString();
 
 				boolean appended = false; 
  				for(int ti = 0; ti < typeNames.length; ++ti) {
-					if("time".equalsIgnoreCase(typeNames[ti]) && itemType.matches("[{][\\s]{0,}(time[:])(?i).+[\\s]{0,}[}]")) {
-						String pattern = itemType.replaceAll("[{][\\s]{0,}(time[:]{1,})(?i)[\\s]{0,}", "").replaceAll("[\\s]{0,}[}]", "").trim();
-						items.add(FormatItem.newTimeType(pattern));
+					if("time".equalsIgnoreCase(typeNames[ti]) && itemType.matches("[{][\\s]{0,}(time[:])(?i).+[\\s]{0,}(@[A-Za-z]{4,})?[}]")) {
+						Level level = findLevelQualifier(itemType);
+						String pattern = itemType.replaceAll("[{][\\s]{0,}(time[:]{1,})(?i)[\\s]{0,}", "").replaceAll("[\\s]{0,}(@[A-Za-z]{4,})?[}]", "").trim();
+						items.add(FormatItem.newTimeType(pattern).setLevel(level));
 						appended = true;
 						break;
 					}
-					else if(itemType.matches("[{][\\s]{0,}(" + typeNames[ti]  +  ")(?i)[\\s]{0,}(\\[[' ']{0,}[0-9]{0,}[' ']{0,1}[:][' ']{0,}[-]{0,1}[0-9]{0,}[' ']{0,}\\]){0,1}[}]")) {
+					else if(itemType.matches("[{][\\s]{0,}(" + typeNames[ti]  +  ")(?i)[\\s]{0,}(\\[[' ']{0,}[0-9]{0,}[' ']{0,1}[:][' ']{0,}[-]{0,1}[0-9]{0,}[' ']{0,}\\]){0,1}(@[A-Za-z]{4,})?[}]")) {
 						itemType = itemType.replace("{", "").replace("}", "");
+						Level level = findLevelQualifier(itemType);
+						if(level != null) {
+							itemType = itemType.contains("@") ? itemType.substring(0, itemType.indexOf('@')) : itemType;
+						}
 
 						Matcher matcher = PATTERN_LEN_RANGE.matcher(itemType);
 						LenRange lenRange = null;
+
 						while(matcher.find()) {
 							String lenRangeStr = matcher.group();
 							itemType = itemType.replace(lenRangeStr, "");
@@ -82,6 +91,7 @@ class LineFormatter {
 
 						ItemType type = ItemType.typeNameOf(itemType.trim());
 						FormatItem item = FormatItem.newByType(type);
+						item.setLevel(level);
 						item.lenRange = lenRange;
 						items.add(item);
 						if(type == ItemType.Class || type == ItemType.Method || type == ItemType.ClassName || type == ItemType.Line || type == ItemType.File) {
@@ -124,6 +134,25 @@ class LineFormatter {
 		formatter.lineCombiner = new LineCombiner(formatter.formatItems);
 		return formatter;
 	}
+
+	private static Level findLevelQualifier(String format) {
+		Level level = Level.TRACE;
+		if(format.contains("@")) {
+			String[] parts = format.split("@");
+			if(parts.length == 2) {
+				String part = parts[1];
+				if(part.endsWith("}")) {
+					part = part.substring(0, part.length() - 1);
+				}
+				level = Level.stringValueOrNull(part);
+				if(level != null) {
+					return level;
+				}
+			}
+		}
+		return level;
+	}
+
 
 	/**
 	 * "[최소길이:최대길이]" 문자열을 파싱하여 LenRange의 객체를 반환하는 메서드.
@@ -238,8 +267,13 @@ class LineFormatter {
 		ItemType type = ItemType.Text;
 		SimpleDateFormat dateFormat = null;
 		LenRange lenRange = null;
+		Level level = null;
 
 
+		public FormatItem setLevel(Level level) {
+			this.level = level == Level.TRACE ? null : level;
+			return this;
+		}
 
 
 		private static FormatItem newTimeType(String pattern) {

@@ -63,8 +63,13 @@ class LineCombiner {
 
     public CharSequence combine(Line line) {
         StringBuilder stringBuilder = new StringBuilder();
+        Level level = line.getLevel();
         for(int i = 0, n = formatItems.length; i < n; ++i) {
             LineFormatter.FormatItem item = formatItems[i];
+            if(!level.isLowerThan(item.level)) {
+                continue;
+            }
+
             switch(item.type) {
                 case Text:
                     stringBuilder.append(item.text);
