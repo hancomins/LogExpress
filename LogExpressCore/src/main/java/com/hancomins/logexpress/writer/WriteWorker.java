@@ -436,7 +436,7 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 		FileWriter oldFileWriter = rack.fileWriter;
 		rack.fileWriter = null;
 		try {
-			File newFile = rack.fileNamePattern.toFileOverMaxSize(rack.marker, rack.fileMaxSize);
+			File newFile = rack.fileNamePattern.toFileOverMaxSize(rack.marker, rack.getFileMaxSize());
 			makeDirParentsOf(newFile);
 			if(isDebug) {
 				 InLogger.INFO("Write to the next file. `" + newFile + "` (" + getName() + ")" );
@@ -453,7 +453,7 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 	
 	private void cleanupLogFileByHistory(WriterRackStruct rack) {		
 		OldFileCleaner cleaner = new OldFileCleaner(rack.fileNamePattern, SysTool.pid(), SysTool.hostname(),rack.marker);
-		cleaner.clean(rack.history);
+		cleaner.clean(rack.getHistory());
 	}
 	
 	
@@ -493,14 +493,18 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 	}
 
 	private void injectFileWriterToRack(WriterRackStruct rack, File newFile) throws IOException {
-		FileWriter fileWriter = findFileWriter(newFile);
-		rack.fileWriter = fileWriter == null ? new FileWriter(newFile, rack.fileBufferSize, rack.fileMaxSize) : fileWriter.addReference();
+		FileWriter fileWriter = findFileWriter(rack,newFile);
+		rack.fileWriter = fileWriter == null ? new FileWriter(newFile, rack.getFileBufferSize(), rack.getFileMaxSize()) : fileWriter.addReference();
 	}
 
 
-	private FileWriter findFileWriter(File file) {
+	private FileWriter findFileWriter(WriterRackStruct originRack, File file) {
 		for(WriterRackStruct rack : writerMap.values()) {
+
+
+
 			if(rack.fileWriter != null && !rack.fileWriter.isClosed() && rack.fileWriter.getFile().equals(file)) {
+                rack.syncFileWriteOptionFromMoreLargeValue(originRack);
 				return rack.fileWriter;
 			}
 		}

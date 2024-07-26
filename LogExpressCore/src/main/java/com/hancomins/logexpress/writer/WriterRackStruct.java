@@ -9,9 +9,9 @@ final class WriterRackStruct {
 	private final static long ONE_DAY_MILLIS = 1000 * 60 * 60 * 24;
 
 	final String marker;
-	final int fileMaxSize;
-	final int fileBufferSize;
-	final int history;
+	private int fileMaxSize;
+	private int fileBufferSize;
+	private int history;
 	long today;
 	long tomorrow;
 	Charset charset;
@@ -19,6 +19,48 @@ final class WriterRackStruct {
 	
 	boolean isWriteConsole = false;
 	FileWriter fileWriter;
+
+	int getFileMaxSize() {
+		return fileMaxSize;
+	}
+
+	void setFileMaxSize(int fileMaxSize) {
+		this.fileMaxSize = fileMaxSize;
+	}
+
+	int getFileBufferSize() {
+		return fileBufferSize;
+	}
+
+	void setFileBufferSize(int fileBufferSize) {
+		this.fileBufferSize = fileBufferSize;
+	}
+
+	int getHistory() {
+		return history;
+	}
+
+	void setHistory(int history) {
+		this.history = history;
+	}
+
+	void syncFileWriteOptionFromMoreLargeValue(WriterRackStruct writerRackStruct) {
+		int newHistory = Math.max(history, writerRackStruct.history);
+		int newFileMaxSize = Math.max(fileMaxSize, writerRackStruct.fileMaxSize);
+		int newFileBufferSize = Math.max(fileBufferSize, writerRackStruct.fileBufferSize);
+		if(this.history <= 0 || writerRackStruct.history <= 0) {
+			newHistory = 0;
+		}
+		if(this.fileMaxSize <= 0 || writerRackStruct.fileMaxSize <= 0) {
+			newFileMaxSize = 0;
+		}
+		this.history = newHistory;
+		this.fileMaxSize = newFileMaxSize;
+		this.fileBufferSize = newFileBufferSize;
+		writerRackStruct.history = newHistory;
+		writerRackStruct.fileMaxSize = newFileMaxSize;
+		writerRackStruct.fileBufferSize = newFileBufferSize;
+	}
 
 
 	@Override
