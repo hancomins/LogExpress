@@ -1,9 +1,9 @@
-package com.clipsoft.LogExpress.slf4j;
+package com.hancomins.logexpress.slf4j;
 
-import com.clipsoft.LogExpress.BaseLogger;
-import com.clipsoft.LogExpress.Level;
-import com.clipsoft.LogExpress.LogExpress;
-import com.clipsoft.LogExpress.MessageFormatter;
+import com.hancomins.logexpress.BaseLogger;
+import com.hancomins.logexpress.Level;
+import com.hancomins.logexpress.LogExpress;
+import com.hancomins.logexpress.MessageFormatter;
 import org.slf4j.Marker;
 import org.slf4j.spi.LocationAwareLogger;
 

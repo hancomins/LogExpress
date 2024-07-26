@@ -8,16 +8,16 @@ import java.io.*;
 import java.util.ArrayList;
 
 /**
- * logexpress 설정을 관리하는 클래스입니다.
- * 설정이 닫힌 후에는 변경할 수 없습니다.
- * 설정이 열려있는지 확인하려면 {@link #isClosed()} 메서드를 사용합니다.
- * 변경된 설정은 {@link LogExpress#updateConfig(Configuration)} 메서드를 통해 적용할 수 있습니다.
- * This class manages the logexpress configuration.
- * Once closed, the configuration cannot be changed.
- * Use {@link #isClosed()} method to check if the configuration is closed.
+ * logexpress 설정을 관리하는 클래스입니다.<br>
+ * 설정이 닫힌 후에는 변경할 수 없습니다.<br>
+ * 설정이 열려있는지 확인하려면 {@link #isClosed()} 메서드를 사용합니다.<br>
+ * 변경된 설정은 {@link LogExpress#updateConfig(Configuration)} 메서드를 통해 적용할 수 있습니다.<br>
+ * This class manages the logexpress configuration.<br>
+ * Once closed, the configuration cannot be changed.<br>
+ * Use {@link #isClosed()} method to check if the configuration is closed.<br>
  * Apply changes using the {@link LogExpress#updateConfig(Configuration)} method.
  *
- * Author: Beom
+ * @author : Beom
  */
 @SuppressWarnings("unused")
 public final class Configuration implements Cloneable {
@@ -50,7 +50,7 @@ public final class Configuration implements Cloneable {
 	private String staticVariableReplacedDefaultMarker = null;
 
 	/**
-	 * 모든 WriterOption을 초기화합니다.
+	 * 모든 WriterOption을 초기화합니다.<br>
 	 * Initializes all WriterOptions.
 	 */
 	public void clearWriters() {
@@ -59,12 +59,12 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 설정이 닫혔는지 여부를 반환합니다.
-	 * 닫힌 설정은 변경할 수 없습니다.
-	 * Returns whether the configuration is closed.
+	 * 설정이 닫혔는지 여부를 반환합니다.<br>
+	 * 닫힌 설정은 변경할 수 없습니다.<br>
+	 * Returns whether the configuration is closed.<br>
 	 * A closed configuration cannot be changed.
 	 *
-	 * @return 설정이 닫혔는지 여부
+	 * @return 설정이 닫혔는지 여부<br>
 	 *         whether the configuration is closed
 	 */
 	public boolean isClosed() {
@@ -72,12 +72,12 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 설정을 복제합니다.
-	 * 닫힌 설정이라면 새로운 설정을 생성하여 반환합니다.
-	 * Clones the configuration.
+	 * 설정을 복제합니다.<br>
+	 * 닫힌 설정이라면 새로운 설정을 생성하여 반환합니다.<br>
+	 * Clones the configuration.<br>
 	 * If the configuration is closed, a new configuration is created and returned.
 	 *
-	 * @return 설정 복사본
+	 * @return 설정 복사본<br>
 	 *         cloned configuration
 	 */
 	@Override
@@ -110,12 +110,12 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 설정을 ini 파일로부터 초기화합니다.
+	 * 설정을 ini 파일로부터 초기화합니다.<br>
 	 * Initializes the configuration from an ini file.
 	 *
-	 * @param path 설정 파일 경로. ini 파일 형식을 사용합니다.
+	 * @param path 설정 파일 경로. ini 파일 형식을 사용합니다.<br>
 	 *             path to the configuration file, in ini format
-	 * @throws IOException 설정 파일을 읽는 도중 오류가 발생했을 때
+	 * @throws IOException 설정 파일을 읽는 도중 오류가 발생했을 때<br>
 	 *                     if an error occurs while reading the configuration file
 	 */
 	Configuration(String path) throws IOException {
@@ -124,12 +124,12 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 설정을 ini 파일로부터 초기화합니다.
+	 * 설정을 ini 파일로부터 초기화합니다.<br>
 	 * Initializes the configuration from an ini file.
 	 *
-	 * @param file 설정 파일. ini 파일 형식을 사용합니다.
+	 * @param file 설정 파일. ini 파일 형식을 사용합니다.<br>
 	 *             the configuration file, in ini format
-	 * @throws IOException 설정 파일을 읽는 도중 오류가 발생했을 때
+	 * @throws IOException 설정 파일을 읽는 도중 오류가 발생했을 때<br>
 	 *                     if an error occurs while reading the configuration file
 	 */
 	Configuration(File file) throws IOException {
@@ -137,12 +137,12 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 설정을 Reader로부터 읽어온 문자열 데이터로 초기화합니다.
+	 * 설정을 Reader로부터 읽어온 문자열 데이터로 초기화합니다.<br>
 	 * Initializes the configuration from string data read from a Reader.
 	 *
-	 * @param reader 설정 데이터를 읽는 Reader
+	 * @param reader 설정 데이터를 읽는 Reader<br>
 	 *               Reader to read the configuration data
-	 * @throws IOException 설정 데이터를 읽는 도중 오류가 발생했을 때
+	 * @throws IOException 설정 데이터를 읽는 도중 오류가 발생했을 때<br>
 	 *                     if an error occurs while reading the configuration data
 	 */
 	Configuration(Reader reader) throws IOException {
@@ -150,16 +150,16 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 설정을 ini 파일로부터 초기화하고 생성하여 반환합니다.
-	 * 주의! 잘못된 설정 포맷을 사용하여도 예외가 발생하지 않으며, 기본 설정 값으로 초기화됩니다.
-	 * Initializes and returns the configuration from an ini file.
+	 * 설정을 ini 파일로부터 초기화하고 생성하여 반환합니다.<br>
+	 * 주의! 잘못된 설정 포맷을 사용하여도 예외가 발생하지 않으며, 기본 설정 값으로 초기화됩니다.<br>
+	 * Initializes and returns the configuration from an ini file.<br>
 	 * Note: If an incorrect configuration format is used, it will be initialized with default values without throwing an exception.
 	 *
-	 * @param file 설정 파일. ini 파일 형식을 사용합니다.
+	 * @param file 설정 파일. ini 파일 형식을 사용합니다.<br>
 	 *             the configuration file, in ini format
-	 * @return 설정 객체
+	 * @return 설정 객체<br>
 	 *         the configuration object
-	 * @throws IOException 설정 파일을 읽는 도중 오류가 발생했을 때
+	 * @throws IOException 설정 파일을 읽는 도중 오류가 발생했을 때<br>
 	 *                     if an error occurs while reading the configuration file
 	 */
 	public static Configuration newConfiguration(File file) throws IOException {
@@ -167,16 +167,16 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 설정을 Reader로부터 읽어온 문자열 데이터로 초기화하고 생성하여 반환합니다.
-	 * 주의! 잘못된 설정 포맷을 사용하여도 예외가 발생하지 않으며, 기본 설정 값으로 초기화됩니다.
-	 * Initializes and returns the configuration from string data read from a Reader.
+	 * 설정을 Reader로부터 읽어온 문자열 데이터로 초기화하고 생성하여 반환합니다.<br>
+	 * 주의! 잘못된 설정 포맷을 사용하여도 예외가 발생하지 않으며, 기본 설정 값으로 초기화됩니다.<br>
+	 * Initializes and returns the configuration from string data read from a Reader.<br>
 	 * Note: If an incorrect configuration format is used, it will be initialized with default values without throwing an exception.
 	 *
-	 * @param reader 설정 데이터를 읽는 Reader
+	 * @param reader 설정 데이터를 읽는 Reader<br>
 	 *               Reader to read the configuration data
-	 * @return 설정 객체
+	 * @return 설정 객체<br>
 	 *         the configuration object
-	 * @throws IOException 설정 데이터를 읽는 도중 오류가 발생했을 때
+	 * @throws IOException 설정 데이터를 읽는 도중 오류가 발생했을 때<br>
 	 *                     if an error occurs while reading the configuration data
 	 */
 	public static Configuration newConfiguration(Reader reader) throws IOException {
@@ -184,16 +184,16 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 설정을 ini 파일로부터 초기화하고 생성하여 반환합니다.
-	 * 주의! 잘못된 설정 포맷을 사용하여도 예외가 발생하지 않으며, 기본 설정 값으로 초기화됩니다.
-	 * Initializes and returns the configuration from an ini file.
+	 * 설정을 ini 파일로부터 초기화하고 생성하여 반환합니다.<br>
+	 * 주의! 잘못된 설정 포맷을 사용하여도 예외가 발생하지 않으며, 기본 설정 값으로 초기화됩니다.<br>
+	 * Initializes and returns the configuration from an ini file.<br>
 	 * Note: If an incorrect configuration format is used, it will be initialized with default values without throwing an exception.
 	 *
-	 * @param path 설정 파일 경로. ini 파일 형식을 사용합니다.
+	 * @param path 설정 파일 경로. ini 파일 형식을 사용합니다.<br>
 	 *             path to the configuration file, in ini format
-	 * @return 설정 객체
+	 * @return 설정 객체<br>
 	 *         the configuration object
-	 * @throws IOException 설정 파일을 읽는 도중 오류가 발생했을 때
+	 * @throws IOException 설정 파일을 읽는 도중 오류가 발생했을 때<br>
 	 *                     if an error occurs while reading the configuration file
 	 */
 	public static Configuration newConfiguration(String path) throws IOException {
@@ -201,10 +201,10 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 기본 설정 값을 사용하여 설정 객체를 생성하여 반환합니다.
+	 * 기본 설정 값을 사용하여 설정 객체를 생성하여 반환합니다.<br>
 	 * Creates and returns the configuration object with default settings.
 	 *
-	 * @return 설정 객체
+	 * @return 설정 객체<br>
 	 *         the configuration object
 	 */
 	public static Configuration newConfiguration() {
@@ -212,12 +212,12 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 기본 설정 파일을 사용하여 설정 객체를 생성하여 반환합니다.
-	 * 주의! 설정 파일이 없거나 읽을 수 없을 때는 기본 설정 값으로 초기화됩니다.
-	 * Creates and returns the configuration object using the default configuration file.
+	 * 기본 설정 파일을 사용하여 설정 객체를 생성하여 반환합니다.<br>
+	 * 주의! 설정 파일이 없거나 읽을 수 없을 때는 기본 설정 값으로 초기화됩니다.<br>
+	 * Creates and returns the configuration object using the default configuration file.<br>
 	 * Note: If the configuration file is missing or unreadable, it initializes with default values.
 	 *
-	 * @return 설정 객체
+	 * @return 설정 객체<br>
 	 *         the configuration object
 	 */
 	public static Configuration fromDefaultConfigurationFile() {
@@ -275,10 +275,10 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 로그 Writer 스레드가 데몬 스레드인지 여부를 설정합니다.
+	 * 로그 Writer 스레드가 데몬 스레드인지 여부를 설정합니다.<br>
 	 * Sets whether the log Writer thread is a daemon thread.
 	 *
-	 * @param isDaemonThread 데몬 스레드 여부
+	 * @param isDaemonThread 데몬 스레드 여부<br>
 	 *                       whether it is a daemon thread
 	 */
 	public void setDaemonThread(boolean isDaemonThread) {
@@ -286,10 +286,10 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 로그 Writer 스레드를 데몬 스레드로 설정했는지 여부를 반환합니다.
+	 * 로그 Writer 스레드를 데몬 스레드로 설정했는지 여부를 반환합니다.<br>
 	 * Returns whether the log Writer thread is set as a daemon thread.
 	 *
-	 * @return 데몬 스레드 설정 여부
+	 * @return 데몬 스레드 설정 여부<br>
 	 *         whether the daemon thread is set
 	 */
 	public boolean isDaemonThread() {
@@ -297,10 +297,10 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 기본 마커 이름을 설정합니다.
+	 * 기본 마커 이름을 설정합니다.<br>
 	 * Sets the default marker name.
 	 *
-	 * @param defaultMarker 기본 마커 이름
+	 * @param defaultMarker 기본 마커 이름<br>
 	 *                      default marker name
 	 */
 	public void setDefaultMarker(String defaultMarker) {
@@ -309,12 +309,12 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * tid 1번을 갖는 main 스레드가 종료되면 LogExpress를 종료할지를 설정합니다.
-	 * 기본 값은 false입니다.
-	 * Sets whether to shut down logexpress when the main thread with tid 1 terminates.
+	 * tid 1번을 갖는 main 스레드가 종료되면 LogExpress를 종료할지를 설정합니다.<br>
+	 * 기본 값은 false입니다.<br>
+	 * Sets whether to shut down logexpress when the main thread with tid 1 terminates.<br>
 	 * The default value is false.
 	 *
-	 * @param enable 종료 여부
+	 * @param enable 종료 여부<br>
 	 *               whether to enable shutdown
 	 */
 	public void setAutoShutdown(boolean enable) {
@@ -323,14 +323,14 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * non-blocking 큐를 사용할지 여부를 설정합니다.
-	 * 극히 일부 환경에서 문제 발생 시 false로 설정하여 synchronized 된 큐를 사용하여 문제를 해결할 수 있습니다.
-	 * 기본 값은 true입니다.
-	 * Sets whether to use a non-blocking queue.
-	 * In rare cases, setting it to false can solve issues by using a synchronized queue.
+	 * non-blocking 큐를 사용할지 여부를 설정합니다.<br>
+	 * 극히 일부 환경에서 문제 발생 시 false로 설정하여 synchronized 된 큐를 사용하여 문제를 해결할 수 있습니다.<br>
+	 * 기본 값은 true입니다.<br>
+	 * Sets whether to use a non-blocking queue.<br>
+	 * In rare cases, setting it to false can solve issues by using a synchronized queue.<br>
 	 * The default value is true.
 	 *
-	 * @param enable non-blocking 큐 사용 여부
+	 * @param enable non-blocking 큐 사용 여부<br>
 	 *               whether to use non-blocking queue
 	 */
 	public void setNonBlockingMode(boolean enable) {
@@ -339,10 +339,10 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 설정된 non-blocking 큐 사용 여부를 반환합니다.
+	 * 설정된 non-blocking 큐 사용 여부를 반환합니다.<br>
 	 * Returns whether the non-blocking queue is enabled.
 	 *
-	 * @return non-blocking 큐 사용 여부
+	 * @return non-blocking 큐 사용 여부<br>
 	 *         whether the non-blocking queue is enabled
 	 */
 	public boolean isNonBlockingQueue() {
@@ -350,10 +350,10 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 설정된 tid 1번을 갖는 main 스레드가 종료되면 LogExpress를 종료할지 여부를 반환합니다.
+	 * 설정된 tid 1번을 갖는 main 스레드가 종료되면 LogExpress를 종료할지 여부를 반환합니다.<br>
 	 * Returns whether logexpress should shut down when the main thread with tid 1 terminates.
 	 *
-	 * @return 종료 여부
+	 * @return 종료 여부<br>
 	 *         whether to shut down
 	 */
 	public boolean isAutoShutdown() {
@@ -361,10 +361,10 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 설정된 기본 마커 이름을 반환합니다.
+	 * 설정된 기본 마커 이름을 반환합니다.<br>
 	 * Returns the default marker name.
 	 *
-	 * @return 기본 마커 이름
+	 * @return 기본 마커 이름<br>
 	 *         default marker name
 	 */
 	public String getDefaultMarker() {
@@ -391,10 +391,10 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 설정된 기본 WriterOption을 반환합니다. 설정된 기본 WriterOption이 없다면 null을 반환합니다.
+	 * 설정된 기본 WriterOption을 반환합니다. 설정된 기본 WriterOption이 없다면 null을 반환합니다.<br>
 	 * Returns the configured default WriterOption. If not configured, returns null.
 	 *
-	 * @return 설정된 기본 WriterOption
+	 * @return 설정된 기본 WriterOption<br>
 	 *         default WriterOption
 	 */
 	public WriterOption getDefaultWriterOption() {
@@ -411,18 +411,18 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * WriterWorker 스레드의 주기를 설정합니다.
-	 * WriterWorker 스레드가 주기적으로 큐를 확인하여 로그를 기록합니다.
-	 * 주기가 0 이하이면 큐가 비어있을 시 WriterWorker 스레드는 항상 대기합니다.
-	 * {@link #setAutoShutdown(boolean)} 메서드를 사용한다면 반드시 주기를 1000ms 이상으로 설정해야 합니다.
-	 * 기본 값은 3000ms입니다.
-	 * Sets the interval for the WriterWorker thread.
-	 * The WriterWorker thread periodically checks the queue to log messages.
-	 * If the interval is 0 or less, the WriterWorker thread always waits if the queue is empty.
-	 * When using the {@link #setAutoShutdown(boolean)} method, the interval must be set to 1000ms or more.
+	 * WriterWorker 스레드의 주기를 설정합니다.<br>
+	 * WriterWorker 스레드가 주기적으로 큐를 확인하여 로그를 기록합니다.<br>
+	 * 주기가 0 이하이면 큐가 비어있을 시 WriterWorker 스레드는 항상 대기합니다.<br>
+	 * {@link #setAutoShutdown(boolean)} 메서드를 사용한다면 반드시 주기를 1000ms 이상으로 설정해야 합니다.<br>
+	 * 기본 값은 3000ms입니다.<br>
+	 * Sets the interval for the WriterWorker thread.<br>
+	 * The WriterWorker thread periodically checks the queue to log messages.<br>
+	 * If the interval is 0 or less, the WriterWorker thread always waits if the queue is empty.<br>
+	 * When using the {@link #setAutoShutdown(boolean)} method, the interval must be set to 1000ms or more.<br>
 	 * The default value is 3000ms.
 	 *
-	 * @param interval ms 단위의 주기
+	 * @param interval ms 단위의 주기<br>
 	 *                 interval in milliseconds
 	 */
 	public void setWorkerInterval(int interval) {
@@ -431,10 +431,10 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 설정된 WriterWorker 스레드의 주기를 반환합니다.
+	 * 설정된 WriterWorker 스레드의 주기를 반환합니다.<br>
 	 * Returns the configured interval for the WriterWorker thread.
 	 *
-	 * @return ms 단위의 주기
+	 * @return ms 단위의 주기<br>
 	 *         interval in milliseconds
 	 */
 	public int getWorkerInterval() {
@@ -442,14 +442,14 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 마커에 해당하는 WriterOption을 찾아서 반환합니다.
-	 * 찾을 수 없다면 null을 반환합니다.
-	 * Finds and returns the WriterOption for the given marker.
+	 * 마커에 해당하는 WriterOption을 찾아서 반환합니다.<br>
+	 * 찾을 수 없다면 null을 반환합니다.<br>
+	 * Finds and returns the WriterOption for the given marker.<br>
 	 * Returns null if not found.
 	 *
-	 * @param marker 마커 이름
+	 * @param marker 마커 이름<br>
 	 *               marker name
-	 * @return 인자로 주어진 마커 이름에 해당하는 WriterOption. 없다면 null
+	 * @return 인자로 주어진 마커 이름에 해당하는 WriterOption. 없다면 null<br>
 	 *         WriterOption for the given marker name. Null if not found.
 	 */
 	public WriterOption getWriterOption(String marker) {
@@ -461,14 +461,14 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 마커에 해당하는 WriterOption을 생성하여 반환합니다.
-	 * 만약, 이미 설정된 마커 이름에 해당하는 WriterOption 객체가 있다면 이미 설정된 객체를 반환합니다.
-	 * Creates and returns a WriterOption for the given marker.
+	 * 마커에 해당하는 WriterOption을 생성하여 반환합니다.<br>
+	 * 만약, 이미 설정된 마커 이름에 해당하는 WriterOption 객체가 있다면 이미 설정된 객체를 반환합니다.<br>
+	 * Creates and returns a WriterOption for the given marker.<br>
 	 * If a WriterOption object with the given marker name is already configured, returns the existing object.
 	 *
-	 * @param marker 마커 이름
+	 * @param marker 마커 이름<br>
 	 *               marker name
-	 * @return 생성된 WriterOption 객체
+	 * @return 생성된 WriterOption 객체<br>
 	 *         created WriterOption object
 	 */
 	public WriterOption newWriterOption(String marker) {
@@ -483,10 +483,10 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 설정된 모든 WriterOption을 반환합니다.
+	 * 설정된 모든 WriterOption을 반환합니다.<br>
 	 * Returns all configured WriterOptions.
 	 *
-	 * @return 설정된 WriterOption 배열
+	 * @return 설정된 WriterOption 배열<br>
 	 *         array of configured WriterOptions
 	 */
 	public WriterOption[] getWriterOptions() {
@@ -494,14 +494,14 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 로그 큐 사이즈를 설정합니다. 만약 큐가 가득 차면 로그는 동기 방식으로 처리됩니다.
-	 * 큐 사이즈가 10보다 작으면 10으로 설정됩니다.
-	 * 기본 값은 128000입니다.
-	 * Sets the log queue size. If the queue is full, logs are processed synchronously.
-	 * If the queue size is less than 10, it is set to 10.
+	 * 로그 큐 사이즈를 설정합니다. 만약 큐가 가득 차면 로그는 동기 방식으로 처리됩니다.<br>
+	 * 큐 사이즈가 10보다 작으면 10으로 설정됩니다.<br>
+	 * 기본 값은 128000입니다.<br>
+	 * Sets the log queue size. If the queue is full, logs are processed synchronously.<br>
+	 * If the queue size is less than 10, it is set to 10.<br>
 	 * The default value is 128000.
 	 *
-	 * @param size 큐 사이즈
+	 * @param size 큐 사이즈<br>
 	 *             queue size
 	 */
 	public void setQueueSize(int size) {
@@ -513,10 +513,10 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 설정된 로그 큐 사이즈를 반환합니다.
+	 * 설정된 로그 큐 사이즈를 반환합니다.<br>
 	 * Returns the configured log queue size.
 	 *
-	 * @return 큐 사이즈
+	 * @return 큐 사이즈<br>
 	 *         queue size
 	 */
 	public int getQueueSize() {
@@ -524,10 +524,10 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 설정된 기본 WriterOption을 반환합니다. 없다면 null을 반환합니다.
+	 * 설정된 기본 WriterOption을 반환합니다. 없다면 null을 반환합니다.<br>
 	 * Returns the configured default WriterOption. Null if not available.
 	 *
-	 * @return 설정된 기본 WriterOption
+	 * @return 설정된 기본 WriterOption<br>
 	 *         configured default WriterOption
 	 */
 	public WriterOption getDefaultOption() {
@@ -535,16 +535,16 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 디버그 모드 사용 여부를 설정합니다.
-	 * 디버그 모드에서 logexpress 내부의 로그가 출력됩니다.
-	 * 설정 문제나 예측이 어려운 문제를 확인할 때 사용할 수 있습니다.
-	 * 기본 값은 false입니다.
-	 * Sets whether to enable debug mode.
-	 * In debug mode, internal logs of logexpress are printed.
-	 * This can be useful for diagnosing configuration issues or unpredictable problems.
+	 * 디버그 모드 사용 여부를 설정합니다.<br>
+	 * 디버그 모드에서 logexpress 내부의 로그가 출력됩니다.<br>
+	 * 설정 문제나 예측이 어려운 문제를 확인할 때 사용할 수 있습니다.<br>
+	 * 기본 값은 false입니다.<br>
+	 * Sets whether to enable debug mode.<br>
+	 * In debug mode, internal logs of logexpress are printed.<br>
+	 * This can be useful for diagnosing configuration issues or unpredictable problems.<br>
 	 * The default value is false.
 	 *
-	 * @param debug 디버그 모드 사용 여부
+	 * @param debug 디버그 모드 사용 여부<br>
 	 *              whether to enable debug mode
 	 */
 	public void setDebugMode(boolean debug) {
@@ -553,12 +553,12 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 디버그 모드에서 파일 로그를 사용할지 여부를 설정합니다.
-	 * 기본 값은 false입니다.
-	 * Sets whether to enable file logging in debug mode.
+	 * 디버그 모드에서 파일 로그를 사용할지 여부를 설정합니다.<br>
+	 * 기본 값은 false입니다.<br>
+	 * Sets whether to enable file logging in debug mode.<br>
 	 * The default value is false.
 	 *
-	 * @param enable 파일 로그 사용 여부
+	 * @param enable 파일 로그 사용 여부<br>
 	 *               whether to enable file logging
 	 */
 	public void enableFileLogInDebugMode(boolean enable) {
@@ -567,12 +567,12 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 디버그 모드에서 콘솔 로그를 사용할지 여부를 설정합니다.
-	 * 기본 값은 false입니다.
-	 * Sets whether to enable console logging in debug mode.
+	 * 디버그 모드에서 콘솔 로그를 사용할지 여부를 설정합니다.<br>
+	 * 기본 값은 false입니다.<br>
+	 * Sets whether to enable console logging in debug mode.<br>
 	 * The default value is false.
 	 *
-	 * @param enable 콘솔 로그 사용 여부
+	 * @param enable 콘솔 로그 사용 여부<br>
 	 *               whether to enable console logging
 	 */
 	public void enableConsoleLogInDebugMode(boolean enable) {
@@ -581,10 +581,10 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 로그 파일 존재 여부 확인을 설정합니다.
+	 * 로그 파일 존재 여부 확인을 설정합니다.<br>
 	 * Sets whether to check the existence of log files.
 	 *
-	 * @param enable 로그 파일 사용 여부
+	 * @param enable 로그 파일 사용 여부<br>
 	 *               whether to enable log file check
 	 */
 	public void setFileExistCheck(boolean enable) {
@@ -609,12 +609,12 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 설정을 닫습니다. 설정이 닫힌 후에는 변경할 수 없습니다.
-	 * {@link  LogExpress#updateConfig(Configuration)} 메서드를 호출하였을 때 close() 메서드가 호출되어 설정이 닫힙니다.
-	 * Closes the configuration. After closing, the configuration cannot be changed.
+	 * 설정을 닫습니다. 설정이 닫힌 후에는 변경할 수 없습니다.<br>
+	 * {@link  LogExpress#updateConfig(Configuration)} 메서드를 호출하였을 때 close() 메서드가 호출되어 설정이 닫힙니다.<br>
+	 * Closes the configuration. After closing, the configuration cannot be changed.<br>
 	 * The close() method is called when the {@link LogExpress#updateConfig(Configuration)} method is invoked.
 	 *
-	 * @return 설정 객체
+	 * @return 설정 객체<br>
 	 *         the configuration object
 	 */
 	public synchronized Configuration close() {
@@ -658,12 +658,12 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 설정을 문자열로 변환합니다.
-	 * ini 파일 형식으로 변환됩니다.
-	 * Converts the configuration to a string.
+	 * 설정을 문자열로 변환합니다.<br>
+	 * ini 파일 형식으로 변환됩니다.<br>
+	 * Converts the configuration to a string.<br>
 	 * It is converted to ini file format.
 	 *
-	 * @return 설정 문자열
+	 * @return 설정 문자열<br>
 	 *         configuration string
 	 */
 	@Override

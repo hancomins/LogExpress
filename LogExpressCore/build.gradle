@@ -2,43 +2,62 @@
 
 buildscript {
     dependencies {
-        classpath "io.github.gradle-nexus:publish-plugin:1.1.0"
+        //classpath "io.github.gradle-nexus:publish-plugin:1.1.0"
+        classpath 'org.bouncycastle:bcpg-jdk15on:1.68'
+        classpath 'org.bouncycastle:bcpkix-jdk15on:1.68'
     }
 }
+
+
+import java.security.MessageDigest
+import java.nio.file.Files
+import java.nio.file.Paths
+
+import org.bouncycastle.bcpg.ArmoredOutputStream
+import org.bouncycastle.openpgp.*
+import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentSignerBuilder
+import org.bouncycastle.openpgp.operator.jcajce.JcaPGPDigestCalculatorProviderBuilder
+import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyDecryptorBuilder
+import org.bouncycastle.openpgp.operator.jcajce.JcaKeyFingerprintCalculator
+
 
 plugins {
     id 'java'
     id 'distribution'
+
 }
 
 
-apply plugin: 'io.github.gradle-nexus.publish-plugin'
-apply from: "${rootDir}/scripts/publish-maven.gradle"
-apply from: 'publish.gradle'
+group = 'io.github.hancomins'
+version = getProperty("version")
 
 
-
-
-group 'com.clipsoft'
-version getProperty("version")
-
-
-
-sourceCompatibility = 1.6
+def JAVA_VERSION = 1.6
+sourceCompatibility = JAVA_VERSION
 compileJava {
-    sourceCompatibility=1.6
-    targetCompatibility=1.6
+    sourceCompatibility=JAVA_VERSION
+    targetCompatibility=JAVA_VERSION
 }
 
 compileJava.options.encoding = 'UTF-8'
 
 
-/*jar {
-    manifest {
-        attributes 'Implementation-Title': 'logexpress-core',
-                'Implementation-Version': project.version
-    }
-}*/
+def signingKeyId = ''
+def signingPassword = ''
+def secretKeyRingFile = ''
+
+File secretPropsFile = project.rootProject.file('publish.properties')
+def hasSecretProps = secretPropsFile.exists()
+if (hasSecretProps) {
+    Properties p = new Properties()
+    p.load(new FileInputStream(secretPropsFile))
+    signingKeyId =  p.getProperty('signing.keyId', '')
+    signingPassword = p.getProperty('signing.password', '')
+    secretKeyRingFile = p.getProperty('signing.secretKeyRingFile', '')
+}
+
+
+
 
 project.jar.exclude('**/*.txt')
 project.jar.exclude('**/*.log')
@@ -61,10 +80,185 @@ sourceSets {
 
 }
 
+javadoc {
+    source = sourceSets.main.allJava
+    def includes = ['com/hancomins/logexpress/LogExpress.java',
+                    'com/hancomins/logexpress/Logger.java',
+                    'com/hancomins/logexpress/ShutdownFuture.java',
+                    'com/hancomins/logexpress/Level.java',
+                    'com/hancomins/logexpress/configuration/Configuration.java',
+                    'com/hancomins/logexpress/configuration/WriterOption.java',
+                    'com/hancomins/logexpress/configuration/WriterType.java']
+
+
+
+    include includes
+
+    destinationDir = file("$buildDir/docs/javadoc")
+
+    // 문서 생성 시 사용될 옵션 (선택 사항)
+    options {
+        encoding 'UTF-8'
+        charSet 'UTF-8'
+        author true
+        version true
+    }
+}
+
+/**
+ * 주어진 파일 경로의 파일에 대한 MD5 해시를 계산하고,
+ * 파일명 뒤에 ".md5"를 붙인 파일에 저장합니다.
+ *
+ * @param filePath 원본 파일 경로
+ */
+def generateMd5File(String filePath) {
+    // 원본 파일의 바이트 배열 읽기
+    byte[] fileBytes = Files.readAllBytes(Paths.get(filePath))
+
+    // MD5 해시 계산
+    MessageDigest md = MessageDigest.getInstance("MD5")
+    byte[] md5Bytes = md.digest(fileBytes)
+
+    // 바이트 배열을 16진수 문자열로 변환
+    def md5Hex = md5Bytes.collect { String.format("%02x", it) }.join()
+
+    // 결과를 파일명 뒤에 ".md5" 확장자로 붙인 파일에 저장
+    def md5FilePath = filePath + ".md5"
+    def md5File = new File(md5FilePath)
+    md5File.text = md5Hex
+}
+
+def generateSha1File(String filePath) {
+    // 원본 파일의 바이트 배열 읽기
+    byte[] fileBytes = Files.readAllBytes(Paths.get(filePath))
+
+    // SHA-1 해시 계산
+    MessageDigest md = MessageDigest.getInstance("SHA-1")
+    byte[] sha1Bytes = md.digest(fileBytes)
+
+    // 바이트 배열을 16진수 문자열로 변환
+    def sha1Hex = sha1Bytes.collect { String.format("%02x", it) }.join()
+
+    // 결과를 파일명 뒤에 ".sha1" 확장자로 붙인 파일에 저장
+    def sha1FilePath = filePath + ".sha1"
+    def sha1File = new File(sha1FilePath)
+    sha1File.text = sha1Hex
+}
+
+
+jar {
+    group = 'build'
+    archiveBaseName.set("logexpress")
+
+    manifest {
+        attributes(
+                'Implementation-Title': ':LogExpress',       // 프로젝트 제목
+                'Implementation-Version': project.version,          // 프로젝트 버전
+                'Implementation-Vendor': 'HANCOM INNOSTREAM',      // 제작자 또는 회사 이름
+                'Built-By': 'Sungbeom HONG', // 빌드한 사람
+                'Build-Jdk': "${JAVA_VERSION}", // JDK 버전
+                'Created-By': "Gradle ${gradle.gradleVersion}"  // Gradle 버전
+        )
+    }
+
+    from('LICENSE') {
+        into('/')
+    }
+
+    doLast {
+        def jarFilePath = archiveFile.get().asFile.path
+        generateMd5File(jarFilePath)
+        generateSha1File(jarFilePath)
+        pgpSignFile(jarFilePath, jarFilePath + ".asc",secretKeyRingFile,signingKeyId, signingPassword)
+    }
+}
+
+
+
+
+task jarJavadoc(type: Jar, dependsOn: javadoc) {
+    group = 'build'
+    archiveBaseName.set("logexpress")
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+    archiveClassifier.set('javadoc') // Gradle 6.4 이상에서는 이 방법을 사용
+
+
+    manifest {
+        attributes(
+                'Implementation-Title': ':LogExpress',       // 프로젝트 제목
+                'Implementation-Version': project.version,          // 프로젝트 버전
+                'Implementation-Vendor': 'HANCOM INNOSTREAM',      // 제작자 또는 회사 이름
+                'Built-By': 'Sungbeom HONG', // 빌드한 사람
+                'Created-By': "Gradle ${gradle.gradleVersion}"  // Gradle 버전
+        )
+    }
+
+    from('LICENSE') {
+        into('/')
+    }
+
+    doLast {
+        def jarFilePath = archiveFile.get().asFile.path
+        generateMd5File(jarFilePath)
+        generateSha1File(jarFilePath)
+        pgpSignFile(jarFilePath, jarFilePath + ".asc",secretKeyRingFile, signingKeyId, signingPassword)
+    }
+}
+
+task jarSources(type: Jar) {
+    group = 'build'
+    archiveBaseName.set("logexpress")
+    classifier = 'sources'
+    from sourceSets.main.allSource
+    archiveClassifier.set('sources') // Gradle 6.4 이상에서는 이 방법을 사용
+
+
+    manifest {
+        attributes(
+                'Implementation-Title': ':LogExpress',       // 프로젝트 제목
+                'Implementation-Version': project.version,          // 프로젝트 버전
+                'Implementation-Vendor': 'HANCOM INNOSTREAM',      // 제작자 또는 회사 이름
+                'Built-By': 'Sungbeom HONG', // 빌드한 사람
+                'Build-Jdk': "${JAVA_VERSION}", // JDK 버전
+                'Created-By': "Gradle ${gradle.gradleVersion}"  // Gradle 버전
+        )
+    }
+
+    from('LICENSE') {
+        into('/')
+    }
+
+    doLast {
+        def jarFilePath = archiveFile.get().asFile.path
+        generateMd5File(jarFilePath)
+        generateSha1File(jarFilePath)
+        pgpSignFile(jarFilePath, jarFilePath + ".asc",secretKeyRingFile, signingKeyId, signingPassword)
+    }
+}
+
+task updatePom {
+    group = 'build'
+    doLast {
+        def baseFile = file("$projectDir/pom.base")
+        def pomFile = file("$buildDir/libs/logexpress-${version}.pom")
+        pomFile.text = baseFile.text.replace("{version}", version)
+        generateMd5File(pomFile.getAbsolutePath())
+        generateSha1File(pomFile.getAbsolutePath())
+        pgpSignFile(pomFile.getAbsolutePath(), pomFile.getAbsolutePath() + ".asc",secretKeyRingFile, signingKeyId, signingPassword)
+    }
+}
+
+
+distTar.mustRunAfter(clean)
+build.dependsOn(clean)
+build.dependsOn(jarJavadoc)
+build.dependsOn(jarSources)
+build.dependsOn(updatePom)
+
 repositories {
     mavenCentral()
 }
-
 
 
 
@@ -75,5 +269,119 @@ dependencies {
 }
 
 
-group = PUBLISH_GROUP_ID
-version = PUBLISH_VERSION
+task dist() {
+    group = 'build'
+    dependsOn build
+    doLast {
+        def sourceDir = new File("${buildDir}/libs")
+        def targetDir = new File("${buildDir}/dist/io/github/hancomins/logexpress/${version}")
+        def zipFile = new File("${buildDir}/dist/logexpress-${version}.zip")
+
+        // 1. 대상 디렉토리 생성
+        if (!targetDir.exists()) {
+            targetDir.mkdirs()
+        }
+
+        // 2. 파일 복사
+        sourceDir.eachFile { file ->
+            def destFile = new File(targetDir, file.name)
+            file.withInputStream { is ->
+                destFile.withOutputStream { os ->
+                    os << is
+                }
+            }
+        }
+
+        // 3. 파일 압축
+        zipFile.withOutputStream { fos ->
+            new java.util.zip.ZipOutputStream(fos).withCloseable { zos ->
+                targetDir.eachFileRecurse { file ->
+                    if (file.isFile()) {
+                        def relativePath = file.path.replace(targetDir.path + File.separator, "")
+                        def entryName = "io/github/hancomins/logexpress/${version}/" + relativePath
+                        zos.putNextEntry(new java.util.zip.ZipEntry(entryName))
+                        file.withInputStream { fis ->
+                            zos << fis
+                        }
+                        zos.closeEntry()
+                    }
+                }
+            }
+        }
+
+        println "Files from ${sourceDir} copied to ${targetDir} and zipped into ${zipFile}"
+    }
+}
+
+
+
+// PGP 서명을 수행하는 함수
+def pgpSignFile(String inputFilePath, String outputFilePath, String secretKeyRingFilePath, String keyId, String passphrase) {
+    boolean existSignSources = true
+    if(keyId == null || keyId.isEmpty()) {
+        System.err.println("PGP Sign File: ${inputFilePath} => No key ID provided for signing. Skipping PGP signing.")
+        existSignSources = false
+    }
+    if(passphrase == null || passphrase.isEmpty()) {
+        System.err.println("PGP Sign File: ${inputFilePath} => No passphrase provided for signing. Skipping PGP signing.")
+        existSignSources = false
+    }
+    if(secretKeyRingFilePath == null || secretKeyRingFilePath.isEmpty()) {
+        System.err.println("PGP Sign File: ${inputFilePath} => No secret key ring file provided for signing. Skipping PGP signing.")
+        existSignSources = false
+    }
+    if(!existSignSources) {
+        return
+    }
+
+    if(keyId.length() > 16) {
+        keyId = keyId.substring(keyId.length() - 16)
+    }
+    keyId = keyId.toLowerCase()
+
+    // 비밀 키 링 파일 읽기
+    def secretKeyRingFile = new File(secretKeyRingFilePath)
+    if (!secretKeyRingFile.exists()) {
+        throw new IllegalArgumentException("Secret key ring file not found: $secretKeyRingFilePath")
+    }
+
+    def pgpSecretKeys = new PGPSecretKeyRingCollection(
+            PGPUtil.getDecoderStream(new FileInputStream(secretKeyRingFile)),
+            new JcaKeyFingerprintCalculator()
+    )
+
+    // 비밀 키 추출
+    def longKeyId = Long.parseLong(keyId, 16) // 16진수 키 ID 변환
+    def secretKey = pgpSecretKeys.getSecretKey(longKeyId)
+    if (secretKey == null) {
+        throw new IllegalArgumentException("No secret key found with key ID: $keyId")
+    }
+
+    def privateKey = secretKey.extractPrivateKey(
+            new JcePBESecretKeyDecryptorBuilder(new JcaPGPDigestCalculatorProviderBuilder().build())
+                    .build(passphrase.toCharArray())
+    )
+
+    // 파일 서명
+    new FileInputStream(inputFilePath).withCloseable { fis ->
+        new FileOutputStream(outputFilePath).withCloseable { fos ->
+            new ArmoredOutputStream(fos).withCloseable { aos ->
+                def signerBuilder = new JcaPGPContentSignerBuilder(
+                        secretKey.getPublicKey().getAlgorithm(), PGPUtil.SHA256).setProvider("BC")
+
+                def signatureGenerator = new PGPSignatureGenerator(signerBuilder)
+                signatureGenerator.init(PGPSignature.BINARY_DOCUMENT, privateKey)
+
+                byte[] buffer = new byte[1024]
+                int bytesRead
+                while ((bytesRead = fis.read(buffer)) != -1) {
+                    signatureGenerator.update(buffer, 0, bytesRead)
+                }
+
+                signatureGenerator.generate().encode(aos)
+            }
+        }
+    }
+
+    println("File signed and saved to: $outputFilePath")
+}

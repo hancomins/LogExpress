@@ -1,7 +1,7 @@
 package com.hancomins.logexpress;
 
 
-class MessageFormatter implements CharSequence {
+public class MessageFormatter implements CharSequence {
 
     private final String message;
     private String formattedMessage;

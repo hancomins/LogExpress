@@ -13,19 +13,19 @@ import java.util.concurrent.locks.ReentrantLock;
 public class LogExpress {
 
 	/**
-	 * Property path for logexpress.
+	 * Property path for logexpress.<br>
 	 * LogExpress의 속성 경로.
 	 */
 	public static final String PROPERTY_PATH = "logexpress.path";
 
 	/**
-	 * Property hostname for logexpress.
+	 * Property hostname for logexpress.<br>
 	 * LogExpress의 호스트 이름 속성.
 	 */
 	public static final String PROPERTY_HOSTNAME = "logexpress.hostname";
 
 	/**
-	 * Property PID for logexpress.
+	 * Property PID for logexpress.<br>
 	 * LogExpress의 PID 속성.
 	 */
 	public static final String PROPERTY_PID = "logexpress.pid";
@@ -43,7 +43,7 @@ public class LogExpress {
 	}
 
 	/**
-	 * Initializes the logger.
+	 * Initializes the logger.<br>
 	 * 로거를 초기화합니다.
 	 */
 	private static void initLogger() {
@@ -55,10 +55,10 @@ public class LogExpress {
 	}
 
 	/**
-	 * Clones the current configuration.
+	 * Clones the current configuration.<br>
 	 * 현재 구성을 복제합니다.
 	 *
-	 * @return the cloned configuration
+	 * @return the cloned configuration<br>
 	 *         복제된 구성
 	 */
 	public static Configuration cloneConfiguration() {
@@ -85,15 +85,14 @@ public class LogExpress {
 	}
 
 	/**
-	 * Updates the logger configuration.
-	 * This method will shutdown the existing logger and start a new logger with the new configuration.
-	 * The configuration object passed as an argument cannot be reused.
-	 * 로거 구성을 업데이트 및 초기화 합니다.
-	 * 이 메서드를 호출하면 기존 구성으로 동작하던 로거는 로그 큐를 모두 비운 뒤에 종료됩니다.
+	 * Updates the logger configuration.<br>
+	 * This method will shutdown the existing logger and start a new logger with the new configuration.<br>
+	 * The configuration object passed as an argument cannot be reused.<br>
+	 * 로거 구성을 업데이트 및 초기화 합니다.<br>
+	 * 이 메서드를 호출하면 기존 구성으로 동작하던 로거는 로그 큐를 모두 비운 뒤에 종료됩니다.<br>
 	 * 이 메서드 인자로 들어온 설정 객체는 재활용 할 수 없습니다.
 	 *
-	 *
-	 * @param configure the new configuration
+	 * @param configure the new configuration<br>
 	 *                  새로운 구성
 	 */
 	public static void updateConfig(Configuration configure) {
@@ -156,7 +155,7 @@ public class LogExpress {
 	}
 
 	/**
-	 * Waits for the shutdown to complete.
+	 * Waits for the shutdown to complete.<br>
 	 * 종료가 완료될 때까지 대기합니다.
 	 */
 	private static void waitForShutdown() {
@@ -193,13 +192,12 @@ public class LogExpress {
 	}
 
 	/**
-	 * Shuts down the logger.
-	 * You can check whether the logger is completely shut down through ShutdownFuture, or wait until the logger is shut down.
-	 * 로거를 종료합니다.
+	 * Shuts down the logger.<br>
+	 * You can check whether the logger is completely shut down through ShutdownFuture, or wait until the logger is shut down.<br>
+	 * 로거를 종료합니다.<br>
 	 * ShutdownFuture를 통하여 로거가 완전히 종료 되었는지 확인하거나, 로그거 종료되기 전까지 대기할 수 있습니다.
 	 *
 	 * @return ShutdownFuture
-	 *
 	 */
 	public static ShutdownFuture shutdown() {
 		lock.lock();
@@ -234,12 +232,12 @@ public class LogExpress {
 	}
 
 	/**
-	 * Creates a new logger with a marker.
+	 * Creates a new logger with a marker.<br>
 	 * 마커와 함께 새로운 로거를 생성합니다.
 	 *
-	 * @param marker the marker for the logger
+	 * @param marker the marker for the logger<br>
 	 *               새 로거의 마커
-	 * @return the new logger
+	 * @return the new logger<br>
 	 *         새로운 로거
 	 */
 	public static Logger newLogger(String marker) {
@@ -247,10 +245,10 @@ public class LogExpress {
 	}
 
 	/**
-	 * Creates a new logger.
+	 * Creates a new logger.<br>
 	 * 새로운 로거를 생성합니다.
 	 *
-	 * @return the new logger
+	 * @return the new logger<br>
 	 *         새로운 로거
 	 */
 	public static Logger newLogger() {
@@ -258,14 +256,14 @@ public class LogExpress {
 	}
 
 	/**
-	 * Creates a new logger with a caller class and marker.
+	 * Creates a new logger with a caller class and marker.<br>
 	 * 호출자 클래스와 마커와 함께 새로운 로거를 생성합니다.
 	 *
-	 * @param caller the caller class
+	 * @param caller the caller class<br>
 	 *               호출자 클래스
-	 * @param marker the marker for the logger
+	 * @param marker the marker for the logger<br>
 	 *               로거의 마커
-	 * @return the new logger
+	 * @return the new logger<br>
 	 *         새로운 로거
 	 */
 	public static Logger newLogger(Class<?> caller, String marker) {
@@ -274,12 +272,12 @@ public class LogExpress {
 	}
 
 	/**
-	 * Creates a new logger with a caller class.
+	 * Creates a new logger with a caller class.<br>
 	 * 호출자 클래스와 함께 새로운 로거를 생성합니다.
 	 *
-	 * @param caller the caller class
+	 * @param caller the caller class<br>
 	 *               호출자 클래스
-	 * @return the new logger
+	 * @return the new logger<br>
 	 *         새로운 로거
 	 */
 	public static Logger newLogger(Class<?> caller) {
@@ -287,7 +285,7 @@ public class LogExpress {
 	}
 
 	/**
-	 * Creates a new logger with a caller class and marker.
+	 * Creates a new logger with a caller class and marker.<br>
 	 * 호출자 클래스의 FQCN(Fully Qualified Class Name)와 마커 이름을 인자로 받아 새 로거를 생성합니다.
 	 *
 	 * @param callerFQCN the fully qualified caller name
@@ -321,10 +319,10 @@ public class LogExpress {
 	}
 
 	/**
-	 * Gets the base logger.
+	 * Gets the base logger.<br>
 	 * 기본 로거를 가져옵니다.
 	 *
-	 * @return the base logger
+	 * @return the base logger<br>
 	 *         기본 로거
 	 */
 	public static BaseLogger baseLogger() {
@@ -333,12 +331,12 @@ public class LogExpress {
 	}
 
 	/**
-	 * Gets the base logger with a marker.
+	 * Gets the base logger with a marker.<br>
 	 * 마커와 함께 기본 로거를 가져옵니다.
 	 *
-	 * @param marker the marker for the logger
+	 * @param marker the marker for the logger<br>
 	 *               로거의 마커
-	 * @return the base logger
+	 * @return the base logger<br>
 	 *         기본 로거
 	 */
 	public static BaseLogger baseLogger(String marker) {
@@ -346,10 +344,10 @@ public class LogExpress {
 	}
 
 	/**
-	 * Logs an info level message. Logs to the base logger.
+	 * Logs an info level message. Logs to the base logger.<br>
 	 * 정보 레벨 메시지를 로깅합니다. 기본 로거에 로깅합니다.
 	 *
-	 * @param log the message to log
+	 * @param log the message to log<br>
 	 *            로깅할 메시지
 	 */
 	public static void info(CharSequence log) {
@@ -357,12 +355,12 @@ public class LogExpress {
 	}
 
 	/**
-	 * Logs an info level message with an exception. Logs to the base logger.
+	 * Logs an info level message with an exception. Logs to the base logger.<br>
 	 * 예외와 함께 정보 레벨 메시지를 로깅합니다. 기본 로거에 로깅합니다.
 	 *
-	 * @param log the message to log
+	 * @param log the message to log<br>
 	 *            로깅할 메시지
-	 * @param e   the exception to log
+	 * @param e   the exception to log<br>
 	 *            로깅할 예외
 	 */
 	public static void info(CharSequence log, Throwable e) {
@@ -371,10 +369,10 @@ public class LogExpress {
 
 
 	/**
-	 * Logs an error level message. Logs to the base logger.
+	 * Logs an error level message. Logs to the base logger.<br>
 	 * 오류 레벨 메시지를 로깅합니다. 기본 로거에 로깅합니다.
 	 *
-	 * @param log the message to log
+	 * @param log the message to log<br>
 	 *            로깅할 메시지
 	 */
 	public static void error(CharSequence log) {
@@ -382,12 +380,12 @@ public class LogExpress {
 	}
 
 	/**
-	 * Logs an error level message with an exception. Logs to the base logger.
+	 * Logs an error level message with an exception. Logs to the base logger.<br>
 	 * 예외와 함께 오류 레벨 메시지를 로깅합니다. 기본 로거에 로깅합니다.
 	 *
-	 * @param log the message to log
+	 * @param log the message to log<br>
 	 *            로깅할 메시지
-	 * @param e   the exception to log
+	 * @param e   the exception to log<br>
 	 *            로깅할 예외
 	 */
 	public static void error(CharSequence log, Throwable e) {
@@ -395,10 +393,10 @@ public class LogExpress {
 	}
 
 	/**
-	 * Checks if info level logging is enabled.
+	 * Checks if info level logging is enabled.<br>
 	 * 정보 레벨 로깅이 활성화되어 있는지 확인합니다.
 	 *
-	 * @return true if info level logging is enabled, false otherwise
+	 * @return true if info level logging is enabled, false otherwise<br>
 	 *         정보 레벨 로깅이 활성화되어 있으면 true, 그렇지 않으면 false
 	 * @deprecated use {@link #isInfoEnabled()}
 	 */
@@ -408,10 +406,10 @@ public class LogExpress {
 	}
 
 	/**
-	 * Checks if info level logging is enabled.
+	 * Checks if info level logging is enabled.<br>
 	 * 정보 레벨 로깅이 활성화되어 있는지 확인합니다.
 	 *
-	 * @return true if info level logging is enabled, false otherwise
+	 * @return true if info level logging is enabled, false otherwise<br>
 	 *         정보 레벨 로깅이 활성화되어 있으면 true, 그렇지 않으면 false
 	 */
 	public static boolean isInfoEnabled() {
@@ -419,10 +417,10 @@ public class LogExpress {
 	}
 
 	/**
-	 * Checks if error level logging is enabled.
+	 * Checks if error level logging is enabled.<br>
 	 * 오류 레벨 로깅이 활성화되어 있는지 확인합니다.
 	 *
-	 * @return true if error level logging is enabled, false otherwise
+	 * @return true if error level logging is enabled, false otherwise<br>
 	 *         오류 레벨 로깅이 활성화되어 있으면 true, 그렇지 않으면 false
 	 * @deprecated use {@link #isErrorEnabled()}
 	 */
@@ -432,10 +430,10 @@ public class LogExpress {
 	}
 
 	/**
-	 * Checks if error level logging is enabled.
+	 * Checks if error level logging is enabled.<br>
 	 * 오류 레벨 로깅이 활성화되어 있는지 확인합니다.
 	 *
-	 * @return true if error level logging is enabled, false otherwise
+	 * @return true if error level logging is enabled, false otherwise<br>
 	 *         오류 레벨 로깅이 활성화되어 있으면 true, 그렇지 않으면 false
 	 */
 	public static boolean isErrorEnabled() {
@@ -443,10 +441,10 @@ public class LogExpress {
 	}
 
 	/**
-	 * Checks if debug level logging is enabled.
+	 * Checks if debug level logging is enabled.<br>
 	 * 디버그 레벨 로깅이 활성화되어 있는지 확인합니다.
 	 *
-	 * @return true if debug level logging is enabled, false otherwise
+	 * @return true if debug level logging is enabled, false otherwise<br>
 	 *         디버그 레벨 로깅이 활성화되어 있으면 true, 그렇지 않으면 false
 	 * @deprecated use {@link #isDebugEnabled()}
 	 */
@@ -456,10 +454,10 @@ public class LogExpress {
 	}
 
 	/**
-	 * Checks if debug level logging is enabled.
+	 * Checks if debug level logging is enabled.<br>
 	 * 디버그 레벨 로깅이 활성화되어 있는지 확인합니다.
 	 *
-	 * @return true if debug level logging is enabled, false otherwise
+	 * @return true if debug level logging is enabled, false otherwise<br>
 	 *         디버그 레벨 로깅이 활성화되어 있으면 true, 그렇지 않으면 false
 	 */
 	public static boolean isDebugEnabled() {
@@ -467,10 +465,10 @@ public class LogExpress {
 	}
 
 	/**
-	 * Checks if trace level logging is enabled.
+	 * Checks if trace level logging is enabled.<br>
 	 * 추적 레벨 로깅이 활성화되어 있는지 확인합니다.
 	 *
-	 * @return true if trace level logging is enabled, false otherwise
+	 * @return true if trace level logging is enabled, false otherwise<br>
 	 *         추적 레벨 로깅이 활성화되어 있으면 true, 그렇지 않으면 false
 	 * @deprecated use {@link #isTraceEnabled()}
 	 */
@@ -480,10 +478,10 @@ public class LogExpress {
 	}
 
 	/**
-	 * Checks if trace level logging is enabled.
+	 * Checks if trace level logging is enabled.<br>
 	 * 추적 레벨 로깅이 활성화되어 있는지 확인합니다.
 	 *
-	 * @return true if trace level logging is enabled, false otherwise
+	 * @return true if trace level logging is enabled, false otherwise<br>
 	 *         추적 레벨 로깅이 활성화되어 있으면 true, 그렇지 않으면 false
 	 */
 	public static boolean isTraceEnabled() {
@@ -491,10 +489,10 @@ public class LogExpress {
 	}
 
 	/**
-	 * Checks if warn level logging is enabled.
+	 * Checks if warn level logging is enabled.<br>
 	 * 경고 레벨 로깅이 활성화되어 있는지 확인합니다.
 	 *
-	 * @return true if warn level logging is enabled, false otherwise
+	 * @return true if warn level logging is enabled, false otherwise<br>
 	 *         경고 레벨 로깅이 활성화되어 있으면 true, 그렇지 않으면 false
 	 * @deprecated use {@link #isWarnEnabled()}
 	 */
@@ -504,10 +502,10 @@ public class LogExpress {
 	}
 
 	/**
-	 * Checks if warn level logging is enabled.
+	 * Checks if warn level logging is enabled.<br>
 	 * 경고 레벨 로깅이 활성화되어 있는지 확인합니다.
 	 *
-	 * @return true if warn level logging is enabled, false otherwise
+	 * @return true if warn level logging is enabled, false otherwise<br>
 	 *         경고 레벨 로깅이 활성화되어 있으면 true, 그렇지 않으면 false
 	 */
 	public static boolean isWarnEnabled() {
@@ -515,10 +513,10 @@ public class LogExpress {
 	}
 
 	/**
-	 * Logs a debug level message. Logs to the base logger.
+	 * Logs a debug level message. Logs to the base logger.<br>
 	 * 디버그 레벨 메시지를 로깅합니다. 기본 로거에 로깅합니다.
 	 *
-	 * @param log the message to log
+	 * @param log the message to log<br>
 	 *            로깅할 메시지
 	 */
 	public static void debug(CharSequence log) {
@@ -526,12 +524,12 @@ public class LogExpress {
 	}
 
 	/**
-	 * Logs a debug level message with an exception. Logs to the base logger.
+	 * Logs a debug level message with an exception. Logs to the base logger.<br>
 	 * 예외와 함께 디버그 레벨 메시지를 로깅합니다. 기본 로거에 로깅합니다.
 	 *
-	 * @param log the message to log
+	 * @param log the message to log<br>
 	 *            로깅할 메시지
-	 * @param e   the exception to log
+	 * @param e   the exception to log<br>
 	 *            로깅할 예외
 	 */
 	public static void debug(CharSequence log, Throwable e) {
@@ -539,10 +537,10 @@ public class LogExpress {
 	}
 
 	/**
-	 * Logs a trace level message. Logs to the base logger.
+	 * Logs a trace level message. Logs to the base logger.<br>
 	 * 추적 레벨 메시지를 로깅합니다. 기본 로거에 로깅합니다.
 	 *
-	 * @param log the message to log
+	 * @param log the message to log<br>
 	 *            로깅할 메시지
 	 */
 	public static void trace(CharSequence log) {
@@ -550,12 +548,12 @@ public class LogExpress {
 	}
 
 	/**
-	 * Logs a trace level message with an exception. Logs to the base logger.
+	 * Logs a trace level message with an exception. Logs to the base logger.<br>
 	 * 예외와 함께 추적 레벨 메시지를 로깅합니다. 기본 로거에 로깅합니다.
 	 *
-	 * @param log the message to log
+	 * @param log the message to log<br>
 	 *            로깅할 메시지
-	 * @param e   the exception to log
+	 * @param e   the exception to log<br>
 	 *            로깅할 예외
 	 */
 	public static void trace(CharSequence log, Throwable e) {
@@ -563,10 +561,10 @@ public class LogExpress {
 	}
 
 	/**
-	 * Logs a warn level message. Logs to the base logger. 
-	 * 경고 레벨 메시지를 로깅합니다. 기본 로거에 로깅합니다. 
+	 * Logs a warn level message. Logs to the base logger.<br>
+	 * 경고 레벨 메시지를 로깅합니다. 기본 로거에 로깅합니다.
 	 *
-	 * @param log the message to log
+	 * @param log the message to log<br>
 	 *            로깅할 메시지
 	 */
 	public static void warn(CharSequence log) {
@@ -574,12 +572,12 @@ public class LogExpress {
 	}
 
 	/**
-	 * Logs a warn level message with an exception. Logs to the base logger. Logs to the base logger.
+	 * Logs a warn level message with an exception. Logs to the base logger.<br>
 	 * 예외와 함께 경고 레벨 메시지를 로깅합니다. 기본 로거에 로깅합니다.
 	 *
-	 * @param log the message to log
+	 * @param log the message to log<br>
 	 *            로깅할 메시지
-	 * @param e   the exception to log
+	 * @param e   the exception to log<br>
 	 *            로깅할 예외
 	 */
 	public static void warn(CharSequence log, Throwable e) {
@@ -594,5 +592,5 @@ public class LogExpress {
 		}
 		return loggerContext;
 	}
-	
+
 }

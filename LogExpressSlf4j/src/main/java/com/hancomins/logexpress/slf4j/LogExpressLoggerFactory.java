@@ -1,6 +1,4 @@
-package com.clipsoft.LogExpress.slf4j;
-
-import com.clipsoft.LogExpress.slf4j.Logger;
+package com.hancomins.logexpress.slf4j;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
