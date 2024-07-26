@@ -1,5 +1,7 @@
 package com.hancomins.logexpress;
 
+import com.hancomins.logexpress.util.StringUtil;
+
 /**
  * Enum representing different logging levels.<br>
  * 다양한 로깅 레벨을 나타내는 열거형.<br>
@@ -48,7 +50,7 @@ public enum Level {
 
 
 	public static Level stringValueOrNull(String value) {
-		if (value == null || value.isEmpty()) return null;
+		if (StringUtil.isNullOrEmpty(value)) return null;
 		value = value.trim();
 		if (value.equalsIgnoreCase("info")) {
 			return INFO;

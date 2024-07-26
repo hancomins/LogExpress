@@ -69,6 +69,9 @@ class LineCombiner {
             if(!level.isLowerThan(item.level)) {
                 continue;
             }
+            if(!item.isMarkerAllowed(line.getMarker())) {
+                continue;
+            }
 
             switch(item.type) {
                 case Text:

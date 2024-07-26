@@ -1,7 +1,11 @@
 package com.hancomins.logexpress;
 
+import com.hancomins.logexpress.util.StringUtil;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,7 +41,7 @@ class LineFormatter {
 	static LineFormatter parse(String format) {
 		final int MODE_TEXT = 0;
 		final int MODE_IN_TYPE = 1;
-		;
+
 
 		StringBuilder itemBuffer = new StringBuilder();
 		ArrayList<FormatItem> items = new ArrayList<FormatItem>();
@@ -66,47 +70,58 @@ class LineFormatter {
 
 				boolean appended = false; 
  				for(int ti = 0; ti < typeNames.length; ++ti) {
-					if("time".equalsIgnoreCase(typeNames[ti]) && itemType.matches("[{][\\s]{0,}(time[:])(?i).+[\\s]{0,}(@[A-Za-z]{4,})?[}]")) {
-						Level level = findLevelQualifier(itemType);
-						String pattern = itemType.replaceAll("[{][\\s]{0,}(time[:]{1,})(?i)[\\s]{0,}", "").replaceAll("[\\s]{0,}(@[A-Za-z]{4,})?[}]", "").trim();
-						items.add(FormatItem.newTimeType(pattern).setLevel(level));
-						appended = true;
-						break;
-					}
-					else if(itemType.matches("[{][\\s]{0,}(" + typeNames[ti]  +  ")(?i)[\\s]{0,}(\\[[' ']{0,}[0-9]{0,}[' ']{0,1}[:][' ']{0,}[-]{0,1}[0-9]{0,}[' ']{0,}\\]){0,1}(@[A-Za-z]{4,})?[}]")) {
-						itemType = itemType.replace("{", "").replace("}", "");
-						Level level = findLevelQualifier(itemType);
-						if(level != null) {
-							itemType = itemType.contains("@") ? itemType.substring(0, itemType.indexOf('@')) : itemType;
-						}
 
-						Matcher matcher = PATTERN_LEN_RANGE.matcher(itemType);
-						LenRange lenRange = null;
+					 try {
+						 if ("time".equalsIgnoreCase(typeNames[ti]) && itemType.matches("[{][\\s]{0,}(time[:])(?i).+[\\s]{0,}(@.+)?[}]")) {
+							 AtQualifier atQualifier = findAtQualifier(itemType);
+							 String pattern = itemType.replaceAll("[{][\\s]{0,}(time[:]{1,})(?i)[\\s]{0,}", "").replaceAll("[\\s]{0,}(@.+)?[}]", "").trim();
+							 items.add(FormatItem.newTimeType(pattern).setLevel(atQualifier.level).addMarkerQualifiers(atQualifier.markers));
+							 appended = true;
+							 break;
+						 }
+						 if ("text".equalsIgnoreCase(typeNames[ti]) && itemType.matches("[{][\\s]{0,}(text[:])(?i).+[\\s]{0,}(@.+]{4,})?[}]")) {
+							 AtQualifier atQualifier = findAtQualifier(itemType);
+							 String text = itemType.replaceAll("[{][\\s]{0,}(text[:]{1,})(?i)[\\s]{0,}", "").replaceAll("[\\s]{0,}(@.+)?[}]", "").trim();
+							 items.add(FormatItem.newTextType(text).setLevel(atQualifier.level).addMarkerQualifiers(atQualifier.markers));
+							 appended = true;
+							 break;
+						 } else if (itemType.matches("[{][\\s]{0,}(" + typeNames[ti] + ")(?i)[\\s]{0,}(\\[[' ']{0,}[0-9]{0,}[' ']{0,1}[:][' ']{0,}[-]{0,1}[0-9]{0,}[' ']{0,}\\]){0,1}(@.+)?[}]")) {
+							 itemType = itemType.replace("{", "").replace("}", "");
+							 AtQualifier atQualifier = findAtQualifier(itemType);
+							 if (atQualifier.hasQualifier()) {
+								 itemType = itemType.contains("@") ? itemType.substring(0, itemType.indexOf('@')) : itemType;
+							 }
 
-						while(matcher.find()) {
-							String lenRangeStr = matcher.group();
-							itemType = itemType.replace(lenRangeStr, "");
-							lenRange = parseLenRange(lenRangeStr);
-						}
+							 Matcher matcher = PATTERN_LEN_RANGE.matcher(itemType);
+							 LenRange lenRange = null;
 
-						ItemType type = ItemType.typeNameOf(itemType.trim());
-						FormatItem item = FormatItem.newByType(type);
-						item.setLevel(level);
-						item.lenRange = lenRange;
-						items.add(item);
-						if(type == ItemType.Class || type == ItemType.Method || type == ItemType.ClassName || type == ItemType.Line || type == ItemType.File) {
-							needStacktrace = true;
-						}
-						if(type == ItemType.Tid || type == ItemType.Thread) {
-							needThreadInfo = true;
-						}
-						if(type == ItemType.Tid || type == ItemType.Thread) {
-                            //noinspection DataFlowIssue
-                            needThreadInfo = true;
-						}
-						appended = true;
-						break;
-					}
+							 while (matcher.find()) {
+								 String lenRangeStr = matcher.group();
+								 itemType = itemType.replace(lenRangeStr, "");
+								 lenRange = parseLenRange(lenRangeStr);
+							 }
+
+							 ItemType type = ItemType.typeNameOf(itemType.trim());
+							 FormatItem item = FormatItem.newByType(type);
+							 item.setLevel(atQualifier.level).addMarkerQualifiers(atQualifier.markers);
+							 item.lenRange = lenRange;
+							 items.add(item);
+							 if (type == ItemType.Class || type == ItemType.Method || type == ItemType.ClassName || type == ItemType.Line || type == ItemType.File) {
+								 needStacktrace = true;
+							 }
+							 if (type == ItemType.Tid || type == ItemType.Thread) {
+								 needThreadInfo = true;
+							 }
+							 if (type == ItemType.Tid || type == ItemType.Thread) {
+								 //noinspection DataFlowIssue
+								 needThreadInfo = true;
+							 }
+							 appended = true;
+							 break;
+						 }
+					 } catch (Exception e) {
+						 InLogger.ERROR("LineFormatter.parse() error. Item: " + itemType, e);
+					 }
 				}
 				if(!appended) {
 					items.add(FormatItem.newTextType(itemType));
@@ -135,6 +150,53 @@ class LineFormatter {
 		return formatter;
 	}
 
+	private static AtQualifier findAtQualifier(String format) {
+		AtQualifier atQualifier = new AtQualifier();
+		if(format.contains("@")) {
+			String[] parts = format.split("@");
+			if(parts.length == 2) {
+				String part = parts[1];
+				if(part.endsWith("}")) {
+					part = part.substring(0, part.length() - 1);
+				}
+				String[] markerOrLevel = StringUtil.splitStringWithSeparator(part, ',', true);
+
+				for(String item : markerOrLevel) {
+					item = item.trim();
+					if(item.isEmpty()) {
+						continue;
+					}
+					// marker 가 큰띠옴표 혹은 작은따옴표로 감싸져 있으면 제거String
+					if((item.startsWith("\"") && item.endsWith("\"")) || item.startsWith("'") && item.endsWith("'")) {
+						item = item.substring(1, item.length() - 1);
+						atQualifier.markers.add(item);
+						continue;
+					}
+					// level 이름을 가져 온다.
+					Level level = Level.stringValueOrNull(item.replaceAll("\\s", ""));
+					if(level != null && atQualifier.level == null) {
+						atQualifier.level = level;
+					}
+					else if(level == null) {
+						atQualifier.markers.add(item);
+					}
+				}
+			}
+		}
+		return atQualifier;
+
+	}
+
+	private static class AtQualifier {
+		Level level = null;
+		HashSet<String> markers = new HashSet<String>();
+		boolean hasQualifier() {
+			return level != null || !markers.isEmpty();
+		}
+
+	}
+/*
+
 	private static Level findLevelQualifier(String format) {
 		Level level = Level.TRACE;
 		if(format.contains("@")) {
@@ -143,6 +205,9 @@ class LineFormatter {
 				String part = parts[1];
 				if(part.endsWith("}")) {
 					part = part.substring(0, part.length() - 1);
+					// 띄어쓰기 제거
+					part = part.trim().replaceAll("\\s", "");
+
 				}
 				level = Level.stringValueOrNull(part);
 				if(level != null) {
@@ -152,6 +217,7 @@ class LineFormatter {
 		}
 		return level;
 	}
+*/
 
 
 	/**
@@ -268,11 +334,33 @@ class LineFormatter {
 		SimpleDateFormat dateFormat = null;
 		LenRange lenRange = null;
 		Level level = null;
+		Set<String> markerQualifiers = null;
 
 
 		public FormatItem setLevel(Level level) {
 			this.level = level == Level.TRACE ? null : level;
 			return this;
+		}
+
+		FormatItem addMarkerQualifiers(Set<String> markerQualifiers) {
+			if(markerQualifiers == null || markerQualifiers.isEmpty()) {
+				return this;
+			}
+			if(this.markerQualifiers == null) {
+				this.markerQualifiers = new HashSet<String>();
+			}
+			this.markerQualifiers.addAll(markerQualifiers);
+			return this;
+		}
+
+		public boolean isMarkerAllowed(String marker) {
+			if(markerQualifiers == null) {
+				return true;
+			}
+			if(StringUtil.isNullOrEmpty(marker)) {
+				return false;
+			}
+			return markerQualifiers.contains(marker);
 		}
 
 

@@ -2,6 +2,7 @@ package com.hancomins.logexpress.configuration;
 
 import com.hancomins.logexpress.InLogger;
 import com.hancomins.logexpress.Level;
+import com.hancomins.logexpress.util.StringUtil;
 import com.hancomins.logexpress.util.SysTool;
 import com.hancomins.logexpress.util.Files;
 
@@ -119,7 +120,7 @@ class ConfigurationParser {
 				option.addMarker(defaultName);
                 //noinspection ForLoopReplaceableByForEach
                 for(int i = 0; i < markerArray.length; ++i) {
-					if(markerArray[i] == null || markerArray[i].trim().isEmpty()) continue;
+					if(StringUtil.isNullOrEmptyAfterTrim(markerArray[i])) continue;
 					option.addMarker(markerArray[i].trim());
 				}
 				
@@ -241,7 +242,7 @@ class ConfigurationParser {
 			 
 	        @Override
 	        public Object put(Object key, Object value) {
-	            String header = (((String) key) + " " + value).trim();
+	            String header = (key + " " + value).trim();
 	            if (header.startsWith("[") && header.endsWith("]"))
 	                return result.put(header.substring(1, header.length() - 1),  section = new Properties());
 	            else
