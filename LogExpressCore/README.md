@@ -170,7 +170,8 @@ dependencies {
   #  - {line}: 로그가 발생된 라인 번호
   #  - {caller}: 로그를 호출한 클래스 (logexpress.getLogger 메서드의 인자로 정의됨)
   #  - {caller-simple}: 로그를 호출한 클래스의 패키지 경로를 제외한 이름
-  pattern={time::HH:mm:ss.SSS} [{level}] <{hostname}/PID:{pid}/{thread}:{tid}> {marker} | {caller} {caller-simple} | ({file}) {class-name}.{method}():{line} | {message}
+  #  - {text::(text)}: 텍스트를 출력합니다.  @ 을 사용하여 level 혹은 marker를 제한하여 출력할 때 사용합니다. 
+  pattern={time::HH:mm:ss.SSS} [{level}] <{hostname}/PID:{pid}/{thread}:{tid}> {marker} | {caller} {caller-simple} | ({file}) {class-name}.{method}():{line} | {message}  {text::에러가 발생하였습니다. @error} 
   
   # 로그 기록 타입을 설정합니다.
   # file, console 타입을 지정할 수 있습니다.
@@ -234,7 +235,26 @@ dependencies {
   pattern={time::HH:mm:ss.SSS} {message[ 10: ]}
   # 메시지를 끝에서부터 5자만 출력합니다.
   pattern={time::HH:mm:ss.SSS} {message[:-5]}
-
+  ```
+* 출력 예시
+  ```java
+  // {message[ 17:25 ]} 옵션을 사용하여 메시지의 길이를 17자에서 25자로 제한합니다.
+  // 메시지가 17자 미만일 경우, 공백으로 부족한 길이를 채우고 중앙 정렬합니다.
+  // 메시지가 25자를 초과할 경우, 25자까지만 출력합니다.
+  LogExpress.info("Hello, World!");
+  // 출력: '  Hello, World!  ' 
+  
+  // {message[ 20:30]} 옵션을 사용하여 메시지의 길이를 20자에서 30자로 제한합니다.
+  // 메시지가 20자 미만일 경우, 공백으로 부족한 길이를 채우고 우측 정렬합니다.
+  // 메시지가 30자를 초과할 경우, 30자까지만 출력합니다.
+  LogExpress.info("Hello, World!");
+  // 출력: '       Hello, World!'
+  
+  // {message[:-5]} 옵션을 사용하여 메시지의 길이를 끝에서부터 5자로 제한합니다.
+  // 메시지가 5자 미만일 경우, 전체 메시지를 출력합니다.
+  LogExpress.info("Hello, World!");
+  // 출력: 'World!'
+  ```
   
 ### 로거와 프로세스 종료
 * 비동기 로거인 LogExpress는 메인 스레드가 종료되어도 로거 스레드는 종료되지 않습니다. 로거 스레드가 존재하는한 프로세스도 종료되지 않을 것입니다. 만약 로거 스레드와 프로세스를 우아하게 종료하고싶다면 LogExpress.shutdown() 을 사용하세요.
