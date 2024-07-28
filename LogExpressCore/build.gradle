@@ -27,17 +27,25 @@ sourceCompatibility = JAVA_VERSION
 compileJava {
     sourceCompatibility=JAVA_VERSION
     targetCompatibility=JAVA_VERSION
+    options.encoding = 'UTF-8'
+}
+
+compileTestJava {
+    sourceCompatibility=JAVA_VERSION
+    targetCompatibility=JAVA_VERSION
+    options.encoding = 'UTF-8'
+
 }
 
 compileJava.options.encoding = 'UTF-8'
-File signPropsFile = project.rootProject.file("${projectDir}/../sign.properties")
-        .getCanonicalFile();
+String signPropsFilePath =  getAbsolutePath("${projectDir}/../sign.properties");
 Properties signProperties = new Properties()
-if (signPropsFile.exists()) {
-    try(InputStream inputStream = new FileInputStream(signPropsFile)) {
+if (file(signPropsFilePath).exists()) {
+    try(InputStream inputStream = new FileInputStream(signPropsFilePath)) {
         signProperties.load(inputStream)
     }
-
+    String keyRingFilePath = getAbsolutePath(signProperties.getProperty(JarSign.PROPERTY_KEY_SECRET_KEY_RING_FILE, ''))
+    signProperties.setProperty(JarSign.PROPERTY_KEY_SECRET_KEY_RING_FILE, keyRingFilePath);
 }
 
 
@@ -93,7 +101,7 @@ javadoc {
 
 jar {
     group = 'build'
-    archiveBaseName.set("logexpress")
+    archiveBaseName.set("LogExpress")
 
     manifest {
         attributes(
@@ -119,7 +127,7 @@ jar {
 
 task jarJavadoc(type: Jar, dependsOn: javadoc) {
     group = 'build'
-    archiveBaseName.set("logexpress")
+    archiveBaseName.set("LogExpress")
     classifier = 'javadoc'
     from javadoc.destinationDir
     archiveClassifier.set('javadoc') // Gradle 6.4 이상에서는 이 방법을 사용
@@ -147,7 +155,7 @@ task jarJavadoc(type: Jar, dependsOn: javadoc) {
 
 task jarSources(type: Jar) {
     group = 'build'
-    archiveBaseName.set("logexpress")
+    archiveBaseName.set("LogExpress")
     classifier = 'sources'
     from sourceSets.main.allSource
     archiveClassifier.set('sources') // Gradle 6.4 이상에서는 이 방법을 사용
@@ -177,7 +185,7 @@ task jarSources(type: Jar) {
 task makePom {
     group = 'build'
     doLast {
-        def pomFilePath = "${buildDir}/libs/logexpress-${version}.pom"
+        def pomFilePath = "${buildDir}/libs/LogExpress-${version}.pom"
 
         PomBuilder.builder()
         PomBuilder.Developer developer = PomBuilder.newDeveloper("Sungbeom Hong")
@@ -185,13 +193,13 @@ task makePom {
                 .setOrganization("HANCOM INNOSTREAM")
                 .setOrganizationUrl("https://github.com/hancomins").setId("ice3x2");
 
-        PomBuilder.SCM scm = PomBuilder.newSCM("hancomins/LogExpress");
+        PomBuilder.SCM scm = PomBuilder.newSCM("hancomins/logexpress");
 
         PomBuilder.builder().setGroupId("io.github.hancomins")
-                .setArtifactId("logexpress")
+                .setArtifactId("LogExpress")
                 .setVersion("${version}")
                 .setName("LogExpress")
-                .setUrl("https://github.com/hancomins/LogExpress")
+                .setUrl("https://github.com/hancomins/logexpress")
                 .addDeveloper(developer)
                 .setScm(scm)
                 .writeFile(pomFilePath);
@@ -226,8 +234,8 @@ task dist() {
     dependsOn makePom
     doLast {
         def sourceDir = new File("${buildDir}/libs")
-        def targetDir = new File("${buildDir}/dist/io/github/hancomins/logexpress/${version}")
-        def zipFile = new File("${buildDir}/dist/logexpress-${version}.zip")
+        def targetDir = new File("${buildDir}/dist/io/github/hancomins/LogExpress/${version}")
+        def zipFile = new File("${buildDir}/dist/LogExpress-${version}.zip")
 
         // 1. 대상 디렉토리 생성
         if (!targetDir.exists()) {
@@ -250,7 +258,7 @@ task dist() {
                 targetDir.eachFileRecurse { file ->
                     if (file.isFile()) {
                         def relativePath = file.path.replace(targetDir.path + File.separator, "")
-                        def entryName = "io/github/hancomins/logexpress/${version}/" + relativePath
+                        def entryName = "io/github/hancomins/LogExpress/${version}/" + relativePath
                         zos.putNextEntry(new java.util.zip.ZipEntry(entryName))
                         file.withInputStream { fis ->
                             zos << fis
@@ -265,3 +273,11 @@ task dist() {
     }
 }
 
+
+String getAbsolutePath(String path) {
+    if (path.startsWith("/") || path.matches("^[a-zA-Z]:.*")) {
+        return file(path).getCanonicalFile().getAbsolutePath();
+    } else {
+        return file("${rootDir}/${path}").getCanonicalFile().getAbsolutePath();
+    }
+}

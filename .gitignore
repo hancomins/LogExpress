@@ -76,3 +76,4 @@ rebel.xml
 local.properties
 !JarSignTool*.jar
 sign.properties
+signing.gpg
