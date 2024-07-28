@@ -2,8 +2,6 @@ package com.hancomins.logexpress;
 
 import org.junit.Test;
 
-import javax.swing.text.DateFormatter;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -184,7 +182,29 @@ public class LineFormatterTest {
         value = lineCombiner.combine(new Line(lineFormatter, Level.INFO, "marker", "This message is too long", null, 2)).toString();
         System.out.println(value);
         assertEquals(".This mes.", value.trim()); // 긴 메시지는 잘려나감
+
+
+
     }
+
+
+    @Test
+    public void testMessageCutAlign() {
+        LineFormatter lineFormatter = LineFormatter.parse("[{level}] .{message[ 5:5 ]}.");
+        LineCombiner lineCombiner = lineFormatter.getLineCombiner();
+        String value = lineCombiner.combine(new Line(lineFormatter, Level.INFO, "", "1234567890", null, 2)).toString();
+        System.out.println(value);
+        assertEquals("[INFO] .34567.\n", value);
+
+        lineFormatter = LineFormatter.parse("[{level}] .{message[ 5:5]}.");
+        value = lineCombiner.combine(new Line(lineFormatter, Level.INFO, "", "1234567890", null, 2)).toString();
+        System.out.println(value);
+        assertEquals("[INFO] .67890.\n", value);
+
+
+
+    }
+
 
 
     @Test

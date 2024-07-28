@@ -146,6 +146,7 @@ dependencies {
   maxHistory=60
   
   # 파일 경로 및 패턴을 설정합니다.
+  ## 파일 경로 및 패턴의 각 요소들
   #  - {marker}: marker 이름
   #  - {hostname}: 호스트 이름
   #  - {pid}: 프로세스 ID (사용 권장하지 않음)
@@ -154,6 +155,7 @@ dependencies {
   file={marker}.{hostname}.{date:yyyy-MM-dd}.{number}.txt
   
   # 로그 라인 패턴을 설정합니다.
+  ## 패턴의 각 요소들
   #  - {time::(date format)}: 로그 발생 시간
   #  - {level}: 로그 레벨
   #  - {hostname}: 호스트 이름. 네트워크 환경에서 서버를 식별하는 데 사용됩니다.
@@ -234,21 +236,36 @@ dependencies {
   pattern={time::HH:mm:ss.SSS} {message[ 10: ]}
   # 메시지를 끝에서부터 5자만 출력합니다.
   pattern={time::HH:mm:ss.SSS} {message[:-5]}
+  ```
+  * 사용 예시
+  ```java
+  // 페턴 설정
+  // {time::HH:mm:ss.SSS} [level] '{message[5:5]}'
+  LogExpress.info("1234567890");
+  // 출력 결과
+  // 12:34:56.789 [INFO] '12345'
+  // 
+  // {time::HH:mm:ss.SSS} [level] '{message[ 5:5]}'
+  // 출력 결과
+  // 12:34:56.789 [INFO] ' '
+  
+
+  ```
 
 
 ### 로거와 프로세스 종료
-* 비동기 로거인 LogExpress는 메인 스레드가 종료되어도 로거 스레드는 종료되지 않습니다. 로거 스레드가 존재하는한 프로세스도 종료되지 않을 것입니다. 만약 로거 스레드와 프로세스를 우아하게 종료하고싶다면 LogExpress.shutdown() 을 사용하세요.
+* 비동기 로거인 LogExpress는 메인 스레드가 종료되어도 로거 스레드는 종료되지 않습니다. 로거 스레드가 존재하는한 프로세스도 종료되지 않을 것입니다. 만약 로거 스레드를 종료하고싶다면 LogExpress.shutdown() 을 사용하세요.
   ```java
   ShutdownFuture future = LogExpress.shutdown();
   // 여러개의 이벤트 등록가능
-  future.setOnEndCallback(new Runnable() {
+  future.addOnEndCallback(new Runnable() {
 	@Override
 	public void run() {
 		System.out.println("끝1");
 	}
    });
 
-  future.setOnEndCallback(new Runnable() {
+  future.addOnEndCallback(new Runnable() {
 	@Override
 	public void run() {
 		System.out.println("끝2");
@@ -257,11 +274,11 @@ dependencies {
   // 로거 스레드가 끝날때까지 대기
   furture.await();
   ```
-* 설정파일 log-express.ini 에서 autoShutdown 의 값을 true로 변경하여 로거를 자동으로 종료되도록 할 수 있습니다. 하지만 다중 스레드를 이용하는 서버 운영 환경에서는 사용을 권장하지 않습니다.
+* 설정파일 log-express.ini 에서 autoShutdown 의 값을 true로 변경하여 로거를 자동으로 종료되도록 할 수 있습니다. 이 옵션을 사용하면 tid 가 1인 메인 스레드가 종료될 경우 로거 스레드도 함께 종료됩니다. 하지만 다중 스레드를 이용하는 서버 운영 환경에서는 사용을 권장하지 않습니다.
 
 
 ### 메모리를 절약하고 빠르게 사용하기 위한 팁
-* debug 로그 레벨 이상은 isDebug() 를 사용하여 로그 레벨을 검사하세요.
+* DEBUG 및 TRACE 레벨 등은 isDebugEnabled(), isTraceEnabled() 등 사용하여 로그 레벨을 확인한 후 로그를 출력하는 것이 좋습니다. 불필요한 문자열 생성 및 연산을 줄일 수 있습니다.
   ```java
   if(LogExpress.isDebugEnabled()) {
      LogExpress.debug("소켓 문제가 발생하였습니다.", exception);

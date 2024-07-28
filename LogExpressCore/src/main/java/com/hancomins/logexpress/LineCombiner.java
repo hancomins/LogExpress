@@ -41,8 +41,23 @@ class LineCombiner {
             return sb.toString();
         }
         return text;
-
     }
+
+
+    private CharSequence subSequenceAndAlign(CharSequence text,int length, int align) {
+        if(align == LineFormatter.LenRange.ALIGN_LEFT) {
+            return text.subSequence(0, length);
+        } else if(align == LineFormatter.LenRange.ALIGN_RIGHT) {
+            int start = text.length() - length;
+            return text.subSequence(start, text.length());
+        } else if(align == LineFormatter.LenRange.ALIGN_CENTER) {
+            int left = (text.length() - length) / 2;
+            int right = left + length;
+            return text.subSequence(left, right);
+        }
+        return text;
+    }
+
 
     private CharSequence cutRange(CharSequence text, LineFormatter.LenRange lenRange) {
         int textLen = text.length();
@@ -51,7 +66,11 @@ class LineCombiner {
             return align(text, space, lenRange.align);
         }
         if(lenRange.max > 0 && textLen > lenRange.max) {
-            return text.subSequence(0, lenRange.max);
+            if(lenRange.align == LineFormatter.LenRange.ALIGN_LEFT) {
+                return text.subSequence(0, lenRange.max);
+            } else {
+                return subSequenceAndAlign(text, lenRange.max, lenRange.align);
+            }
         }
         else if(lenRange.max < 0 && textLen > Math.abs(lenRange.max)) {
             int max = Math.abs(lenRange.max);

@@ -17,8 +17,8 @@ public class ShutdownFutureFacade implements ShutdownFuture {
     public void onEnd() {}
 
     @Override
-    public void setOnEndCallback(Runnable runnable) {
-        shutdownFuture.setOnEndCallback(runnable);
+    public void addOnEndCallback(Runnable runnable) {
+        shutdownFuture.addOnEndCallback(runnable);
     }
 
     @Override

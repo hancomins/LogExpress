@@ -137,7 +137,7 @@ class LoggerContext {
 			}
 
 			@Override
-			public void setOnEndCallback(Runnable runnable) {
+			public void addOnEndCallback(Runnable runnable) {
 				if(isEnd.get()) {
 					callEvent(runnable);
 					return;

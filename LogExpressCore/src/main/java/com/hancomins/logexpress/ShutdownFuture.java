@@ -28,7 +28,7 @@ public interface ShutdownFuture {
      * @param runnable the callback to be executed.<br>
      *                 실행될 콜백.
      */
-    public void setOnEndCallback(Runnable runnable);
+    public void addOnEndCallback(Runnable runnable);
 
     /**
      * Waits for the shutdown process to end.<br>

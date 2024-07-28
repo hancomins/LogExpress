@@ -261,14 +261,14 @@ dependencies {
   ```java
   ShutdownFuture future = LogExpress.shutdown();
   // 여러개의 이벤트 등록가능
-  future.setOnEndCallback(new Runnable() {
+  future.addOnEndCallback(new Runnable() {
 	@Override
 	public void run() {
 		System.out.println("끝1");
 	}
    });
 
-  future.setOnEndCallback(new Runnable() {
+  future.addOnEndCallback(new Runnable() {
 	@Override
 	public void run() {
 		System.out.println("끝2");

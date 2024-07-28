@@ -415,7 +415,7 @@ public class LogExpressTest {
 		ShutdownFuture future = LogExpress.shutdown();
 		System.out.println("endendendend");
 		final AtomicInteger atomicInteger = new AtomicInteger(0);
-		future.setOnEndCallback(new Runnable() {
+		future.addOnEndCallback(new Runnable() {
 			@Override
 			public void run() {
 				atomicInteger.addAndGet(10);
@@ -423,7 +423,7 @@ public class LogExpressTest {
 			}
 		});
 
-		future.setOnEndCallback(new Runnable() {
+		future.addOnEndCallback(new Runnable() {
 			@Override
 			public void run() {
 				atomicInteger.addAndGet(22);

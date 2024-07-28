@@ -126,7 +126,7 @@ public class LogExpress {
 			LoggerContext context = new LoggerContext(configure, baseLoggers);
 			LoggerContextRef.set(context);
 			ShutdownFuture shutdownFuture = oldContext.end();
-			shutdownFuture.setOnEndCallback(new Runnable() {
+			shutdownFuture.addOnEndCallback(new Runnable() {
 				@Override
 				public void run() {
 					// 디버그 로그를 출력한다.
@@ -181,7 +181,7 @@ public class LogExpress {
 			}
 
 			@Override
-			public void setOnEndCallback(Runnable runnable) {
+			public void addOnEndCallback(Runnable runnable) {
 				runnable.run();
 			}
 
@@ -214,7 +214,7 @@ public class LogExpress {
 			LoggerContext context = LoggerContextRef.get();
 			ShutdownFuture shutdownFuture = context.end();
 			ShutdownFutureRef.set(shutdownFuture);
-			shutdownFuture.setOnEndCallback(new Runnable() {
+			shutdownFuture.addOnEndCallback(new Runnable() {
 				@Override
 				public void run() {
 					// 디버그 로그를 출력한다.

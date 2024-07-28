@@ -35,7 +35,7 @@ class UserShutdownFuture implements ShutdownFuture {
     }
 
     @Override
-    public void setOnEndCallback(Runnable runnable) {
+    public void addOnEndCallback(Runnable runnable) {
         synchronized (monitor) {
             if(isEnd.get()) {
                 runnable.run();
