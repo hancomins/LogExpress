@@ -10,9 +10,9 @@
 ```gradle
 dependencies {
     // LogExpress core 프로젝트.
-    implementation 'io.github.hancomins:LogExpress:1.0.2'
-    // SLF4j 지원. 1.7 기반.
-    //implementation 'io.github.hancomins:LogExpressSLF4J:1.0.2'
+    implementation 'io.github.hancomins:LogExpressCore:1.0.0'
+    // SLF4j 지원.
+    //implementation 'io.github.hancomins:LogExpressSlf4j:1.0.0.'
 }
 ```
 
@@ -49,7 +49,7 @@ dependencies {
 <br/><br/>
 
 ### 설정 파일
-* 설정 파일의 포맷은 ini 입니다.
+* 설정 파일의 포맷은 ini 입니다. 
 * 기본 파일명은 log-express.ini 입니다.
 * log-express.ini 파일은 리소스의 루트경로 혹은 프로젝트의 루트경로에 위치해야합니다. 하지만, 설정 파일의 경로를 변경하고 싶다면 jvm 옵션에 '-DLogExpress.configurationFile=파일경로' 를 추가하거나 프로세스 최초 시작지점에 아래와 같은 코드를 넣어주세요. <br/>
   ```java
@@ -146,7 +146,6 @@ dependencies {
   maxHistory=60
   
   # 파일 경로 및 패턴을 설정합니다.
-  ## 파일 경로 및 패턴의 각 요소들
   #  - {marker}: marker 이름
   #  - {hostname}: 호스트 이름
   #  - {pid}: 프로세스 ID (사용 권장하지 않음)
@@ -155,7 +154,6 @@ dependencies {
   file={marker}.{hostname}.{date:yyyy-MM-dd}.{number}.txt
   
   # 로그 라인 패턴을 설정합니다.
-  ## 패턴의 각 요소들
   #  - {time::(date format)}: 로그 발생 시간
   #  - {level}: 로그 레벨
   #  - {hostname}: 호스트 이름. 네트워크 환경에서 서버를 식별하는 데 사용됩니다.
@@ -172,7 +170,8 @@ dependencies {
   #  - {line}: 로그가 발생된 라인 번호
   #  - {caller}: 로그를 호출한 클래스 (logexpress.getLogger 메서드의 인자로 정의됨)
   #  - {caller-simple}: 로그를 호출한 클래스의 패키지 경로를 제외한 이름
-  pattern={time::HH:mm:ss.SSS} [{level}] <{hostname}/PID:{pid}/{thread}:{tid}> {marker} | {caller} {caller-simple} | ({file}) {class-name}.{method}():{line} | {message}
+  #  - {text::(text)}: 텍스트를 출력합니다.  @ 을 사용하여 level 혹은 marker를 제한하여 출력할 때 사용합니다. 
+  pattern={time::HH:mm:ss.SSS} [{level}] <{hostname}/PID:{pid}/{thread}:{tid}> {marker} | {caller} {caller-simple} | ({file}) {class-name}.{method}():{line} | {message}  {text::에러가 발생하였습니다. @error} 
   
   # 로그 기록 타입을 설정합니다.
   # file, console 타입을 지정할 수 있습니다.
@@ -196,10 +195,10 @@ dependencies {
      # 사용 예 - System.properties에 임의로 정의된 Log.dir 값과 시스템 환경 변수 USER에 해당하는 값
      file=${Log.dir}/%USER%/log.out
   ```
-- 기본 프로퍼티 이름
+- 기본 프로퍼티 이름 
   - ${LogExpress.path}:  LogExpress 라이브러리가 설치된 디렉터리 경로입니다. 이는 애플리케이션의 루트 경로가 될 수 있습니다.
   - ${LogExpress.hostname}: 애플리케이션이 실행 중인 서버의 호스트 이름입니다. 네트워크 환경에서 서버를 식별하는 데 사용됩니다.
-  - ${LogExpress.pid}: 현재 실행 중인 프로세스의 ID입니다. 시스템에서 실행 중인 프로세스를 고유하게 식별하는 데 사용됩니다.
+  - ${LogExpress.pid}: 현재 실행 중인 프로세스의 ID입니다. 시스템에서 실행 중인 프로세스를 고유하게 식별하는 데 사용됩니다. 
 
 ### 코드상에서 동적으로 설정 변경
 * 코드상에서 동적으로 설정 변경이 가능합니다. 로그 큐와 Worker 를 모두 종료시키고 새로 생성된 객체로 안전하게 교체(exchange)합니다. <br/>
@@ -223,7 +222,23 @@ dependencies {
   ```
 * 자세한 설정 변경 방법은 Configuration 클래스와 public 메서드의 주석을 참고하세요.
 
-### 메시지 패턴 요소별 길이 제한
+### 로그 라인 패턴 출력을 레벨 및 마커에 따라 제한하기
+* 로그 라인 패턴 마지막에 @ 를 사용하여 레벨 및 마커를 제한할 수 있습니다. @ 뒤에는 레벨 또는 마커 이름을 입력합니다. 
+* 레벨은 DEUBG, INFO, WARN, ERROR, FATAL 중 하나를 입력합니다. 만약 ERROR 레벨 이상의 로그만 출력하고 싶다면, @error 를 입력하세요. 
+* 여러개의 레벨 또는 마커를 입력할 수 있습니다. 쉼표로 구분합니다. 레벨은 대소문자를 구분하지 않지만, 마커 이름은 대소문자 및 공백을 구분합니다.
+* 만약 마커의 이름이 레벨 이름과 같다면, 중복을 피하기 위해 마커 이름 앞 뒤에 따옴표(Qutation) 또는 작은 따옴표(Single Qutation)를 사용하세요.
+* 마커 이름 내부에 따옴표 혹은 작은 따옴표를 사용하려면, 역슬래시(\)를 사용하여 이스케이프 처리하세요.
+* 로그 레벨이 중복되어 있을 경우, 가장 먼저 나오는 레벨을 제외하고 나머지 레벨은 무시됩니다.
+* 사용 예시
+  ```properties
+    # 레벨이 INFO 이상인 로그(INFO, WARN, ERROR, FATAL)만 메시지를 출력합니다.
+    pattern={time::HH:mm:ss.SSS} [{level}] {message@info}
+    # 마커 레벨이 ERROR 이상 이면서 마커 이름이 'error' 또는 'fatal' 또는 'api' 인 로그에 대해서만 메서드 이름을 출력합니다.
+    pattern={time::HH:mm:ss.SSS} [{level}] {method@error,'fatal','error',api}()  {message} {text::에러가 발생 하였습니다. @error} 
+       
+  ```
+  
+### 로그 라인 패턴 요소별 길이 제한
 * 로그 메시지의 각 요소에 대해 표시할 텍스트 길이를 제한할 수 있습니다.
 * `[최소길이:최대길이]` 형식으로 대괄호 안에 길이를 지정합니다.
 * 텍스트의 길이가 최소 길이보다 짧을 경우, 공백을 추가하여 정렬을 설정할 수 있습니다. 여는 대괄호 바로 뒤에 공백이 있으면 우측 정렬, 양쪽에 공백이 있으면 중앙 정렬이 됩니다. 기본 설정은 좌측 정렬입니다.
@@ -237,24 +252,33 @@ dependencies {
   # 메시지를 끝에서부터 5자만 출력합니다.
   pattern={time::HH:mm:ss.SSS} {message[:-5]}
   ```
-  * 사용 예시
+* 출력 예시
   ```java
-  // 페턴 설정
-  // {time::HH:mm:ss.SSS} [level] '{message[5:5]}'
   LogExpress.info("1234567890");
-  // 출력 결과
-  // 12:34:56.789 [INFO] '12345'
-  // 
-  // {time::HH:mm:ss.SSS} [level] '{message[ 5:5]}'
-  // 출력 결과
-  // 12:34:56.789 [INFO] ' '
   
-
+  // 설정: 
+  // pattern=[{level}] .{message[ 5:5 ]}.
+  // 출력:
+  // [INFO] .34567.
+  //
+  // 설정: 
+  // pattern=[{level}] .{message[ 5:5]}.
+  // 출력:
+  // [INFO] .67890.
+  // 
+  // 설정:
+  // pattern=[{level}] .{message[ 15:]}.
+  // 출력:
+  // [INFO] .     1234567890.
+  //
+  // 설정:
+  // pattern=[{level}] .{message[ 15: ]}.
+  // 출력:
+  // [INFO] .  1234567890   .
   ```
-
-
+  
 ### 로거와 프로세스 종료
-* 비동기 로거인 LogExpress는 메인 스레드가 종료되어도 로거 스레드는 종료되지 않습니다. 로거 스레드가 존재하는한 프로세스도 종료되지 않을 것입니다. 만약 로거 스레드를 종료하고싶다면 LogExpress.shutdown() 을 사용하세요.
+* 비동기 로거인 LogExpress는 메인 스레드가 종료되어도 로거 스레드는 종료되지 않습니다. 로거 스레드가 존재하는한 프로세스도 종료되지 않을 것입니다. 만약 로거 스레드와 프로세스를 우아하게 종료하고싶다면 LogExpress.shutdown() 을 사용하세요.
   ```java
   ShutdownFuture future = LogExpress.shutdown();
   // 여러개의 이벤트 등록가능
@@ -274,14 +298,13 @@ dependencies {
   // 로거 스레드가 끝날때까지 대기
   furture.await();
   ```
-* 설정파일 log-express.ini 에서 autoShutdown 의 값을 true로 변경하여 로거를 자동으로 종료되도록 할 수 있습니다. 이 옵션을 사용하면 tid 가 1인 메인 스레드가 종료될 경우 로거 스레드도 함께 종료됩니다. 하지만 다중 스레드를 이용하는 서버 운영 환경에서는 사용을 권장하지 않습니다.
+* 설정파일 log-express.ini 에서 autoShutdown 의 값을 true로 변경하여 로거를 자동으로 종료되도록 할 수 있습니다. 하지만 다중 스레드를 이용하는 서버 운영 환경에서는 사용을 권장하지 않습니다.
 
 
 ### 메모리를 절약하고 빠르게 사용하기 위한 팁
-* DEBUG 및 TRACE 레벨 등은 isDebugEnabled(), isTraceEnabled() 등 사용하여 로그 레벨을 확인한 후 로그를 출력하는 것이 좋습니다. 불필요한 문자열 생성 및 연산을 줄일 수 있습니다.
+* debug 로그 레벨 이상은 isDebug() 를 사용하여 로그 레벨을 검사하세요.
   ```java
   if(LogExpress.isDebugEnabled()) {
      LogExpress.debug("소켓 문제가 발생하였습니다.", exception);
   }
   ```
-   
