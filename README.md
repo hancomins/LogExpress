@@ -107,8 +107,6 @@ dependencies {
     autoShutdown=false
     
     
-    
-    
 
     # true로 설정하면 main 스레드가 종료될때 로거 스레드도 함께 종료합니다.
     # 기본값: false
@@ -130,7 +128,14 @@ dependencies {
     # 기본값: false 
     fileExistCheck=true
     
-    
+
+
+
+
+
+
+
+
     # writer 는 logback 의 appender와 유사합니다.  
     # writer 옵션. Logger의 객체는 해당 marker의 Writer를 사용합니다. 만약 지정되지 않은 marker를 사용할 경우 기본 Writer를 사용하게됩니다.
     # writer 의 섹션 이름은 항상 'writer/' 로 시작해야 합니다. 그 뒤에 오는 것은 marker 입니다. 이 예제에서 marker는 'api'입니다. 
