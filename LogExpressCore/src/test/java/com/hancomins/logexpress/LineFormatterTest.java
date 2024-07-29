@@ -202,17 +202,17 @@ public class LineFormatterTest {
         System.out.println(value);
         assertEquals("[INFO] .67890.\n", value);
 
-        lineFormatter = LineFormatter.parse("[{level}] .{message[ 15:15]}.");
+        lineFormatter = LineFormatter.parse("[{level}] .{message[ 15:]}.");
         lineCombiner = lineFormatter.getLineCombiner();
-        value = lineCombiner.combine(new Line(lineFormatter, Level.INFO, "", "12345678900", null, 2)).toString();
+        value = lineCombiner.combine(new Line(lineFormatter, Level.INFO, "", "1234567890", null, 2)).toString();
         System.out.println(value);
-        assertEquals("[INFO] .    12345678900.\n", value);
+        assertEquals("[INFO] .     1234567890.\n", value);
 
-        lineFormatter = LineFormatter.parse("[{level}] .{message[ 15:15 ]}.");
+        lineFormatter = LineFormatter.parse("[{level}] .{message[ 15: ]}.");
         lineCombiner = lineFormatter.getLineCombiner();
-        value = lineCombiner.combine(new Line(lineFormatter, Level.INFO, "", "12345678900", null, 2)).toString();
+        value = lineCombiner.combine(new Line(lineFormatter, Level.INFO, "", "1234567890", null, 2)).toString();
         System.out.println(value);
-        assertEquals("[INFO] .  12345678900  .\n", value);
+        assertEquals("[INFO] .  1234567890   .\n", value);
 
 
 
