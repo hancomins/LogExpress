@@ -1,4 +1,6 @@
 # LogExpress
+## English manual
+- https://github.com/hancomins/LogExpress/wiki/English-manual
 ## 목적
 * 가볍고 단순한 Logger를 만들기 위한 프로젝트입니다.
 * 비동기 로거입니다 - non-block 알고리즘을 사용합니다. Log4j2 와 logback 에서 지원하는 AsyncAppender 와 동일한 방식입니다. 원형 큐에 로그를 쌓았다가 백그라운드 스레드가 파일로 저장합니다.
