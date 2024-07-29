@@ -1,3 +1,5 @@
+# LogExpress - English manual
+- https://github.com/hancomins/LogExpress/wiki/English-manual
 # LogExpress
 ## 개요
 * 가볍고 빠르고 사용 방법이 단순한 로깅 라이브러리입니다.
@@ -114,6 +116,12 @@ dependencies {
   # 항상 파일 존재 여부를 확인하고 없으면 다시 생성합니다.
   # 기본값: false
   fileExistCheck=true
+  
+  
+  
+  
+  
+  
   
   # writer는 logback의 appender와 유사합니다.
   # writer 옵션: Logger 객체는 해당 marker의 Writer를 사용합니다. 지정되지 않은 marker를 사용할 경우 기본 Writer를 사용합니다.
