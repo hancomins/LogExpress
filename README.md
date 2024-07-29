@@ -1,18 +1,20 @@
+# LogExpress - English manual
+- https://github.com/hancomins/LogExpress/wiki/English-manual
+
 # LogExpress
 ## 개요
 * 가볍고 빠르고 사용 방법이 단순한 로깅 라이브러리입니다.
 * JAVA6 부터 사용 가능하기 때문에 레거시 프로젝트에도 바로 적용할 수 있습니다.
 * 비동기 로거입니다. non-block 알고리즘을 사용합니다. Log4j2 와 logback 에서 지원하는 AsyncAppender 와 동일한 방식입니다. 원형 큐에 로그를 쌓았다가 백그라운드 스레드가 파일로 저장합니다.
 
-
 ## 사용하기
 ### gradle 프로젝트에 추가
 ```gradle
 dependencies {
     // LogExpress core 프로젝트.
-    implementation 'io.github.hancomins:LogExpressCore:1.0.0'
-    // SLF4j 지원.
-    //implementation 'io.github.hancomins:LogExpressSlf4j:1.0.0.'
+    implementation 'io.github.hancomins:LogExpress:1.0.2'
+    // SLF4j 지원. 1.7 기반
+    //implementation 'io.github.hancomins:LogExpressSLF4J:1.0.2'
 }
 ```
 
