@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
  */
 
 
+
 class LineFormatter {
 
 	private final static Pattern PATTERN_LEN_RANGE = Pattern.compile("\\[[' ']{0,}[0-9]{0,}[' ']{0,1}[:][' ']{0,}[-]{0,1}[0-9]{0,}[' ']{0,}\\]");
@@ -39,12 +40,22 @@ class LineFormatter {
 		return lineCombiner;
 	}
 
-	LineCombiner setColorOption(ColorOption colorOption) {
-		lineCombiner.setColorOption(colorOption);
-		return lineCombiner;
+	/**
+	 * 테스트 용도로 사용되는 메서드.
+	 * @param format 패턴으로 이루어진 라인 포맷
+	 * @return LineFormatter
+	 */
+	static LineFormatter parse(String format) {
+		return parse(format, null);
 	}
 
-	static LineFormatter parse(String format) {
+	/**
+	 * 라인 포맷을 파싱하여 LineFormatter 객체를 생성하는 메서드.
+	 * @param format 패턴으로 이루어진 라인 포맷
+	 * @param colorOption 색상 옵션
+	 * @return LineFormatter
+	 */
+	static LineFormatter parse(String format, ColorOption colorOption) {
 		final int MODE_TEXT = 0;
 		final int MODE_IN_TYPE = 1;
 
@@ -74,8 +85,9 @@ class LineFormatter {
 				itemBuffer.append(ch);
 				String itemType = itemBuffer.toString();
 
-				boolean appended = false; 
- 				for(int ti = 0; ti < typeNames.length; ++ti) {
+				boolean appended = false;
+                //noinspection ForLoopReplaceableByForEach
+                for(int ti = 0; ti < typeNames.length; ++ti) {
 
 					 try {
 						 if ("time".equalsIgnoreCase(typeNames[ti]) && itemType.matches("[{][\\s]{0,}(time[:])(?i).+[\\s]{0,}(@.+)?[}]")) {
@@ -108,7 +120,13 @@ class LineFormatter {
 							 }
 
 							 LinePatternItemType type = LinePatternItemType.typeNameOf(itemType.trim());
-							 FormatItem item = FormatItem.newByType(type);
+							 FormatItem item;
+							 // 시간 포맷이지만, 형식이 정해져있지 않다면 기본 시간 포맷을 사용한다.
+							 if(type == LinePatternItemType.Time) {
+								 item = FormatItem.newTimeType("HH:mm:ss.SSS");
+							 } else  {
+								 item = FormatItem.newByType(type);
+							 }
 							 item.setLevel(atQualifier.level).addMarkerQualifiers(atQualifier.markers);
 							 item.lenRange = lenRange;
 							 items.add(item);
@@ -119,7 +137,6 @@ class LineFormatter {
 								 needThreadInfo = true;
 							 }
 							 if (type == LinePatternItemType.Tid || type == LinePatternItemType.Thread) {
-								 //noinspection DataFlowIssue
 								 needThreadInfo = true;
 							 }
 							 appended = true;
@@ -152,7 +169,7 @@ class LineFormatter {
 		formatter.formatItems = items.toArray(new FormatItem[0]);
 		formatter.needStacktrace = needStacktrace;
 		formatter.needThreadInfo = needThreadInfo;
-		formatter.lineCombiner = new LineCombiner(formatter.formatItems);
+		formatter.lineCombiner = new LineCombiner(formatter.formatItems, colorOption);
 		return formatter;
 	}
 

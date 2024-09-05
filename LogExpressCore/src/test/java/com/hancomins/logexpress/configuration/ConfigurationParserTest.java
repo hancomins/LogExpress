@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.StringReader;
 
+@SuppressWarnings("ALL")
 public class ConfigurationParserTest extends TestCase {
 
     @Test
@@ -40,7 +41,6 @@ public class ConfigurationParserTest extends TestCase {
             writerOption.setHistory(30 + i * 10);
             writerOption.addWriterType(i % 2 == 0 ? WriterType.Console : WriterType.File);
             writerOption.addWriterType(WriterType.File);
-            writerOption.setColorOption(defaultColorOption.clone());
         }
 
 

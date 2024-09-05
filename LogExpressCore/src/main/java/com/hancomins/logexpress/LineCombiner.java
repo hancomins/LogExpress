@@ -5,17 +5,19 @@ import com.hancomins.logexpress.configuration.WriterType;
 import com.hancomins.logexpress.util.ANSIColor;
 import com.hancomins.logexpress.util.SysTool;
 
-import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 
 class LineCombiner {
 
     private final LineFormatter.FormatItem[] formatItems;
-    private ColorOption colorOption;
+    private final ColorOption colorOption;
 
-    LineCombiner(LineFormatter.FormatItem[] formatItems) {
+
+
+    LineCombiner(LineFormatter.FormatItem[] formatItems, ColorOption colorOption) {
         this.formatItems = formatItems;
+        this.colorOption = colorOption;
     }
 
     boolean isConsistentOutputLine() {
@@ -92,16 +94,16 @@ class LineCombiner {
         return text;
     }
 
-    void setColorOption(ColorOption colorOption) {
-        this.colorOption = colorOption;
-    }
 
     CharSequence combine(Line line) {
         return combine(line, null);
     }
 
 
-    CharSequence combine(Line line,WriterType writerType) {
+
+
+    @SuppressWarnings("ForLoopReplaceableByForEach")
+    CharSequence combine(Line line, WriterType writerType) {
         StringBuilder stringBuilder = new StringBuilder();
         Level level = line.getLevel();
         boolean allowColor = colorOption != null &&
@@ -194,6 +196,7 @@ class LineCombiner {
                     break;
                 case File:
                     String file = line.getStackTraceElement().getFileName();
+                    file = file == null ? "Unknown" : file;
                     if(item.lenRange != null)
                         file = cutRange(file, item.lenRange).toString();
                     stringBuilder.append(file);
@@ -229,7 +232,7 @@ class LineCombiner {
             line.getError().printStackTrace(printWriter);
             printWriter.flush();
             printWriter.close();
-            stringBuilder.append(new String(baos.toByteArray()));
+            stringBuilder.append(baos);
         }
         return stringBuilder;
     }

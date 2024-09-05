@@ -112,12 +112,13 @@ public final class Configuration implements Cloneable {
 		configuration.autoShutdown = this.autoShutdown;
 		configuration.writerWorkerInterval = this.writerWorkerInterval;
 		configuration.writerOptionList = new ArrayList<WriterOption>();
-		configuration.defaultOption = this.getDefaultWriterOption().clone();
+		WriterOption writerOption = this.getDefaultWriterOption();
+		configuration.defaultOption = writerOption == null ? null : writerOption.clone();
 		configuration.nonBlockingMode = this.nonBlockingMode;
 		configuration.defaultLevel = this.defaultLevel;
 		configuration.defaultColorOption = this.defaultColorOption.clone();
 		for(int i = 0, n = this.writerOptionList.size(); i < n; ++i) {
-			WriterOption writerOption = this.writerOptionList.get(i);
+			writerOption = this.writerOptionList.get(i);
 			if(writerOption == this.getDefaultOption()) {
 				configuration.writerOptionList.add(configuration.defaultOption);
 			} else {
@@ -135,7 +136,8 @@ public final class Configuration implements Cloneable {
 	 * @param level 기본 Level<br>
 	 * @return 설정 객체<br>
 	 */
-	public Configuration setDefaultLevel(Level level) {
+	@SuppressWarnings("UnusedReturnValue")
+    public Configuration setDefaultLevel(Level level) {
 		if(this.closed) return this;
 		this.defaultLevel = level;
 		return this;
@@ -513,8 +515,7 @@ public final class Configuration implements Cloneable {
 		if(idx > -1) {
 			return this.writerOptionList.get(idx);
 		}
-		WriterOption option = new WriterOption();
-		option.setColorOption(this.defaultColorOption.clone());
+		WriterOption option = new WriterOption(this.defaultColorOption.clone());
 		option.setLevel(this.defaultLevel);
 		option.addMarker(marker);
 		this.writerOptionList.add(option);
@@ -668,7 +669,7 @@ public final class Configuration implements Cloneable {
 			if(this.defaultMarker == null || this.defaultMarker.isEmpty()) {
 				this.defaultMarker = "default";
 			}
-			WriterOption option = new WriterOption();
+			WriterOption option = new WriterOption(this.defaultColorOption);
 			option.addMarker(this.defaultMarker);
 			this.defaultOption = option;
 			this.writerOptionList.add(option);
@@ -720,5 +721,5 @@ public final class Configuration implements Cloneable {
 	@Override
 	public String toString() {
 		return ConfigurationParser.toString(this);
-	};
+	}
 }

@@ -16,7 +16,7 @@ import com.hancomins.logexpress.Level;
  */
 public class WriterOption implements Cloneable {
 
-	public final static String FULL_PATTERN = "{time::HH:mm:ss.SSS} [{level}] {caller} &lt;{hostname}/PID:{pid}/{thread}:{tid}&gt;  {marker}  | ({file}) {class-name}.{method}():{line} | {message}";
+	public final static String FULL_PATTERN = "{time::HH:mm:ss.SSS} [{level}] {caller} &lt;{hostname}/PID:{pid}/{thread}:{tid}&gt; {marker} | ({file}) {class-name}.{method}():{line} | {message}";
 	public final static String DEFAULT_FILE_PATTERN = "./log.{hostname}.{date::yyyy-MM-dd}.{number}.txt";
 
 	public final static int DEFAULT_HISTORY = 60;
@@ -25,7 +25,8 @@ public class WriterOption implements Cloneable {
 	public final static int DEFAULT_ADDED_INDEX_OF_STACKTRACE_ELEMENTS = 1;
 
 	private Level level = null;
-	private ArrayList<WriterType> writerTypes = new ArrayList<WriterType>(Arrays.asList(new WriterType[] { WriterType.Console }));
+	@SuppressWarnings("RedundantArrayCreation")
+    private ArrayList<WriterType> writerTypes = new ArrayList<WriterType>(Arrays.asList(new WriterType[] { WriterType.Console }));
 	private ArrayList<String> markers = new ArrayList<String>();
 	private int bufferSize = DEFAULT_BUFFER_SIZE;
 	private int maxSize = DEFAULT_MAXSIZE;
@@ -41,7 +42,7 @@ public class WriterOption implements Cloneable {
 	private String staticVariableReplacedPattern = null;
 	private String[] staticVariableReplacedMarkers = null;
 
-	private ColorOption colorOption = new ColorOption();
+	private final ColorOption colorOption;
 
 	@Override
 	public WriterOption clone() {
@@ -49,7 +50,7 @@ public class WriterOption implements Cloneable {
 		try {
 			option = (WriterOption) super.clone();
 		} catch (CloneNotSupportedException e) {
-			option = new WriterOption();
+			option = new WriterOption(colorOption.clone());
 		}
 
 		option.level = this.level;
@@ -67,11 +68,13 @@ public class WriterOption implements Cloneable {
 		option.staticVariableReplacedPattern = null;
 		option.staticVariableReplacedEncoding = null;
 		option.staticVariableReplacedMarkers = null;
-		option.colorOption = this.colorOption.clone();
+
 		return option;
 	}
 
-	protected WriterOption() {}
+	protected WriterOption(ColorOption colorOption) {
+		this.colorOption = colorOption;
+	}
 
 	/**
 	 * 로그 레벨을 반환합니다.<br>
@@ -147,9 +150,6 @@ public class WriterOption implements Cloneable {
 		return this.colorOption;
 	}
 
-	void setColorOption(ColorOption colorOption) {
-		this.colorOption = colorOption;
-	}
 
 	/**
 	 * 마커 목록을 가져옵니다.<br>

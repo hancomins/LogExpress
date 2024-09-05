@@ -23,7 +23,7 @@ public class Line {
 		 this.time = CurrentTimeMillisGetter.currentTimeMillis();
 		 this.elementIndex = elementIndex;
 		 this.lineCombiner = formatter.getLineCombiner();
-		 Thread thread = null;
+		 Thread thread;
 		 
 		 if(formatter.needThreadInfo()) {
 			 thread = Thread.currentThread();
@@ -50,7 +50,7 @@ public class Line {
 
 	 
 	 public void release() {
-
+		 callerFQCN = null;
 		 threadName = null;
 		 marker = null;
 		 message = null;
@@ -60,7 +60,8 @@ public class Line {
 		 lineCombiner = null;
 	 }
 	 
-	 void setThreadInfo(Thread thread) {
+	 @SuppressWarnings("unused")
+     void setThreadInfo(Thread thread) {
 		 threadName = thread.getName();
 		 tid = thread.getId();
 	 }
@@ -113,15 +114,15 @@ public class Line {
 	}
 
 	
-	private int elementIndex = 0;
-	private long time = 0;
+	private final int elementIndex;
+	private final long time;
 	private long tid = -1;
 	private String threadName = null;
-	private String marker = null;
-	private CharSequence message = "";
-	private CharSequence callerFQCN = "";
-	private Level level = null;
+	private String marker;
+	private CharSequence message;
+	private CharSequence callerFQCN;
+	private Level level;
 	private Throwable throwable = null;
-	private Throwable error = null;
-	private LineCombiner lineCombiner = null;
+	private Throwable error;
+	private LineCombiner lineCombiner;
 }

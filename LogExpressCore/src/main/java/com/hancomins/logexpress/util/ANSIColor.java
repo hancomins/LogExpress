@@ -1,7 +1,5 @@
 package com.hancomins.logexpress.util;
 
-import java.util.ArrayList;
-
 public enum ANSIColor {
     BLACK("30", "40"),
     RED("31", "41"),
@@ -72,7 +70,7 @@ public enum ANSIColor {
         } else if("WHITE".equals(color)) {
             return WHITE;
         }
-        return WHITE;
+        return null;
     }
 
 

@@ -50,8 +50,8 @@ public class FileNamePattern {
 	public File toFileOverMaxSize(String marker, int maxSize) throws IOException {
 		long pid = SysTool.pid();
 		String hostName = SysTool.hostname();
-		long currentTime = CurrentTimeMillisGetter.currentTimeMillis();;
-		File file = null;
+		long currentTime = CurrentTimeMillisGetter.currentTimeMillis();
+		File file;
 		long maxSizeOfByte = (long)maxSize * 1024L * 1024L;
 		int number = 0;
 		do {
@@ -131,7 +131,14 @@ public class FileNamePattern {
 						ItemType type = ItemType.typeNameOf(text.replace("{", "").replace("}", "").trim());
 						if(type == ItemType.Marker) markerInPattern = true;
 						else if(type == ItemType.Number) numberInPattern = true;
-						items.add(PatternItem.newByType(type));
+						PatternItem item;
+						if(type == ItemType.Date) {
+							availableDate = true;
+							item = PatternItem.newDateType("yyyy-MM-dd");
+						} else {
+							item = PatternItem.newByType(type);
+						}
+						items.add(item);
 						appended = true;
 						break;
 					}
@@ -164,7 +171,7 @@ public class FileNamePattern {
 	}
 	
 	
-	static enum ItemType{
+	enum ItemType{
 		Marker,
 		Number,
 		Date,
@@ -172,7 +179,7 @@ public class FileNamePattern {
 		Pid,
 		Path;
 		
-		private ItemType() {
+	ItemType() {
 			
 		}
 		

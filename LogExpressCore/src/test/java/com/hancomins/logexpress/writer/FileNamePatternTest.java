@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 
+@SuppressWarnings("ALL")
 public class FileNamePatternTest extends TestCase {
 
     static Random random = new Random(System.currentTimeMillis());
@@ -31,6 +32,13 @@ public class FileNamePatternTest extends TestCase {
         System.out.println(file.getAbsolutePath());
         String name = file.getName();
         assertEquals(name, pid +  ".test-name.api." + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + "_" + num + ".log");
+
+        fileNamePattern = FileNamePattern.parse("/Program Files (x86)/hancomins/CLIP eForm v5.0/CLIPreportAPIServer-previewer/log/{hostname}/{pid}.{hostname}.api.{date}_{number}.log");
+        file = fileNamePattern.toFile(pid, "test-name", "test-makrer", current, num);
+        System.out.println(file.getAbsolutePath());
+        name = file.getName();
+        assertEquals(name, pid +  ".test-name.api." + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + "_" + num + ".log");
+
         assertEquals(file.getParentFile().getName(), "test-name");
 
 

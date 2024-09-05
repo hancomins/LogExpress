@@ -17,9 +17,8 @@ public class BaseLogger implements Logger {
 	private final String marker;
 	private volatile LineFormatter formatter = null;
 	private volatile AbsLineQueue absLineQueue = null;
-	private volatile Level level = Level.INFO;
+	private volatile Level level;
 	private volatile int stackTraceElementsIndex = 0;
-	private final ColorOption colorOption;
 	
 	private boolean isInfo = false;
 	private boolean isError = false;
@@ -33,18 +32,16 @@ public class BaseLogger implements Logger {
 	protected BaseLogger(String marker, WriterOption option) {
 		this.marker = marker;
 		level =  option.getLevel();
-		colorOption = option.colorOption();
-		initFormatter(option.getPattern());
+		initFormatter(option.getPattern(), option.colorOption());
 		setLevel(option.getLevel());
 		stackTraceElementsIndex = DEF_ELEMENT_IDX + option.getStackTraceDepth();
 	}
 	
 	
 	protected void change(AbsLineQueue concurrentLineQueue, WriterOption option) {
-		
 		absLineQueue = concurrentLineQueue;
 		level = option.getLevel();
-		initFormatter(option.getPattern());
+		initFormatter(option.getPattern(), option.colorOption());
 		stackTraceElementsIndex = DEF_ELEMENT_IDX + option.getStackTraceDepth();
 	}
 	
@@ -54,9 +51,8 @@ public class BaseLogger implements Logger {
 		return absLineQueue;
 	}
 	
-	private void initFormatter(String pattern) {
-		formatter = LineFormatter.parse(pattern);
-		formatter.setColorOption(colorOption);
+	private void initFormatter(String pattern, ColorOption colorOption) {
+		formatter = LineFormatter.parse(pattern, colorOption);
 	}
 	
 	protected void setLineQueue(AbsLineQueue queue) {

@@ -134,7 +134,8 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 			 return false;
 		 }
 	}
-	
+
+
 	private void buildWriterRackStruct(Configuration configure) {
 		synchronized (monitor) {
 
@@ -229,8 +230,11 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 		 }
 		 return rack;
 	}
-	
-	private void checkExist() {
+
+	/**
+	 * 파일이 존재하는지 확인하고, 존재하지 않으면 생성한다.
+	 */
+	private void checkExistFile() {
 		if(defaultWriterRack != null && defaultWriterRack.fileWriter != null) {
 			try {
 				defaultWriterRack.fileWriter.ensureFileExists();
@@ -288,18 +292,20 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 	}
 	
 	
+	 
 	@Override
 	public void run() {
 
+
 		setUncaughtExceptionHandler();
 
-		//boolean callShutdown = false;
-
+		// 성능을 위하여 가능하면 스택을 아낀다.
 		while(isAlive) {
+			// 라인큐에서 라인을 꺼낸다.
 			Line line = lineQueue.pop();
 			if(line == null) {
 				if(!isWait) {
-					if(isExistCheck) checkExist();
+					if(isExistCheck) checkExistFile();
 					flushWrite();
                     line = lineQueue.pop();
 				}
@@ -337,16 +343,21 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 			isWait = false;
 			WriterRackStruct rack = getWriterRack(line);
 			if(rack != null) {
-				String consoleMessage = null;
-				String fileMessage = null;
+				// 콘솔에 출력할 메시지와 파일에 출력할 메시지를 만든다.
+				String consoleMessage;
+				String fileMessage;
 
+				// 만약 출력이 일관적인 경우에는 콘솔과 파일에 동시에 출력한다.
+				// 1.0.3 버전~: 컬러 옵션에 따라 콘솔과 파일에 일관된 출력을 할지, 아니면 분리할지 결정한다.
+				// 예를들어 콘솔에는 컬러를 출력하고 파일에는 컬러를 출력하지 않는다 : 분리
+				// 콘솔에도 컬러를 출력하고 파일에도 컬러를 출력한다 : 일관된 출력
 				if(line.isConsistentOutputLine()) {
 					consoleMessage = fileMessage = line.makeLine(null).toString();
 				} else {
 					consoleMessage = line.makeLine(WriterType.Console).toString();
 					fileMessage = line.makeLine(WriterType.File).toString();
 				}
-
+				// 라인 객체를 해제한다.
 				line.release();
 				writeConsole(rack, consoleMessage);
 				byte[] stringBuffer = fileMessage.getBytes(rack.charset);
@@ -358,7 +369,7 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 			} else {
 				InLogger.ERROR("Cannot find the writer for the marker `" + line.getMarker() + "`.", null);
 			}
-			line = null;
+
 		}
 		endLoop();
 	}

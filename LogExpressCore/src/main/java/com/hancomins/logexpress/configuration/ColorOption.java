@@ -40,6 +40,7 @@ public class ColorOption implements Cloneable {
         return this;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public ColorOption enableFile(boolean enable) {
         enableFile = enable;
         return this;
@@ -142,6 +143,7 @@ public class ColorOption implements Cloneable {
      * @throws IllegalArgumentException if level, linePatternType, or color is null<br>
      *                                  level, linePatternType 또는 color가 null인 경우<br>
      */
+    @SuppressWarnings("UnusedReturnValue")
     public ColorOption putColorCode(String level, String linePatternType, String color) {
 
         if(level == null) {
@@ -154,11 +156,8 @@ public class ColorOption implements Cloneable {
             throw new IllegalArgumentException("color is null");
         }
         color = color.trim();
-        if(color.isEmpty()) {
-            color = "WHITE";
-        }
         Level levelEnum = Level.stringValueOrNull(level);
-        if(levelEnum == null && "all".equalsIgnoreCase(level)) {
+        if(levelEnum == null && !"all".equalsIgnoreCase(level)) {
             InLogger.ERROR("(ColorOption) Invalid Level : " + level);
             return this;
         }
@@ -172,9 +171,13 @@ public class ColorOption implements Cloneable {
         String colorName = colorCodes.length > 0 ? colorCodes[0] : "WHITE";
         String backgroundColorName = colorCodes.length > 1 ? colorCodes[1] : null;
         ANSIColor colorEnum = ANSIColor.fromString(colorName);
+        if(colorEnum == null) {
+            InLogger.ERROR("(ColorOption) Invalid Color : " + colorName);
+            return this;
+        }
         ANSIColor backgroundColorEnum = backgroundColorName != null ? ANSIColor.fromString(backgroundColorName) : null;
-        if(colorEnum == ANSIColor.WHITE && backgroundColorEnum == null) {
-            // color 값을 잘못 입력하면 WHITE로 설정. 기본 값인 WHITE로 설정되면 색상 코드를 설정하지 않음
+        if(backgroundColorName != null && !backgroundColorName.isEmpty() && backgroundColorEnum == null) {
+            InLogger.ERROR("(ColorOption) Invalid Background Color : " + backgroundColorName);
             return this;
         }
 
@@ -184,6 +187,8 @@ public class ColorOption implements Cloneable {
             }
             return this;
         }
+
+
         return putColorCode(levelEnum, patternTypeEnum, colorEnum, backgroundColorEnum);
 
     }
