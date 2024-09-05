@@ -67,7 +67,7 @@ public class WriterOption implements Cloneable {
 		option.staticVariableReplacedPattern = null;
 		option.staticVariableReplacedEncoding = null;
 		option.staticVariableReplacedMarkers = null;
-		colorOption = this.colorOption.clone();
+		option.colorOption = this.colorOption.clone();
 		return option;
 	}
 
@@ -90,10 +90,12 @@ public class WriterOption implements Cloneable {
 	 *
 	 * @param level 로그 레벨<br>
 	 *              the log level
+	 * @return WriterOption 인스턴스<br>
 	 */
-	public void setLevel(Level level) {
-		if(this.isClosed) return;
+	public WriterOption setLevel(Level level) {
+		if(this.isClosed) return this;
 		this.level = level;
+		return this;
 	}
 
 	/**

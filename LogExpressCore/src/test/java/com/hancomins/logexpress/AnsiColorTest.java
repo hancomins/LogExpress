@@ -27,14 +27,17 @@ public class AnsiColorTest {
         //configuration.newWriterOption(
         writerOption.setFile(file);
         ColorOption colorOption = writerOption.colorOption();
+        colorOption.enableConsole(false);
+        colorOption.enableFile(false);
         colorOption.enableConsole(true).putColorCode("info","message", "WHITE;GREEN");
         colorOption.enableConsole(true).putColorCode("info","time", "CYAN");
         colorOption.enableConsole(true).putColorCode("info","level", "BLACK;GREEN");
 
         LogExpress.updateConfig(configuration);
 
-
         LogExpress.info("Test");
+
+
 
 
         try {

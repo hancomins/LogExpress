@@ -6,11 +6,19 @@ import com.hancomins.logexpress.util.ANSIColor;
 import junit.framework.TestCase;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.io.StringReader;
+
 public class ConfigurationParserTest extends TestCase {
 
     @Test
-    public void testParse() {
+    public void testParse() throws IOException {
         Configuration configuration = new Configuration();
+
+        configuration.setDefaultLevel(Level.WARN);
+        configuration.setDefaultMarker("test0");
+        configuration.setQueueSize(213123);
+
 
 
         ColorOption defaultColorOption = configuration.defaultColorOption();
@@ -39,8 +47,8 @@ public class ConfigurationParserTest extends TestCase {
         String value = configuration.toString();
         System.out.println(value);
 
-
-
+        Configuration configurationParsed = Configuration.newConfiguration(new StringReader(value));
+        assertEquals(configuration.toString(), configurationParsed.clone().toString());
 
     }
 

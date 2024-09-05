@@ -1,5 +1,6 @@
 package com.hancomins.logexpress.configuration;
 
+import com.hancomins.logexpress.Level;
 import com.hancomins.logexpress.LogExpress;
 import org.junit.Test;
 
@@ -42,6 +43,19 @@ public class ConfigurationTest {
 
         LogExpress.newLogger("ok");
         LogExpress.info("Test");
+    }
+
+    @Test
+    public void defaultLevelTest() throws InterruptedException, IOException {
+        LogExpress.shutdown().await();
+        Configuration configuration = new Configuration();
+        configuration.setDefaultLevel(Level.WARN);
+        WriterOption writerOption = configuration.newWriterOption("test");
+        writerOption.setLevel(Level.INFO);
+
+        Configuration configurationClosed = configuration.close();
+        writerOption = configurationClosed.getWriterOption("test");
+        assertEquals(writerOption.getLevel(), Level.WARN);
     }
 
 

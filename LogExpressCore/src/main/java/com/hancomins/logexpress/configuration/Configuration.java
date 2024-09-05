@@ -53,7 +53,7 @@ public final class Configuration implements Cloneable {
 	private int writerWorkerInterval = DEFAULT_WRITER_WORKER_INTERVAL;
 
 	private String staticVariableReplacedDefaultMarker = null;
-	private final ColorOption defaultColorOption = new ColorOption();
+	private ColorOption defaultColorOption = new ColorOption();
 
 
 	/**
@@ -112,8 +112,10 @@ public final class Configuration implements Cloneable {
 		configuration.autoShutdown = this.autoShutdown;
 		configuration.writerWorkerInterval = this.writerWorkerInterval;
 		configuration.writerOptionList = new ArrayList<WriterOption>();
-		configuration.defaultOption = this.getDefaultOption().clone();
+		configuration.defaultOption = this.getDefaultWriterOption().clone();
 		configuration.nonBlockingMode = this.nonBlockingMode;
+		configuration.defaultLevel = this.defaultLevel;
+		configuration.defaultColorOption = this.defaultColorOption.clone();
 		for(int i = 0, n = this.writerOptionList.size(); i < n; ++i) {
 			WriterOption writerOption = this.writerOptionList.get(i);
 			if(writerOption == this.getDefaultOption()) {
@@ -694,6 +696,13 @@ public final class Configuration implements Cloneable {
         //noinspection ForLoopReplaceableByForEach
         for(int i = 0, n = this.writerOptionList.size(); i < n; ++i) {
 			WriterOption option = this.writerOptionList.get(i);
+			Level optionLevel = option.getLevel();
+			if(optionLevel == null) {
+				option.setLevel(defaultLevel);
+			} else if(this.defaultLevel.getValue() > optionLevel.getValue()) {
+				option.setLevel(defaultLevel);
+			}
+
 			option.close();
 		}
 		return this;
