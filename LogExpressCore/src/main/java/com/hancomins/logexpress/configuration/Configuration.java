@@ -55,6 +55,23 @@ public final class Configuration implements Cloneable {
 	private String staticVariableReplacedDefaultMarker = null;
 	private ColorOption defaultColorOption = new ColorOption();
 
+	{
+		defaultColorOption.enableConsole(true);
+		defaultColorOption.enableFile(false);
+		defaultColorOption.putColorCode("all", "time", "cyan");
+		defaultColorOption.putColorCode("info", "level", "black;green");
+		defaultColorOption.putColorCode("info", "message", "green");
+		defaultColorOption.putColorCode("warn", "level", "black;yellow");
+		defaultColorOption.putColorCode("warn", "message", "yellow");
+		defaultColorOption.putColorCode("error", "level", "black;red");
+		defaultColorOption.putColorCode("error", "message", "red");
+		defaultColorOption.putColorCode("fatal", "level", "black;red;");
+		defaultColorOption.putColorCode("fatal", "message", "red");
+
+
+
+	}
+
 
 	/**
 	 * 모든 WriterOption을 초기화합니다.<br>
