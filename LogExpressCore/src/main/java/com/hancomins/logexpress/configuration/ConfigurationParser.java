@@ -2,6 +2,8 @@ package com.hancomins.logexpress.configuration;
 
 import com.hancomins.logexpress.InLogger;
 import com.hancomins.logexpress.Level;
+import com.hancomins.logexpress.LinePatternItemType;
+import com.hancomins.logexpress.util.ANSIColor;
 import com.hancomins.logexpress.util.StringUtil;
 import com.hancomins.logexpress.util.SysTool;
 import com.hancomins.logexpress.util.Files;
@@ -11,10 +13,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.Charset;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
 
 @SuppressWarnings("unused")
 class ConfigurationParser {
@@ -33,6 +33,30 @@ class ConfigurationParser {
 	public static void commit(Configuration configuration, File file) throws IOException {
 		Files.write(file, toString(configuration).getBytes());
 	}
+
+	private static void parseColorOption(Properties properties, ColorOption colorOption) {
+		String strEnableConsole = properties.getProperty("color.console", "true");
+		String strEnableFile = properties.getProperty("color.file", "false");
+		boolean enableConsole = "true".equalsIgnoreCase(strEnableConsole);
+		boolean enableFile = "true".equalsIgnoreCase(strEnableFile);
+		colorOption.enableConsole(enableConsole);
+		colorOption.enableFile(enableFile);
+
+		Set<Object> keys = properties.keySet();
+		for(Object objKey: keys) {
+			if(objKey == null) continue;
+			String key = objKey.toString();
+			if(key.startsWith("color.")) {
+				String[] keyArray = key.split("\\.");
+				if(keyArray.length != 3) continue;
+				String level = keyArray[1];
+				String type = keyArray[2];
+				String value = properties.getProperty(key);
+				if(value == null) continue;
+				colorOption.putColorCode(level, type, value);
+			}
+		}
+	}
 	
 	public static Configuration parse(Reader reader,Configuration configuration) throws IOException {
 
@@ -49,12 +73,22 @@ class ConfigurationParser {
 				//String consoleBufferSize = properties.getProperty("consoleBufferSize", Configuration.DEFAULT_CONSOLE_BUFFER_SIZE +"");
 				String defaultMarker = properties.getProperty("defaultMarker", "");
 				String writeWorkerInterval = properties.getProperty("workerInterval", Configuration.DEFAULT_WRITER_WORKER_INTERVAL +"");
-
 				String strDebugMode = properties.getProperty("debugMode.enable","");
 				String strDebugModeFile = properties.getProperty("debugMode.file","false");
 				String strDebugModeConsole = properties.getProperty("debugMode.console","false");
 				String strIsAutoShutdown = properties.getProperty("autoShutdown","false");
 				String strIsNonBlockingQueue = properties.getProperty("nonBlockingQueue","");
+
+				String strDefaultLevel = properties.getProperty("level","");
+
+				if(!strDefaultLevel.isEmpty()) {
+					Level level = Level.stringValueOrNull(strDefaultLevel);
+					if(level == null) {
+						level = Level.TRACE;
+					}
+					configuration.setDefaultLevel(level);
+				}
+
 				if(strIsNonBlockingQueue.isEmpty()) {
 					strIsNonBlockingQueue = properties.getProperty("nonBlocking", "true");
 				}
@@ -68,6 +102,8 @@ class ConfigurationParser {
 				boolean debugModeConsole = "true".equalsIgnoreCase(strDebugModeConsole);
 				boolean isAutoShutdown = "true".equalsIgnoreCase(strIsAutoShutdown);
 				boolean isNonBlockingQueue = !"false".equalsIgnoreCase(strIsNonBlockingQueue);
+
+				parseColorOption(properties, configuration.defaultColorOption());
 				configuration.setFileExistCheck(fileExistCheck);
 				configuration.setDebugMode(debugMode);
 				configuration.enableConsoleLogInDebugMode(debugModeConsole);
@@ -80,8 +116,6 @@ class ConfigurationParser {
 				configuration.setWorkerInterval(parseInteger(writeWorkerInterval, Configuration.DEFAULT_WRITER_WORKER_INTERVAL));
 			}
 			else if(key.startsWith("writer/") ) {
-
-
 				String defaultName = key.replaceAll("^writer/{1,}", "");
 				String markers = properties.getProperty("markers", defaultName);
 				String bufferSize = properties.getProperty("bufferSize", WriterOption.DEFAULT_BUFFER_SIZE + "");
@@ -107,11 +141,14 @@ class ConfigurationParser {
 					encoding = null;
 				}
 				WriterOption option = configuration.newWriterOption(defaultName);
+				parseColorOption(properties, option.colorOption());
 				option.setBufferSize(parseInteger(bufferSize, WriterOption.DEFAULT_BUFFER_SIZE));
 				option.setMaxSize(parseInteger(maxSize, WriterOption.DEFAULT_MAXSIZE));
 				option.setHistory(parseInteger(history, WriterOption.DEFAULT_HISTORY ));
 				option.setStackTraceDepth(parseInteger(stackTraceDepth,WriterOption.DEFAULT_ADDED_INDEX_OF_STACKTRACE_ELEMENTS));
-				option.setLevel(Level.stringValueOf(level));
+				if(level != null && !level.isEmpty()) {
+					option.setLevel(Level.stringValueOf(level));
+				}
 				option.setEncoding(encoding);
 				option.setFile(filePattern);
 				option.setLinePattern(pattern);
@@ -138,6 +175,30 @@ class ConfigurationParser {
 		}   
 		return configuration;
 	}
+
+	private static void colorOptionWriteString(StringBuilder stringBuilder, ColorOption colorOption, String lb) {
+		stringBuilder.append(lb);
+		stringBuilder.append("color.console").append('=').append(colorOption.isEnabledConsole()).append(lb);
+		stringBuilder.append("color.file").append('=').append(colorOption.isEnabledFile()).append(lb);
+		for(Level level : Level.values()) {
+			for(LinePatternItemType type : LinePatternItemType.values()) {
+				String colorCode = colorOption.getColorCode(level, type);
+				// colorCode 를 다시 컬러값으로 변환.
+
+				if(colorCode != null) {
+					String colorNames = colorCode.replace("\u001B[", "").replace("\u001b[", "");
+					ANSIColor[] ansiColors = ANSIColor.fromColorCodes(colorNames);
+					colorNames = ansiColors[0].toString();
+					if(ansiColors.length > 1) {
+						colorNames += ";" + ansiColors[1].toString();
+					}
+					stringBuilder.append("color.").append(level.toString().toLowerCase()).append('.').append(type.toString().toLowerCase()).append('=').append(colorNames).append("\n");
+				}
+			}
+		}
+		stringBuilder.append(lb);
+
+	}
 	
 
 	public static String toString(Configuration configuration) {
@@ -160,6 +221,10 @@ class ConfigurationParser {
 		strignBuilder.append("defaultMarker").append('=').append(configuration.getDefaultMarker()).append(lb);
 		strignBuilder.append("workerInterval").append('=').append(workerInterval).append(lb);
 		strignBuilder.append("fileExistCheck").append('=').append(configuration.isFileExistCheck()).append(lb);
+
+		strignBuilder.append("level").append('=').append(configuration.getDefaultLevel()).append(lb);
+
+		colorOptionWriteString(strignBuilder, configuration.defaultColorOption(), lb);
 		
 		WriterOption[] writerOptions = configuration.getWriterOptions();
 		//noinspection ForLoopReplaceableByForEach
@@ -199,6 +264,8 @@ class ConfigurationParser {
 			String encoding = option.getEncoding(); 
 			strignBuilder.append("encoding").append('=').append(encoding == null ? ""  : encoding).append(lb);
 			strignBuilder.append("addedStackTraceElementsIndex").append('=').append(option.getStackTraceDepth()).append(lb);
+
+			colorOptionWriteString(strignBuilder, configuration.defaultColorOption(), lb);
 			
 		}
 		

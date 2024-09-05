@@ -27,6 +27,7 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 	private volatile boolean isAutoShutdown = false;
 	private boolean isDebug = false;
 	private boolean isExistCheck = false;
+
 	
 	private int waitTimeout = 3000;
 	private AbsLineQueue lineQueue = null;
@@ -208,7 +209,8 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 		 rack.fileNamePattern = pattern;
 		 WriterType[] types = configure.getWriterTypes();
 
-		 for(int i = 0; i < types.length; ++i) {
+        //noinspection ForLoopReplaceableByForEach
+        for(int i = 0; i < types.length; ++i) {
 			 WriterType type = types[i];
 			 if(type == WriterType.File) {
 				if(pattern == null) {
@@ -334,14 +336,24 @@ final public class WriteWorker extends Thread implements OnPushLineListener {
 
 			isWait = false;
 			WriterRackStruct rack = getWriterRack(line);
-			String message = line.release().toString();
 			if(rack != null) {
-				writeConsole(rack, message);
-				byte[] stringBuffer = message.getBytes(rack.charset);
+				String consoleMessage = null;
+				String fileMessage = null;
+
+				if(line.isConsistentOutputLine()) {
+					consoleMessage = fileMessage = line.makeLine(null).toString();
+				} else {
+					consoleMessage = line.makeLine(WriterType.Console).toString();
+					fileMessage = line.makeLine(WriterType.File).toString();
+				}
+
+				line.release();
+				writeConsole(rack, consoleMessage);
+				byte[] stringBuffer = fileMessage.getBytes(rack.charset);
 				try {
 					writeFile(rack, line.getTime(), stringBuffer);
 				} catch (IOException e) {
-					InLogger.WARN("Cannot write to the file `" + rack.fileWriter.getFile() + "`. (" + message + ")", e);
+					InLogger.WARN("Cannot write to the file `" + rack.fileWriter.getFile() + "`. (" + consoleMessage + ")", e);
 				}
 			} else {
 				InLogger.ERROR("Cannot find the writer for the marker `" + line.getMarker() + "`.", null);

@@ -3,6 +3,7 @@
 
 package com.hancomins.logexpress;
 
+import com.hancomins.logexpress.configuration.ColorOption;
 import com.hancomins.logexpress.configuration.WriterOption;
 import com.hancomins.logexpress.queue.AbsLineQueue;
 
@@ -18,6 +19,7 @@ public class BaseLogger implements Logger {
 	private volatile AbsLineQueue absLineQueue = null;
 	private volatile Level level = Level.INFO;
 	private volatile int stackTraceElementsIndex = 0;
+	private final ColorOption colorOption;
 	
 	private boolean isInfo = false;
 	private boolean isError = false;
@@ -27,10 +29,11 @@ public class BaseLogger implements Logger {
 	private boolean isFatal = false;
 	
 	
-	//protected Logger(String marker, Level level, String format, int added) {
+
 	protected BaseLogger(String marker, WriterOption option) {
 		this.marker = marker;
 		level =  option.getLevel();
+		colorOption = option.colorOption();
 		initFormatter(option.getPattern());
 		setLevel(option.getLevel());
 		stackTraceElementsIndex = DEF_ELEMENT_IDX + option.getStackTraceDepth();
@@ -53,6 +56,7 @@ public class BaseLogger implements Logger {
 	
 	private void initFormatter(String pattern) {
 		formatter = LineFormatter.parse(pattern);
+		formatter.setColorOption(colorOption);
 	}
 	
 	protected void setLineQueue(AbsLineQueue queue) {

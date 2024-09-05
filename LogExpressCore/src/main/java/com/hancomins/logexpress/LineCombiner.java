@@ -1,19 +1,32 @@
 package com.hancomins.logexpress;
 
+import com.hancomins.logexpress.configuration.ColorOption;
+import com.hancomins.logexpress.configuration.WriterType;
+import com.hancomins.logexpress.util.ANSIColor;
 import com.hancomins.logexpress.util.SysTool;
 
+import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 
 class LineCombiner {
 
     private final LineFormatter.FormatItem[] formatItems;
+    private ColorOption colorOption;
 
     LineCombiner(LineFormatter.FormatItem[] formatItems) {
         this.formatItems = formatItems;
     }
 
-    private CharSequence align(CharSequence text,int space, int align) {
+    boolean isConsistentOutputLine() {
+        if(colorOption == null) {
+            return true;
+        }
+        return colorOption.isEnabledConsole() == colorOption.isEnabledFile();
+    }
+
+
+    private CharSequence align(CharSequence text, int space, int align) {
         if(align == LineFormatter.LenRange.ALIGN_LEFT) {
             StringBuilder sb = new StringBuilder(text);
             for(int i = 0; i < space; i++) {
@@ -77,12 +90,25 @@ class LineCombiner {
             return text.subSequence(textLen - max, textLen);
         }
         return text;
-
     }
 
-    public CharSequence combine(Line line) {
+    void setColorOption(ColorOption colorOption) {
+        this.colorOption = colorOption;
+    }
+
+    CharSequence combine(Line line) {
+        return combine(line, null);
+    }
+
+
+    CharSequence combine(Line line,WriterType writerType) {
         StringBuilder stringBuilder = new StringBuilder();
         Level level = line.getLevel();
+        boolean allowColor = colorOption != null &&
+                        ((writerType == null && (colorOption.isEnabledConsole() || colorOption.isEnabledFile())) ||
+                        (writerType == WriterType.Console && colorOption.isEnabledConsole()) ||
+                        (writerType == WriterType.File && colorOption.isEnabledFile()));
+        boolean writeColor = false;
         for(int i = 0, n = formatItems.length; i < n; ++i) {
             LineFormatter.FormatItem item = formatItems[i];
             if(!level.isLowerThan(item.level)) {
@@ -90,6 +116,14 @@ class LineCombiner {
             }
             if(!item.isMarkerAllowed(line.getMarker())) {
                 continue;
+            }
+            if(allowColor) {
+                writeColor = false;
+                String colorCode = colorOption.getColorCode(level, item.type);
+                if(colorCode != null) {
+                    stringBuilder.append(colorCode);
+                    writeColor = true;
+                }
             }
 
             switch(item.type) {
@@ -117,7 +151,6 @@ class LineCombiner {
                         stringBuilder.append(cutRange(line.getMarker(), item.lenRange));
                     else
                         stringBuilder.append(line.getMarker());
-
                     break;
                 case Time:
                     stringBuilder.append(item.dateFormat.format(line.getTime()));
@@ -144,7 +177,7 @@ class LineCombiner {
                 case ClassName:
                     String simpleClassName = line.getStackTraceElement().getClassName();
                     int idx = simpleClassName.lastIndexOf('.');
-                    simpleClassName = idx < 0 ? simpleClassName : simpleClassName.substring(idx + 1, simpleClassName.length());
+                    simpleClassName = idx < 0 ? simpleClassName : simpleClassName.substring(idx + 1);
                     if(item.lenRange != null)
                         simpleClassName = cutRange(simpleClassName, item.lenRange).toString();
                     stringBuilder.append(simpleClassName);
@@ -184,7 +217,11 @@ class LineCombiner {
                         stringBuilder.append(SysTool.pid());
                     break;
             }
+            if(writeColor) {
+                stringBuilder.append(ANSIColor.ANSI_RESET);
+            }
         }
+
         stringBuilder.append("\n");
         if(line.getError() != null) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream(512);

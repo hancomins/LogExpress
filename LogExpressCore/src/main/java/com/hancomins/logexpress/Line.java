@@ -1,5 +1,6 @@
 package com.hancomins.logexpress;
 
+import com.hancomins.logexpress.configuration.WriterType;
 import com.hancomins.logexpress.writer.CurrentTimeMillisGetter;
 
 public class Line {
@@ -33,12 +34,23 @@ public class Line {
 			 this.throwable = new Throwable();
 		 }
 	 }
-	 
-	 public CharSequence release() {
+
+	 public boolean isConsistentOutputLine() {
+		return this.lineCombiner.isConsistentOutputLine();
+	 }
+
+
+	 public CharSequence makeLine(WriterType writerType) {
 		 CharSequence result = "";
-		if (lineCombiner != null) {
-		 result = this.lineCombiner.combine(this);
-		}
+		 if (lineCombiner != null) {
+			 result = this.lineCombiner.combine(this, writerType);
+		 }
+		 return result;
+	 }
+
+	 
+	 public void release() {
+
 		 threadName = null;
 		 marker = null;
 		 message = null;
@@ -46,8 +58,6 @@ public class Line {
 		 error = null;
 		 throwable = null;
 		 lineCombiner = null;
-		 return result;
-		 
 	 }
 	 
 	 void setThreadInfo(Thread thread) {

@@ -18,13 +18,13 @@ public class WriterOption implements Cloneable {
 
 	public final static String FULL_PATTERN = "{time::HH:mm:ss.SSS} [{level}] {caller} &lt;{hostname}/PID:{pid}/{thread}:{tid}&gt;  {marker}  | ({file}) {class-name}.{method}():{line} | {message}";
 	public final static String DEFAULT_FILE_PATTERN = "./log.{hostname}.{date::yyyy-MM-dd}.{number}.txt";
-	public final static Level DEFAULT_LEVEL = Level.INFO;
+
 	public final static int DEFAULT_HISTORY = 60;
 	public final static int DEFAULT_MAXSIZE = 512;
 	public final static int DEFAULT_BUFFER_SIZE = 1024;
 	public final static int DEFAULT_ADDED_INDEX_OF_STACKTRACE_ELEMENTS = 1;
 
-	private Level level = DEFAULT_LEVEL;
+	private Level level = null;
 	private ArrayList<WriterType> writerTypes = new ArrayList<WriterType>(Arrays.asList(new WriterType[] { WriterType.Console }));
 	private ArrayList<String> markers = new ArrayList<String>();
 	private int bufferSize = DEFAULT_BUFFER_SIZE;
@@ -40,6 +40,8 @@ public class WriterOption implements Cloneable {
 	private String staticVariableReplacedFile = null;
 	private String staticVariableReplacedPattern = null;
 	private String[] staticVariableReplacedMarkers = null;
+
+	private ColorOption colorOption = new ColorOption();
 
 	@Override
 	public WriterOption clone() {
@@ -65,6 +67,7 @@ public class WriterOption implements Cloneable {
 		option.staticVariableReplacedPattern = null;
 		option.staticVariableReplacedEncoding = null;
 		option.staticVariableReplacedMarkers = null;
+		colorOption = this.colorOption.clone();
 		return option;
 	}
 
@@ -130,6 +133,20 @@ public class WriterOption implements Cloneable {
 			this.writerTypes.remove(idx);
 		}
 		this.writerTypes.add(type);
+	}
+
+	/**
+	 * 컬러 옵션의 인스턴스를 가져옵니다.<br>
+	 * Returns the instance of the color option.
+	 * {@link ColorOption}
+	 * @return 컬러 옵션<br>
+	 */
+	public ColorOption colorOption() {
+		return this.colorOption;
+	}
+
+	void setColorOption(ColorOption colorOption) {
+		this.colorOption = colorOption;
 	}
 
 	/**

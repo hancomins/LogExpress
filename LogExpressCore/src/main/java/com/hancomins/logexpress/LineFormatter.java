@@ -1,5 +1,6 @@
 package com.hancomins.logexpress;
 
+import com.hancomins.logexpress.configuration.ColorOption;
 import com.hancomins.logexpress.util.StringUtil;
 
 import java.text.SimpleDateFormat;
@@ -38,6 +39,11 @@ class LineFormatter {
 		return lineCombiner;
 	}
 
+	LineCombiner setColorOption(ColorOption colorOption) {
+		lineCombiner.setColorOption(colorOption);
+		return lineCombiner;
+	}
+
 	static LineFormatter parse(String format) {
 		final int MODE_TEXT = 0;
 		final int MODE_IN_TYPE = 1;
@@ -45,7 +51,7 @@ class LineFormatter {
 
 		StringBuilder itemBuffer = new StringBuilder();
 		ArrayList<FormatItem> items = new ArrayList<FormatItem>();
-		String[] typeNames = ItemType.getTypeNameArray();
+		String[] typeNames = LinePatternItemType.getTypeNameArray();
 		
 		boolean needStacktrace = false;
 		boolean needThreadInfo = false;
@@ -101,18 +107,18 @@ class LineFormatter {
 								 lenRange = parseLenRange(lenRangeStr);
 							 }
 
-							 ItemType type = ItemType.typeNameOf(itemType.trim());
+							 LinePatternItemType type = LinePatternItemType.typeNameOf(itemType.trim());
 							 FormatItem item = FormatItem.newByType(type);
 							 item.setLevel(atQualifier.level).addMarkerQualifiers(atQualifier.markers);
 							 item.lenRange = lenRange;
 							 items.add(item);
-							 if (type == ItemType.Class || type == ItemType.Method || type == ItemType.ClassName || type == ItemType.Line || type == ItemType.File) {
+							 if (type == LinePatternItemType.Class || type == LinePatternItemType.Method || type == LinePatternItemType.ClassName || type == LinePatternItemType.Line || type == LinePatternItemType.File) {
 								 needStacktrace = true;
 							 }
-							 if (type == ItemType.Tid || type == ItemType.Thread) {
+							 if (type == LinePatternItemType.Tid || type == LinePatternItemType.Thread) {
 								 needThreadInfo = true;
 							 }
-							 if (type == ItemType.Tid || type == ItemType.Thread) {
+							 if (type == LinePatternItemType.Tid || type == LinePatternItemType.Thread) {
 								 //noinspection DataFlowIssue
 								 needThreadInfo = true;
 							 }
@@ -251,56 +257,7 @@ class LineFormatter {
 
 
 
-	
-	static enum ItemType{
-		Level, 
-		Thread,
-		Tid,
-		Method,
-		File,
 
-		Class,
-		ClassName, 
-		Line,
-		Time,
-		Text,
-		Message,
-		Hostname,
-		Marker,
-		Pid,
-		Caller,
-		CallerSimple;
-
-		
-		private ItemType() {
-			
-		}
-		
-		
-		
-		
-		public static ItemType typeNameOf(String type) {
-			ItemType[] types = values();
-            //noinspection ForLoopReplaceableByForEach
-            for(int i = 0; i < types.length; ++i) {
-				if(types[i].name().equalsIgnoreCase(type)) {
-					return types[i];
-				}
-			}
-			if(type.equalsIgnoreCase("class-name")) {
-				return ClassName;
-			}
-			if(type.equalsIgnoreCase("caller-simple")) {
-				return CallerSimple;
-			}
-			
-			return null;
-		}
-		
-		private static String[] getTypeNameArray() {
-			return new String[] {"marker", "level", "thread","tid", "method", "class", "class-name","file", "line", "text", "message", "time", "hostname", "pid","caller","caller-simple"};
-		}
-	}
 
 
 	@SuppressWarnings("unused")
@@ -330,7 +287,7 @@ class LineFormatter {
 	static class FormatItem {
 		
 		String text = "";
-		ItemType type = ItemType.Text;
+		LinePatternItemType type = LinePatternItemType.Text;
 		SimpleDateFormat dateFormat = null;
 		LenRange lenRange = null;
 		Level level = null;
@@ -366,12 +323,12 @@ class LineFormatter {
 
 		private static FormatItem newTimeType(String pattern) {
 			FormatItem item = new FormatItem();
-			item.type = ItemType.Time;
+			item.type = LinePatternItemType.Time;
 			item.dateFormat = new SimpleDateFormat(pattern);
 			return item;
 		}
 		
-		private static FormatItem newByType(ItemType type) { 
+		private static FormatItem newByType(LinePatternItemType type) {
 			FormatItem item = new FormatItem();
 			item.type = type;
 			return item;
@@ -379,7 +336,7 @@ class LineFormatter {
 		
 		private static FormatItem newTextType(String text) {
 			FormatItem item = new FormatItem();
-			item.type = ItemType.Text;
+			item.type = LinePatternItemType.Text;
 			item.text = text == null ? "" : text;
 			return item;
 		}

@@ -1,6 +1,7 @@
 package com.hancomins.logexpress.configuration;
 
 import com.hancomins.logexpress.InLogger;
+import com.hancomins.logexpress.Level;
 import com.hancomins.logexpress.LogExpress;
 import com.hancomins.logexpress.util.Files;
 
@@ -21,6 +22,9 @@ import java.util.ArrayList;
  */
 @SuppressWarnings("unused")
 public final class Configuration implements Cloneable {
+
+
+	private final static Level DEFAULT_LEVEL = Level.TRACE;
 
 	private final static String DEFAULT_CONFIG_FILE = "log-express.ini";
 	private final static int MIN_QUEUE_SIZE = 10;
@@ -43,11 +47,14 @@ public final class Configuration implements Cloneable {
 	private boolean debugConsoleLogEnabled = false;
 
 	private boolean isExistCheck = false;
+	private Level defaultLevel = DEFAULT_LEVEL;
 
 	private boolean nonBlockingMode = true;
 	private int writerWorkerInterval = DEFAULT_WRITER_WORKER_INTERVAL;
 
 	private String staticVariableReplacedDefaultMarker = null;
+	private final ColorOption defaultColorOption = new ColorOption();
+
 
 	/**
 	 * 모든 WriterOption을 초기화합니다.<br>
@@ -69,6 +76,16 @@ public final class Configuration implements Cloneable {
 	 */
 	public boolean isClosed() {
 		return this.closed;
+	}
+
+	/**
+	 * 기본 컬러 옵션의 인스턴스를 가져옵니다.<br>
+	 * Returns the instance of default color option.
+	 * {@link ColorOption}
+	 * @return 컬러 옵션<br>
+	 */
+	public ColorOption defaultColorOption() {
+		return this.defaultColorOption;
 	}
 
 	/**
@@ -107,6 +124,19 @@ public final class Configuration implements Cloneable {
 		}
 		configuration.staticVariableReplacedDefaultMarker = null;
 		return configuration;
+	}
+
+	/**
+	 * 기본 로그 Level을 설정합니다.<br>
+	 * WriterOption에 설정된 Level이 없으면 기본 Level이 사용됩니다.<br>
+	 * WriterOption의 Level 은 기본 Level보다 낮을 수 없습니다.<br>
+	 * @param level 기본 Level<br>
+	 * @return 설정 객체<br>
+	 */
+	public Configuration setDefaultLevel(Level level) {
+		if(this.closed) return this;
+		this.defaultLevel = level;
+		return this;
 	}
 
 	/**
@@ -247,7 +277,7 @@ public final class Configuration implements Cloneable {
 		return configuration;
 	}
 
-	private Configuration() {}
+	Configuration() {}
 
 	boolean loadFromResources()  {
 		InputStream inputStream = LogExpress.class.getClassLoader().getResourceAsStream(DEFAULT_CONFIG_FILE);
@@ -377,7 +407,8 @@ public final class Configuration implements Cloneable {
 		return this.staticVariableReplacedDefaultMarker;
 	}
 
-	private int getIndexOfWriterConfigure(String marker) {
+	@SuppressWarnings("ForLoopReplaceableByForEach")
+    private int getIndexOfWriterConfigure(String marker) {
 		for(int i = 0, n = this.writerOptionList.size(); i < n; ++i) {
 			WriterOption configure = this.writerOptionList.get(i);
 			String[] markers = configure.getMarkers();
@@ -408,6 +439,10 @@ public final class Configuration implements Cloneable {
 		if(configure != null) return configure;
 		else if(!this.writerOptionList.isEmpty()) return this.writerOptionList.get(0);
 		return null;
+	}
+
+	public Level getDefaultLevel() {
+		return this.defaultLevel;
 	}
 
 	/**
@@ -477,6 +512,8 @@ public final class Configuration implements Cloneable {
 			return this.writerOptionList.get(idx);
 		}
 		WriterOption option = new WriterOption();
+		option.setColorOption(this.defaultColorOption.clone());
+		option.setLevel(this.defaultLevel);
 		option.addMarker(marker);
 		this.writerOptionList.add(option);
 		return option;
@@ -529,7 +566,11 @@ public final class Configuration implements Cloneable {
 	 *
 	 * @return 설정된 기본 WriterOption<br>
 	 *         configured default WriterOption
+	 *
+	 * @deprecated Deprecated. Use {@link #getDefaultWriterOption()} instead.
 	 */
+	@SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated
 	public WriterOption getDefaultOption() {
 		return this.defaultOption;
 	}
@@ -650,7 +691,8 @@ public final class Configuration implements Cloneable {
 			}
 		}
 
-		for(int i = 0, n = this.writerOptionList.size(); i < n; ++i) {
+        //noinspection ForLoopReplaceableByForEach
+        for(int i = 0, n = this.writerOptionList.size(); i < n; ++i) {
 			WriterOption option = this.writerOptionList.get(i);
 			option.close();
 		}
