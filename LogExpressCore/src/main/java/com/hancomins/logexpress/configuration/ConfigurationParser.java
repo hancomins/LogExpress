@@ -187,11 +187,7 @@ class ConfigurationParser {
 				// colorCode 를 다시 컬러값으로 변환.
 
 				if(colorCode != null) {
-					String[] colorNames = ANSIColor.codeToColorNames(colorCode);
-					colorNames = ansiColors[0].toString();
-					if(ansiColors.length > 1) {
-						colorNames += ";" + ansiColors[1].toString();
-					}
+					String colorNames = ANSIColor.codeToColorNames(colorCode);
 					stringBuilder.append("color.").append(level.toString().toLowerCase()).append('.').append(type.toString().toLowerCase()).append('=').append(colorNames).append("\n");
 				}
 			}
