@@ -180,14 +180,14 @@ class ConfigurationParser {
 		stringBuilder.append(lb);
 		stringBuilder.append("color.console").append('=').append(colorOption.isEnabledConsole()).append(lb);
 		stringBuilder.append("color.file").append('=').append(colorOption.isEnabledFile()).append(lb);
+
 		for(Level level : Level.values()) {
 			for(LinePatternItemType type : LinePatternItemType.values()) {
 				String colorCode = colorOption.getColorCode(level, type);
 				// colorCode 를 다시 컬러값으로 변환.
 
 				if(colorCode != null) {
-					String colorNames = colorCode.replace("\u001B[", "").replace("\u001b[", "");
-					ANSIColor[] ansiColors = ANSIColor.fromColorCodes(colorNames);
+					String[] colorNames = ANSIColor.codeToColorNames(colorCode);
 					colorNames = ansiColors[0].toString();
 					if(ansiColors.length > 1) {
 						colorNames += ";" + ansiColors[1].toString();

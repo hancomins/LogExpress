@@ -1,5 +1,7 @@
 package com.hancomins.logexpress.util;
 
+import java.util.ArrayList;
+
 public enum ANSIColor {
     BLACK("30", "40"),
     RED("31", "41"),
@@ -22,19 +24,32 @@ public enum ANSIColor {
     public static final String ANSI_RESET = "\u001B[0m";
 
 
-    public static ANSIColor[] fromColorCodes(String color) {
+
+
+    public static String codeToColorNames(String color) {
+        StringBuilder sb = new StringBuilder();
+        color = color.replace("\u001B[", "").replace("\u001b[", "");
         String[] colors = color.split(";");
-        if(colors.length == 0) {
-            return new ANSIColor[]{};
+
+        for(String c : colors) {
+            if(c == null || c.isEmpty()) {
+                continue;
+            }
+            if(c.endsWith("m") || c.endsWith("M")) {
+                c = c.substring(0, c.length() - 1);
+            }
+            for(ANSIColor colorCode : ANSIColor.values()) {
+                if(colorCode.code.equals(c) || colorCode.backgroundCode.equals(c)) {
+                    sb.append(colorCode.name()).append(";");
+                    break;
+                }
+            }
         }
-        if(colors.length == 1) {
-            return new ANSIColor[]{fromString(colors[0])};
+        if(sb.length() > 0) {
+            sb.setLength(sb.length() - 1);
         }
 
-
-        return new ANSIColor[]{fromString(colors[0]), fromString(colors[1])};
-
-
+        return sb.toString();
     }
 
 
