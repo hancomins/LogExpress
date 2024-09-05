@@ -11,6 +11,7 @@ import java.util.Calendar;
 
 import static org.junit.Assert.assertEquals;
 
+@SuppressWarnings("ALL")
 public class AnsiColorTest {
 
     static final boolean isWindows = System.getProperty("os.name")
@@ -34,8 +35,9 @@ public class AnsiColorTest {
         Configuration configuration = LogExpress.cloneConfiguration();
         WriterOption writerOption = configuration.getDefaultWriterOption();
         writerOption.setFile(file);
+        @SuppressWarnings("UnusedAssignment")
         ColorOption colorOption = writerOption.colorOption();
-
+        colorOption  = configuration.defaultColorOption();
 
         String currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + "";
         if(currentHour.length() == 1) {

@@ -35,12 +35,16 @@ class ConfigurationParser {
 	}
 
 	private static void parseColorOption(Properties properties, ColorOption colorOption) {
-		String strEnableConsole = properties.getProperty("color.console", "true");
-		String strEnableFile = properties.getProperty("color.file", "false");
-		boolean enableConsole = "true".equalsIgnoreCase(strEnableConsole);
-		boolean enableFile = "true".equalsIgnoreCase(strEnableFile);
-		colorOption.enableConsole(enableConsole);
-		colorOption.enableFile(enableFile);
+		String strEnableConsole = properties.getProperty("color.console", "");
+		String strEnableFile = properties.getProperty("color.file", "");
+		if(!strEnableConsole.isEmpty()) {
+			boolean enableConsole = "true".equalsIgnoreCase(strEnableConsole);
+			colorOption.enableConsole(enableConsole);
+		}
+		if(!strEnableFile.isEmpty()) {
+			boolean enableFile = "true".equalsIgnoreCase(strEnableFile);
+			colorOption.enableFile(enableFile);
+		}
 
 		Set<Object> keys = properties.keySet();
 		for(Object objKey: keys) {
@@ -172,7 +176,8 @@ class ConfigurationParser {
 						option.addWriterType(WriterType.File);
 				}
 			}
-		}   
+		}
+		configuration.defaultColorOption().resetChanged();
 		return configuration;
 	}
 

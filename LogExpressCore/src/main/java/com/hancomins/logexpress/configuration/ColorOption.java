@@ -34,15 +34,21 @@ public class ColorOption implements Cloneable {
         return enableFile;
     }
 
+    private boolean isChanged = false;
+
+
+
 
     public ColorOption enableConsole(boolean enable) {
         enableConsole = enable;
+        isChanged = true;
         return this;
     }
 
     @SuppressWarnings("UnusedReturnValue")
     public ColorOption enableFile(boolean enable) {
         enableFile = enable;
+        isChanged = true;
         return this;
     }
 
@@ -55,6 +61,7 @@ public class ColorOption implements Cloneable {
      *         현재 ColorOption 인스턴스<br>
      */
     public ColorOption reset() {
+        boolean changed = !colorCodeMap.isEmpty();
         colorCodeMap.clear();
         return this;
     }
@@ -87,6 +94,13 @@ public class ColorOption implements Cloneable {
     }
 
 
+    boolean isChanged() {
+        return isChanged;
+    }
+
+    protected void resetChanged() {
+        isChanged = false;
+    }
 
 
 
@@ -188,28 +202,32 @@ public class ColorOption implements Cloneable {
             return this;
         }
 
-
+        this.isChanged = true;
         return putColorCode(levelEnum, patternTypeEnum, colorEnum, backgroundColorEnum);
+    }
 
+    void copy(ColorOption other) {
+        enableConsole = other.enableConsole;
+        enableFile = other.enableFile;
+        colorCodeMap.clear();
+        for(Level level : other.colorCodeMap.keySet()) {
+            EnumMap<LinePatternItemType, String> typeMap = other.colorCodeMap.get(level);
+            EnumMap<LinePatternItemType, String> cloneTypeMap = new EnumMap<LinePatternItemType, String>(LinePatternItemType.class);
+            for(LinePatternItemType type : typeMap.keySet()) {
+                cloneTypeMap.put(type, typeMap.get(type));
+            }
+            colorCodeMap.put(level, cloneTypeMap);
+        }
+        isChanged = false;
     }
 
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")
     public ColorOption clone() {
         ColorOption clone = new ColorOption();
-        clone.enableConsole = enableConsole;
-        clone.enableFile = enableFile;
-        for(Level level : colorCodeMap.keySet()) {
-            EnumMap<LinePatternItemType, String> typeMap = colorCodeMap.get(level);
-            EnumMap<LinePatternItemType, String> cloneTypeMap = new EnumMap<LinePatternItemType, String>(LinePatternItemType.class);
-            for(LinePatternItemType type : typeMap.keySet()) {
-                cloneTypeMap.put(type, typeMap.get(type));
-            }
-            clone.colorCodeMap.put(level, cloneTypeMap);
-        }
+        clone.copy(this);
         return clone;
     }
-
 
 
 

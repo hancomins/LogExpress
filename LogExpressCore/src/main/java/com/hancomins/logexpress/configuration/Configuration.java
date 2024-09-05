@@ -694,6 +694,7 @@ public final class Configuration implements Cloneable {
 			}
 		}
 
+		// 기본값 설정
         //noinspection ForLoopReplaceableByForEach
         for(int i = 0, n = this.writerOptionList.size(); i < n; ++i) {
 			WriterOption option = this.writerOptionList.get(i);
@@ -703,6 +704,10 @@ public final class Configuration implements Cloneable {
 			} else if(this.defaultLevel.getValue() > optionLevel.getValue()) {
 				option.setLevel(defaultLevel);
 			}
+			if(!option.colorOption().isChanged()) {
+				option.colorOption().copy(this.defaultColorOption);
+			}
+
 
 			option.close();
 		}

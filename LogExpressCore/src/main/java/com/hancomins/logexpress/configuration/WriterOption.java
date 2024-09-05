@@ -418,4 +418,8 @@ public class WriterOption implements Cloneable {
 	protected void close() {
 		this.isClosed = true;
 	}
+
+
+
+
 }
