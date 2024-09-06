@@ -161,6 +161,7 @@ dependencies {
   markers=catalina,bootstrap
   
   # 로그 레벨을 설정합니다.
+
   # trace, debug, info, warn, error,fatal, off 순으로 레벨이 낮아집니다. off 레벨에서는 어떤 로그도 출력되지 않습니다.
   # 기본값: info
   level=info
@@ -232,10 +233,11 @@ dependencies {
      # 사용 예 - System.properties에 임의로 정의된 Log.dir 값과 시스템 환경 변수 USER에 해당하는 값
      file=${Log.dir}/%USER%/log.out
   ```
-- 기본 프로퍼티 이름
-  - ${LogExpress.path}:  LogExpress 라이브러리가 설치된 디렉터리 경로입니다. 이는 애플리케이션의 루트 경로가 될 수 있습니다.
+
+- 기본 프로퍼티 이름 
+  - ${LogExpress.path}:     LogExpress 라이브러리가 설치된 디렉터리 경로입니다. 이는 애플리케이션의 루트 경로가 될 수 있습니다.
   - ${LogExpress.hostname}: 애플리케이션이 실행 중인 서버의 호스트 이름입니다. 네트워크 환경에서 서버를 식별하는 데 사용됩니다.
-  - ${LogExpress.pid}: 현재 실행 중인 프로세스의 ID입니다. 시스템에서 실행 중인 프로세스를 고유하게 식별하는 데 사용됩니다.
+  - ${LogExpress.pid}:      현재 실행 중인 프로세스의 ID입니다. 시스템에서 실행 중인 프로세스를 고유하게 식별하는 데 사용됩니다. 
 
 ### 코드상에서 동적으로 설정 변경
 * 코드상에서 동적으로 설정 변경이 가능합니다. 로그 큐와 Worker 를 모두 종료시키고 새로 생성된 객체로 안전하게 교체(exchange)합니다. <br/>
@@ -260,8 +262,9 @@ dependencies {
 * 자세한 설정 변경 방법은 Configuration 클래스와 public 메서드의 주석을 참고하세요.
 
 ### 로그 라인 패턴 출력을 레벨 및 마커에 따라 제한하기
+
 * 로그 라인 패턴 마지막에 @ 를 사용하여 레벨 및 마커를 제한할 수 있습니다. @ 뒤에는 레벨 또는 마커 이름을 입력합니다.
-* 레벨은 DEUBG, INFO, WARN, ERROR, FATAL 중 하나를 입력합니다. 만약 ERROR 레벨 이상의 로그만 출력하고 싶다면, @error 를 입력하세요.
+* 레벨은 TRACE, DEUBG, INFO, WARN, ERROR, FATAL, OFF 중 하나를 입력합니다. 만약 ERROR 레벨 이상의 로그만 출력하고 싶다면, @error 를 입력하세요.
 * 여러개의 레벨 또는 마커를 입력할 수 있습니다. 쉼표로 구분합니다. 레벨은 대소문자를 구분하지 않지만, 마커 이름은 대소문자 및 공백을 구분합니다.
 * 만약 마커의 이름이 레벨 이름과 같다면, 중복을 피하기 위해 마커 이름 앞 뒤에 따옴표(Qutation) 또는 작은 따옴표(Single Qutation)를 사용하세요.
 * 마커 이름 내부에 따옴표 혹은 작은 따옴표를 사용하려면, 역슬래시(\)를 사용하여 이스케이프 처리하세요.
@@ -274,7 +277,6 @@ dependencies {
     pattern={time::HH:mm:ss.SSS} [{level}] {method@error,'fatal','error',api}()  {message} {text::에러가 발생 하였습니다. @error} 
        
   ```
-
 ### 로그 라인 패턴 요소별 길이 제한
 * 로그 메시지의 각 요소에 대해 표시할 텍스트 길이를 제한할 수 있습니다.
 * `[최소길이:최대길이]` 형식으로 대괄호 안에 길이를 지정합니다.
@@ -288,6 +290,7 @@ dependencies {
   pattern={time::HH:mm:ss.SSS} {message[ 10: ]}
   # 메시지를 끝에서부터 5자만 출력합니다.
   pattern={time::HH:mm:ss.SSS} {message[:-5]}
+
   ```
 * 출력 예시
   ```java
@@ -313,7 +316,7 @@ dependencies {
   // 출력:
   // [INFO] .  1234567890   .
   ```
-
+  
 ### 로거와 프로세스 종료
 * 비동기 로거인 LogExpress는 메인 스레드가 종료되어도 로거 스레드는 종료되지 않습니다. 로거 스레드가 존재하는한 프로세스도 종료되지 않을 것입니다. 만약 로거 스레드와 프로세스를 우아하게 종료하고싶다면 LogExpress.shutdown() 을 사용하세요.
   ```java
