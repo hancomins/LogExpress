@@ -68,7 +68,7 @@ public final class Configuration implements Cloneable {
 		defaultStyleOption.setStyle("fatal", "level", "cyan;bold");
 		defaultStyleOption.setStyle("fatal", "message", "red");
 
-		defaultStyleOption.setStyle("debug", "level", "black;blue");
+		defaultStyleOption.setStyle("debug", "level", "blue;bold");
 		defaultStyleOption.setStyle("trace", "level", "white;bold");
 		defaultStyleOption.resetChanged();
 

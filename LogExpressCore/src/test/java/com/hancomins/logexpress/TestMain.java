@@ -1,6 +1,8 @@
 package com.hancomins.logexpress;
 
 
+import com.hancomins.logexpress.configuration.Configuration;
+
 import java.io.File;
 
 
@@ -8,6 +10,24 @@ public class TestMain {
 
     public static void main(String[] args) throws InterruptedException {
 
+        Logger LOG = LogExpress.newLogger("com.test", "com.test");
+
+
+        Configuration configuration = LogExpress.cloneConfiguration();
+        configuration.setDefaultLevel(Level.INFO);
+        LogExpress.updateConfig(configuration);
+
+        Thread.sleep(500);
+
+        LOG.info("info");
+        LOG.debug("debug");
+        LOG.trace("trace");
+
+        LogExpress.shutdown().await();
+
+
+
+        if(1 <2 ) return;
 
 
         //Configuration configuration = logexpress.cloneConfiguration();

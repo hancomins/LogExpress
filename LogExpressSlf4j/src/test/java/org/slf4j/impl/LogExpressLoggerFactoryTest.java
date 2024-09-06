@@ -48,6 +48,19 @@ public class LogExpressLoggerFactoryTest {
 
         assertTrue(logger instanceof Logger);
 
+        configuration = LogExpress.cloneConfiguration();
+        configuration.setDefaultLevel(Level.INFO);
+        LogExpress.updateConfig(configuration);
+        Thread.sleep(500);
+
+
+        logger.trace("이 로그는 출력되지 않습니다.");
+        logger.trace(mk ,"이 로그는 출력되지 않습니다.");
+
+
+        Thread.sleep(500);
+
+
     }
 
 }

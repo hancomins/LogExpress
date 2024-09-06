@@ -41,8 +41,10 @@ public class BaseLogger implements Logger {
 	protected void change(AbsLineQueue concurrentLineQueue, WriterOption option) {
 		absLineQueue = concurrentLineQueue;
 		level = option.getLevel();
+		setLevel(level);
 		initFormatter(option.getPattern(), option.styleOption());
 		stackTraceElementsIndex = DEF_ELEMENT_IDX + option.getStackTraceDepth();
+
 	}
 	
 	
