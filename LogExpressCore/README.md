@@ -12,9 +12,9 @@
 ```gradle
 dependencies {
     // LogExpress core 프로젝트.
-    implementation 'io.github.hancomins:LogExpressCore:1.0.0'
-    // SLF4j 지원.
-    //implementation 'io.github.hancomins:LogExpressSlf4j:1.0.0.'
+    implementation 'io.github.hancomins:LogExpressCore:1.0.3'
+    // SLF4j 1.7 지원.
+    //implementation 'io.github.hancomins:LogExpressSlf4j:1.0.3'
 }
 ```
 

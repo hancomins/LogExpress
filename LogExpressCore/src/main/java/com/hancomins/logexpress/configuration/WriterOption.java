@@ -42,7 +42,7 @@ public class WriterOption implements Cloneable {
 	private String staticVariableReplacedPattern = null;
 	private String[] staticVariableReplacedMarkers = null;
 
-	private final ColorOption colorOption;
+	private final StyleOption styleOption;
 
 	@Override
 	public WriterOption clone() {
@@ -50,7 +50,7 @@ public class WriterOption implements Cloneable {
 		try {
 			option = (WriterOption) super.clone();
 		} catch (CloneNotSupportedException e) {
-			option = new WriterOption(colorOption.clone());
+			option = new WriterOption(styleOption.clone());
 		}
 
 		option.level = this.level;
@@ -72,8 +72,8 @@ public class WriterOption implements Cloneable {
 		return option;
 	}
 
-	protected WriterOption(ColorOption colorOption) {
-		this.colorOption = colorOption;
+	protected WriterOption(StyleOption styleOption) {
+		this.styleOption = styleOption;
 	}
 
 	/**
@@ -143,11 +143,11 @@ public class WriterOption implements Cloneable {
 	/**
 	 * 컬러 옵션의 인스턴스를 가져옵니다.<br>
 	 * Returns the instance of the color option.
-	 * {@link ColorOption}
+	 * {@link StyleOption}
 	 * @return 컬러 옵션<br>
 	 */
-	public ColorOption colorOption() {
-		return this.colorOption;
+	public StyleOption styleOption() {
+		return this.styleOption;
 	}
 
 

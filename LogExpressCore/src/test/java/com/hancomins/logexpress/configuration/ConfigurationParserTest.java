@@ -2,7 +2,6 @@ package com.hancomins.logexpress.configuration;
 
 import com.hancomins.logexpress.Level;
 import com.hancomins.logexpress.LinePatternItemType;
-import com.hancomins.logexpress.util.ANSIColor;
 import junit.framework.TestCase;
 import org.junit.Test;
 
@@ -22,13 +21,14 @@ public class ConfigurationParserTest extends TestCase {
 
 
 
-        ColorOption defaultColorOption = configuration.defaultColorOption();
-        defaultColorOption.enableConsole(true)
-                .putColorCode(Level.INFO, LinePatternItemType.Message, ANSIColor.GREEN, null)
-                .putColorCode(Level.WARN, LinePatternItemType.Message, ANSIColor.GREEN, null)
-                .putColorCode(Level.ERROR, LinePatternItemType.Message, ANSIColor.RED, ANSIColor.BLACK)
-                .putColorCode(Level.DEBUG, LinePatternItemType.Message, ANSIColor.CYAN, null)
-                .putColorCode(Level.TRACE, LinePatternItemType.Message, ANSIColor.WHITE, ANSIColor.BLUE);
+        StyleOption defaultStyleOption = configuration.defaultStyleOption();
+        defaultStyleOption.enableConsole(true)
+                .setStyle(Level.INFO, LinePatternItemType.Message, ANSIColor.GREEN, null)
+                .setStyle(Level.WARN, LinePatternItemType.Message, ANSIColor.GREEN, null)
+                .setStyle(Level.ERROR, LinePatternItemType.Message, ANSIColor.RED, ANSIColor.BLACK)
+                .setStyle(Level.DEBUG, LinePatternItemType.Message, ANSIColor.CYAN, null);
+
+        defaultStyleOption.setStyle(Level.TRACE, LinePatternItemType.Message, ANSIColor.WHITE, ANSIColor.BLUE);
 
         // WriterOption 5개 이상 설정
         for (int i = 0; i < 5; i++) {

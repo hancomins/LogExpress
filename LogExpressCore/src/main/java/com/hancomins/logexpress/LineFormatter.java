@@ -1,6 +1,6 @@
 package com.hancomins.logexpress;
 
-import com.hancomins.logexpress.configuration.ColorOption;
+import com.hancomins.logexpress.configuration.StyleOption;
 import com.hancomins.logexpress.util.StringUtil;
 
 import java.text.SimpleDateFormat;
@@ -52,10 +52,10 @@ class LineFormatter {
 	/**
 	 * 라인 포맷을 파싱하여 LineFormatter 객체를 생성하는 메서드.
 	 * @param format 패턴으로 이루어진 라인 포맷
-	 * @param colorOption 색상 옵션
+	 * @param styleOption 색상 옵션
 	 * @return LineFormatter
 	 */
-	static LineFormatter parse(String format, ColorOption colorOption) {
+	static LineFormatter parse(String format, StyleOption styleOption) {
 		final int MODE_TEXT = 0;
 		final int MODE_IN_TYPE = 1;
 
@@ -169,7 +169,7 @@ class LineFormatter {
 		formatter.formatItems = items.toArray(new FormatItem[0]);
 		formatter.needStacktrace = needStacktrace;
 		formatter.needThreadInfo = needThreadInfo;
-		formatter.lineCombiner = new LineCombiner(formatter.formatItems, colorOption);
+		formatter.lineCombiner = new LineCombiner(formatter.formatItems, styleOption);
 		return formatter;
 	}
 

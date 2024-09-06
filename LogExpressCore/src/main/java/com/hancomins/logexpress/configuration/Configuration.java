@@ -53,20 +53,25 @@ public final class Configuration implements Cloneable {
 	private int writerWorkerInterval = DEFAULT_WRITER_WORKER_INTERVAL;
 
 	private String staticVariableReplacedDefaultMarker = null;
-	private ColorOption defaultColorOption = new ColorOption();
+	private StyleOption defaultStyleOption = new StyleOption();
 
 	{
-		defaultColorOption.enableConsole(true);
-		defaultColorOption.enableFile(false);
-		defaultColorOption.putColorCode("all", "time", "cyan");
-		defaultColorOption.putColorCode("info", "level", "black;green");
-		defaultColorOption.putColorCode("info", "message", "green");
-		defaultColorOption.putColorCode("warn", "level", "black;yellow");
-		defaultColorOption.putColorCode("warn", "message", "yellow");
-		defaultColorOption.putColorCode("error", "level", "black;red");
-		defaultColorOption.putColorCode("error", "message", "red");
-		defaultColorOption.putColorCode("fatal", "level", "black;red;");
-		defaultColorOption.putColorCode("fatal", "message", "red");
+		defaultStyleOption.enableConsole(true);
+		defaultStyleOption.enableFile(false);
+		defaultStyleOption.setStyle("all", "time", "cyan");
+		defaultStyleOption.setStyle("info", "level", "green;bold");
+		defaultStyleOption.setStyle("info", "message", "green");
+		defaultStyleOption.setStyle("warn", "level", "yellow;bold");
+		defaultStyleOption.setStyle("warn", "message", "yellow");
+		defaultStyleOption.setStyle("error", "level", "red;bold");
+		defaultStyleOption.setStyle("error", "message", "red");
+		defaultStyleOption.setStyle("fatal", "level", "cyan;bold");
+		defaultStyleOption.setStyle("fatal", "message", "red");
+
+		defaultStyleOption.setStyle("debug", "level", "black;blue");
+		defaultStyleOption.setStyle("trace", "level", "white;bold");
+		defaultStyleOption.resetChanged();
+
 
 
 
@@ -96,13 +101,13 @@ public final class Configuration implements Cloneable {
 	}
 
 	/**
-	 * 기본 컬러 옵션의 인스턴스를 가져옵니다.<br>
-	 * Returns the instance of default color option.
-	 * {@link ColorOption}
+	 * 기본 스타일 옵션의 인스턴스를 가져옵니다.<br>
+	 * Returns the instance of default style option.
+	 * {@link StyleOption}
 	 * @return 컬러 옵션<br>
 	 */
-	public ColorOption defaultColorOption() {
-		return this.defaultColorOption;
+	public StyleOption defaultStyleOption() {
+		return this.defaultStyleOption;
 	}
 
 	/**
@@ -133,7 +138,7 @@ public final class Configuration implements Cloneable {
 		configuration.defaultOption = writerOption == null ? null : writerOption.clone();
 		configuration.nonBlockingMode = this.nonBlockingMode;
 		configuration.defaultLevel = this.defaultLevel;
-		configuration.defaultColorOption = this.defaultColorOption.clone();
+		configuration.defaultStyleOption = this.defaultStyleOption.clone();
 		for(int i = 0, n = this.writerOptionList.size(); i < n; ++i) {
 			writerOption = this.writerOptionList.get(i);
 			if(writerOption == this.getDefaultOption()) {
@@ -532,7 +537,9 @@ public final class Configuration implements Cloneable {
 		if(idx > -1) {
 			return this.writerOptionList.get(idx);
 		}
-		WriterOption option = new WriterOption(this.defaultColorOption.clone());
+		StyleOption writerStyleOption = this.defaultStyleOption.clone();
+		writerStyleOption.resetChanged();
+		WriterOption option = new WriterOption(writerStyleOption);
 		option.setLevel(this.defaultLevel);
 		option.addMarker(marker);
 		this.writerOptionList.add(option);
@@ -686,7 +693,7 @@ public final class Configuration implements Cloneable {
 			if(this.defaultMarker == null || this.defaultMarker.isEmpty()) {
 				this.defaultMarker = "default";
 			}
-			WriterOption option = new WriterOption(this.defaultColorOption);
+			WriterOption option = new WriterOption(this.defaultStyleOption);
 			option.addMarker(this.defaultMarker);
 			this.defaultOption = option;
 			this.writerOptionList.add(option);
@@ -721,8 +728,8 @@ public final class Configuration implements Cloneable {
 			} else if(this.defaultLevel.getValue() > optionLevel.getValue()) {
 				option.setLevel(defaultLevel);
 			}
-			if(!option.colorOption().isChanged()) {
-				option.colorOption().copy(this.defaultColorOption);
+			if(option.styleOption().isNotChanged()) {
+				option.styleOption().copy(this.defaultStyleOption);
 			}
 
 

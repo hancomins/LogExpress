@@ -3,7 +3,6 @@ package com.hancomins.logexpress.configuration;
 import com.hancomins.logexpress.InLogger;
 import com.hancomins.logexpress.Level;
 import com.hancomins.logexpress.LinePatternItemType;
-import com.hancomins.logexpress.util.ANSIColor;
 import com.hancomins.logexpress.util.StringUtil;
 import com.hancomins.logexpress.util.SysTool;
 import com.hancomins.logexpress.util.Files;
@@ -34,30 +33,33 @@ class ConfigurationParser {
 		Files.write(file, toString(configuration).getBytes());
 	}
 
-	private static void parseColorOption(Properties properties, ColorOption colorOption) {
-		String strEnableConsole = properties.getProperty("color.console", "");
-		String strEnableFile = properties.getProperty("color.file", "");
+	private static void parseStyleOption(Properties properties, StyleOption styleOption) {
+
+
+
+		String strEnableConsole = properties.getProperty("style.console", "");
+		String strEnableFile = properties.getProperty("style.file", "");
 		if(!strEnableConsole.isEmpty()) {
 			boolean enableConsole = "true".equalsIgnoreCase(strEnableConsole);
-			colorOption.enableConsole(enableConsole);
+			styleOption.enableConsole(enableConsole);
 		}
 		if(!strEnableFile.isEmpty()) {
 			boolean enableFile = "true".equalsIgnoreCase(strEnableFile);
-			colorOption.enableFile(enableFile);
+			styleOption.enableFile(enableFile);
 		}
 
 		Set<Object> keys = properties.keySet();
 		for(Object objKey: keys) {
 			if(objKey == null) continue;
 			String key = objKey.toString();
-			if(key.startsWith("color.")) {
+			if(key.startsWith("style.")) {
 				String[] keyArray = key.split("\\.");
 				if(keyArray.length != 3) continue;
 				String level = keyArray[1];
 				String type = keyArray[2];
 				String value = properties.getProperty(key);
 				if(value == null) continue;
-				colorOption.putColorCode(level, type, value);
+				styleOption.setStyle(level, type, value);
 			}
 		}
 	}
@@ -74,7 +76,6 @@ class ConfigurationParser {
 			Properties properties = entry.getValue();
 			if("configuration".equals(key)) {
 				String queueSize = properties.getProperty("queueSize", Configuration.DEFAULT_QUEUE_SIZE +"");
-				//String consoleBufferSize = properties.getProperty("consoleBufferSize", Configuration.DEFAULT_CONSOLE_BUFFER_SIZE +"");
 				String defaultMarker = properties.getProperty("defaultMarker", "");
 				String writeWorkerInterval = properties.getProperty("workerInterval", Configuration.DEFAULT_WRITER_WORKER_INTERVAL +"");
 				String strDebugMode = properties.getProperty("debugMode.enable","");
@@ -107,7 +108,7 @@ class ConfigurationParser {
 				boolean isAutoShutdown = "true".equalsIgnoreCase(strIsAutoShutdown);
 				boolean isNonBlockingQueue = !"false".equalsIgnoreCase(strIsNonBlockingQueue);
 
-				parseColorOption(properties, configuration.defaultColorOption());
+				parseStyleOption(properties, configuration.defaultStyleOption());
 				configuration.setFileExistCheck(fileExistCheck);
 				configuration.setDebugMode(debugMode);
 				configuration.enableConsoleLogInDebugMode(debugModeConsole);
@@ -145,7 +146,7 @@ class ConfigurationParser {
 					encoding = null;
 				}
 				WriterOption option = configuration.newWriterOption(defaultName);
-				parseColorOption(properties, option.colorOption());
+				parseStyleOption(properties, option.styleOption());
 				option.setBufferSize(parseInteger(bufferSize, WriterOption.DEFAULT_BUFFER_SIZE));
 				option.setMaxSize(parseInteger(maxSize, WriterOption.DEFAULT_MAXSIZE));
 				option.setHistory(parseInteger(history, WriterOption.DEFAULT_HISTORY ));
@@ -177,23 +178,27 @@ class ConfigurationParser {
 				}
 			}
 		}
-		configuration.defaultColorOption().resetChanged();
+
 		return configuration;
 	}
 
-	private static void colorOptionWriteString(StringBuilder stringBuilder, ColorOption colorOption, String lb) {
+	private static void styleOptionWriteString(StringBuilder stringBuilder, StyleOption styleOption, String lb) {
+
+		if(styleOption.isNotChanged()) {
+			return;
+		}
+
 		stringBuilder.append(lb);
-		stringBuilder.append("color.console").append('=').append(colorOption.isEnabledConsole()).append(lb);
-		stringBuilder.append("color.file").append('=').append(colorOption.isEnabledFile()).append(lb);
+		stringBuilder.append("style.console").append('=').append(styleOption.isEnabledConsole()).append(lb);
+		stringBuilder.append("style.file").append('=').append(styleOption.isEnabledFile()).append(lb);
 
 		for(Level level : Level.values()) {
 			for(LinePatternItemType type : LinePatternItemType.values()) {
-				String colorCode = colorOption.getColorCode(level, type);
-				// colorCode 를 다시 컬러값으로 변환.
-
-				if(colorCode != null) {
-					String colorNames = ANSIColor.codeToColorNames(colorCode);
-					stringBuilder.append("color.").append(level.toString().toLowerCase()).append('.').append(type.toString().toLowerCase()).append('=').append(colorNames).append("\n");
+				String ansiCode = styleOption.getAnsiCode(level, type);
+				// ansiCode 를 다시 컬러값으로 변환.
+				if(ansiCode != null) {
+					String colorNames = StyleOption.codeToStyleNames(ansiCode);
+					stringBuilder.append("style.").append(level.toString().toLowerCase()).append('.').append(type.toString().toLowerCase()).append('=').append(colorNames).append("\n");
 				}
 			}
 		}
@@ -225,7 +230,7 @@ class ConfigurationParser {
 
 		strignBuilder.append("level").append('=').append(configuration.getDefaultLevel()).append(lb);
 
-		colorOptionWriteString(strignBuilder, configuration.defaultColorOption(), lb);
+		styleOptionWriteString(strignBuilder, configuration.defaultStyleOption(), lb);
 		
 		WriterOption[] writerOptions = configuration.getWriterOptions();
 		//noinspection ForLoopReplaceableByForEach
@@ -266,7 +271,7 @@ class ConfigurationParser {
 			strignBuilder.append("encoding").append('=').append(encoding == null ? ""  : encoding).append(lb);
 			strignBuilder.append("addedStackTraceElementsIndex").append('=').append(option.getStackTraceDepth()).append(lb);
 
-			colorOptionWriteString(strignBuilder, configuration.defaultColorOption(), lb);
+			styleOptionWriteString(strignBuilder, configuration.defaultStyleOption(), lb);
 			
 		}
 		

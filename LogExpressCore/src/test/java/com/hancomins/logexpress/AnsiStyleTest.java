@@ -1,6 +1,6 @@
 package com.hancomins.logexpress;
 
-import com.hancomins.logexpress.configuration.ColorOption;
+import com.hancomins.logexpress.configuration.StyleOption;
 import com.hancomins.logexpress.configuration.Configuration;
 import com.hancomins.logexpress.configuration.WriterOption;
 import org.junit.Test;
@@ -12,7 +12,7 @@ import java.util.Calendar;
 import static org.junit.Assert.assertEquals;
 
 @SuppressWarnings("ALL")
-public class AnsiColorTest {
+public class AnsiStyleTest {
 
     static final boolean isWindows = System.getProperty("os.name")
             .toLowerCase().startsWith("windows");
@@ -36,8 +36,8 @@ public class AnsiColorTest {
         WriterOption writerOption = configuration.getDefaultWriterOption();
         writerOption.setFile(file);
         @SuppressWarnings("UnusedAssignment")
-        ColorOption colorOption = writerOption.colorOption();
-        colorOption  = configuration.defaultColorOption();
+        StyleOption styleOption = writerOption.styleOption();
+        styleOption = configuration.defaultStyleOption();
 
         String currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + "";
         if(currentHour.length() == 1) {
@@ -45,24 +45,24 @@ public class AnsiColorTest {
         }
         writerOption.setLinePattern("{time:hh} [{level}] {message}");
 
-        colorOption.enableConsole(true).enableFile(true);
+        styleOption.enableConsole(true).enableFile(true);
 
-        colorOption.putColorCode("info","message", "green");
-        colorOption.putColorCode("all","time", "CYAN");
-        colorOption.putColorCode("info","level", "BLACK;GREEN");
+        styleOption.setStyle("info","message", "green");
+        styleOption.setStyle("all","time", "CYAN");
+        styleOption.setStyle("info","level", "BLACK;GREEN");
 
-        colorOption.putColorCode("error","message", "red");
-        colorOption.putColorCode("error","level", "BLACK;red");
+        styleOption.setStyle("error","message", "red");
+        styleOption.setStyle("error","level", "BLACK;red");
 
-        colorOption.putColorCode("warn","message", "yellow");
-        colorOption.putColorCode("warn","level", "BLACK;yellow");
+        styleOption.setStyle("warn","message", "yellow");
+        styleOption.setStyle("warn","level", "BLACK;yellow");
 
 
 
 
         LogExpress.updateConfig(configuration);
 
-        Logger LOG = LogExpress.newLogger(AnsiColorTest.class);
+        Logger LOG = LogExpress.newLogger(AnsiStyleTest.class);
         LOG.info("INFO MESSAGE");
         LOG.error("ERROR MESSAGE");
         LOG.warn("WARN MESSAGE");
@@ -114,7 +114,7 @@ public class AnsiColorTest {
         Configuration configuration = LogExpress.cloneConfiguration();
         WriterOption writerOption = configuration.getDefaultWriterOption();
         writerOption.setFile(file);
-        ColorOption colorOption = writerOption.colorOption();
+        StyleOption styleOption = writerOption.styleOption();
 
 
         String currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + "";
@@ -123,24 +123,24 @@ public class AnsiColorTest {
         }
         writerOption.setLinePattern("{time:hh} [{level}] {message}");
 
-        colorOption.enableConsole(false).enableFile(true);
+        styleOption.enableConsole(false).enableFile(true);
 
-        colorOption.putColorCode("info","message", "green");
-        colorOption.putColorCode("all","time", "CYAN");
-        colorOption.putColorCode("info","level", "BLACK;GREEN");
+        styleOption.setStyle("info","message", "green");
+        styleOption.setStyle("all","time", "CYAN");
+        styleOption.setStyle("info","level", "BLACK;GREEN");
 
-        colorOption.putColorCode("error","message", "red");
-        colorOption.putColorCode("error","level", "BLACK;red");
+        styleOption.setStyle("error","message", "red");
+        styleOption.setStyle("error","level", "BLACK;red");
 
-        colorOption.putColorCode("warn","message", "yellow");
-        colorOption.putColorCode("warn","level", "BLACK;yellow");
+        styleOption.setStyle("warn","message", "yellow");
+        styleOption.setStyle("warn","level", "BLACK;yellow");
 
 
 
 
         LogExpress.updateConfig(configuration);
 
-        Logger LOG = LogExpress.newLogger(AnsiColorTest.class);
+        Logger LOG = LogExpress.newLogger(AnsiStyleTest.class);
         LOG.info("INFO MESSAGE");
         LOG.error("ERROR MESSAGE");
         LOG.warn("WARN MESSAGE");
@@ -196,7 +196,7 @@ public class AnsiColorTest {
         Configuration configuration = LogExpress.cloneConfiguration();
         WriterOption writerOption = configuration.getDefaultWriterOption();
         writerOption.setFile(file);
-        ColorOption colorOption = writerOption.colorOption();
+        StyleOption styleOption = writerOption.styleOption();
 
 
         String currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + "";
@@ -205,24 +205,24 @@ public class AnsiColorTest {
         }
         writerOption.setLinePattern("{time:hh} [{level}] {message}");
 
-        colorOption.enableConsole(false).enableFile(false);
+        styleOption.enableConsole(false).enableFile(false);
 
-        colorOption.putColorCode("info","message", "green");
-        colorOption.putColorCode("all","time", "CYAN");
-        colorOption.putColorCode("info","level", "BLACK;GREEN");
+        styleOption.setStyle("info","message", "green");
+        styleOption.setStyle("all","time", "CYAN");
+        styleOption.setStyle("info","level", "BLACK;GREEN");
 
-        colorOption.putColorCode("error","message", "red");
-        colorOption.putColorCode("error","level", "BLACK;red");
+        styleOption.setStyle("error","message", "red");
+        styleOption.setStyle("error","level", "BLACK;red");
 
-        colorOption.putColorCode("warn","message", "yellow");
-        colorOption.putColorCode("warn","level", "BLACK;yellow");
+        styleOption.setStyle("warn","message", "yellow");
+        styleOption.setStyle("warn","level", "BLACK;yellow");
 
 
 
 
         LogExpress.updateConfig(configuration);
 
-        Logger LOG = LogExpress.newLogger(AnsiColorTest.class);
+        Logger LOG = LogExpress.newLogger(AnsiStyleTest.class);
         LOG.info("INFO MESSAGE");
         LOG.error("ERROR MESSAGE");
         LOG.warn("WARN MESSAGE");
@@ -277,7 +277,7 @@ public class AnsiColorTest {
         Configuration configuration = LogExpress.cloneConfiguration();
         WriterOption writerOption = configuration.getDefaultWriterOption();
         writerOption.setFile(file);
-        ColorOption colorOption = writerOption.colorOption();
+        StyleOption styleOption = writerOption.styleOption();
 
 
         String currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + "";
@@ -286,24 +286,24 @@ public class AnsiColorTest {
         }
         writerOption.setLinePattern("{time:hh} [{level}] {message}");
 
-        colorOption.enableConsole(true).enableFile(false);
+        styleOption.enableConsole(true).enableFile(false);
 
-        colorOption.putColorCode("info","message", "green");
-        colorOption.putColorCode("all","time", "CYAN");
-        colorOption.putColorCode("info","level", "BLACK;GREEN");
+        styleOption.setStyle("info","message", "green");
+        styleOption.setStyle("all","time", "CYAN");
+        styleOption.setStyle("info","level", "BLACK;GREEN");
 
-        colorOption.putColorCode("error","message", "red");
-        colorOption.putColorCode("error","level", "BLACK;red");
+        styleOption.setStyle("error","message", "red");
+        styleOption.setStyle("error","level", "BLACK;red");
 
-        colorOption.putColorCode("warn","message", "yellow");
-        colorOption.putColorCode("warn","level", "BLACK;yellow");
+        styleOption.setStyle("warn","message", "yellow");
+        styleOption.setStyle("warn","level", "BLACK;yellow");
 
 
 
 
         LogExpress.updateConfig(configuration);
 
-        Logger LOG = LogExpress.newLogger(AnsiColorTest.class);
+        Logger LOG = LogExpress.newLogger(AnsiStyleTest.class);
         LOG.info("INFO MESSAGE");
         LOG.error("ERROR MESSAGE");
         LOG.warn("WARN MESSAGE");

@@ -125,6 +125,32 @@ dependencies {
   # 기본값: trace
   level=trace
   
+  # 기본 ANSI 스타일을 설정합니다.
+  # 콘솔과 파일 로그에 ANSI 스타일을 적용할 수 있습니다.
+  # 각각의 writer 설정 내에도 style 옵션을 사용할 수 있습니다. 
+  style.console=true
+  style.file=false
+  
+  # 색상과 폰트 스타일을 설정할 수 있습니다. 각 설정값은 세미콜론(;)으로 구분합니다.
+  # 만약, 두 개 이상의 색상이 설정되어 있다면, 마지막에 설정된 색은 배경색으로 적용됩니다.
+  # 색상: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE
+  # 폰트 스타일: BOLD, ITALIC, UNDERLINE, STRIKE
+  
+  # 모든 레벨의 출력. 라인 패턴에서 지정한 {time}에 대하여 CYAN 색상을 적용합니다.
+  style.all.time=CYAN
+  # INFO 레벨의 출력. 라인 패턴에서 지정한 {level}에 대하여 GREEN 색상과 BOLD 스타일을 적용합니다. 
+  style.info.level=GREEN;BOL
+  # WARN 레벨의 출력. 라인 패턴에서 지정한 {level}에 대하여 YELLOW 색상과 BOLD 스타일을 적용합니다.    
+  style.warn.level=YELLOW;BOLD
+  # ERROR 레벨의 출력. 라인 패턴에서 지정한 {level}에 대하여 RED 색상과 BOLD 스타일을 적용합니다.
+  style.error.level=RED;BOLD
+  # FATAL 레벨의 출력. 라인 패턴에서 지정한 {level}에 대하여 BLACK 색상의 글자색,
+  # RED 색상의 배경색, BOLD 스타일을 적용합니다.
+  style.fatal.level=BLACK;RED;BOLD
+    
+  
+  
+  
   
   # writer는 logback의 appender와 유사합니다.
   # writer 옵션: Logger 객체는 해당 marker의 Writer를 사용합니다. 지정되지 않은 marker를 사용할 경우 기본 Writer를 사용합니다.

@@ -1,8 +1,8 @@
 package com.hancomins.logexpress;
 
-import com.hancomins.logexpress.configuration.ColorOption;
+import com.hancomins.logexpress.configuration.StyleOption;
 import com.hancomins.logexpress.configuration.WriterType;
-import com.hancomins.logexpress.util.ANSIColor;
+import com.hancomins.logexpress.configuration.ANSIColor;
 import com.hancomins.logexpress.util.SysTool;
 
 import java.io.ByteArrayOutputStream;
@@ -11,20 +11,20 @@ import java.io.PrintWriter;
 class LineCombiner {
 
     private final LineFormatter.FormatItem[] formatItems;
-    private final ColorOption colorOption;
+    private final StyleOption styleOption;
 
 
 
-    LineCombiner(LineFormatter.FormatItem[] formatItems, ColorOption colorOption) {
+    LineCombiner(LineFormatter.FormatItem[] formatItems, StyleOption styleOption) {
         this.formatItems = formatItems;
-        this.colorOption = colorOption;
+        this.styleOption = styleOption;
     }
 
     boolean isConsistentOutputLine() {
-        if(colorOption == null) {
+        if(styleOption == null) {
             return true;
         }
-        return colorOption.isEnabledConsole() == colorOption.isEnabledFile();
+        return styleOption.isEnabledConsole() == styleOption.isEnabledFile();
     }
 
 
@@ -106,10 +106,10 @@ class LineCombiner {
     CharSequence combine(Line line, WriterType writerType) {
         StringBuilder stringBuilder = new StringBuilder();
         Level level = line.getLevel();
-        boolean allowColor = colorOption != null &&
-                        ((writerType == null && (colorOption.isEnabledConsole() || colorOption.isEnabledFile())) ||
-                        (writerType == WriterType.Console && colorOption.isEnabledConsole()) ||
-                        (writerType == WriterType.File && colorOption.isEnabledFile()));
+        boolean allowColor = styleOption != null &&
+                        ((writerType == null && (styleOption.isEnabledConsole() || styleOption.isEnabledFile())) ||
+                        (writerType == WriterType.Console && styleOption.isEnabledConsole()) ||
+                        (writerType == WriterType.File && styleOption.isEnabledFile()));
         boolean writeColor = false;
         for(int i = 0, n = formatItems.length; i < n; ++i) {
             LineFormatter.FormatItem item = formatItems[i];
@@ -121,7 +121,7 @@ class LineCombiner {
             }
             if(allowColor) {
                 writeColor = false;
-                String colorCode = colorOption.getColorCode(level, item.type);
+                String colorCode = styleOption.getAnsiCode(level, item.type);
                 if(colorCode != null) {
                     stringBuilder.append(colorCode);
                     writeColor = true;

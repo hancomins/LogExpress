@@ -1,6 +1,6 @@
-package com.hancomins.logexpress.util;
+package com.hancomins.logexpress.configuration;
 
-public enum ANSIColor {
+public enum ANSIColor implements ANSIStyle {
     BLACK("30", "40"),
     RED("31", "41"),
     GREEN("32", "42"),
@@ -24,31 +24,7 @@ public enum ANSIColor {
 
 
 
-    public static String codeToColorNames(String color) {
-        StringBuilder sb = new StringBuilder();
-        color = color.replace("\u001B[", "").replace("\u001b[", "");
-        String[] colors = color.split(";");
 
-        for(String c : colors) {
-            if(c == null || c.isEmpty()) {
-                continue;
-            }
-            if(c.endsWith("m") || c.endsWith("M")) {
-                c = c.substring(0, c.length() - 1);
-            }
-            for(ANSIColor colorCode : ANSIColor.values()) {
-                if(colorCode.code.equals(c) || colorCode.backgroundCode.equals(c)) {
-                    sb.append(colorCode.name()).append(";");
-                    break;
-                }
-            }
-        }
-        if(sb.length() > 0) {
-            sb.setLength(sb.length() - 1);
-        }
-
-        return sb.toString();
-    }
 
 
     public static ANSIColor fromString(String color) {
@@ -81,8 +57,18 @@ public enum ANSIColor {
         this.ansiBackgroundCode = "\u001B[" + backgroundCode + "m";
     }
 
-    public String getANSICode() {
-        return ansiCode;
+    @Override
+    public String getRevertCode() {
+       return backgroundCode;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    @Override
+    public StyleType getType() {
+        return StyleType.COLOR;
     }
 
     @SuppressWarnings("unused")
@@ -90,14 +76,5 @@ public enum ANSIColor {
         return ansiBackgroundCode;
     }
 
-
-
-    public static String combineCode(ANSIColor color, ANSIColor background) {
-        if(background == null) {
-            return "\u001B[" + color.code;
-        }
-
-        return "\u001B[" + color.code + ";" + background.backgroundCode + "m";
-    }
 
 }

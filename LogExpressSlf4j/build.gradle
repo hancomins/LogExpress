@@ -85,11 +85,11 @@ test.onlyIf { !project.hasProperty("skipTests") }
 
 dependencies {
 
-    compileOnly fileTree(dir: '../LogExpressCore/build/libs/', include: ['*.jar'])
-
+    compileOnly project(':LogExpressCore')//fileTree(dir: '../LogExpressCore/build/libs/', include: ['*.jar'])
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
     testImplementation group: 'junit', name: 'junit', version: '4.+'
-    testImplementation fileTree(dir: '../LogExpressCore/build/libs/', include: ['*.jar'])
+    testImplementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
+    testImplementation project(':LogExpressCore') //fileTree(dir: '../LogExpressCore/build/libs/', include: ['*.jar'])
 }
 
 
