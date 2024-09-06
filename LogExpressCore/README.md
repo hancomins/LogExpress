@@ -1,20 +1,20 @@
 # LogExpress - English manual
 - https://github.com/hancomins/LogExpress/wiki/English-manual
-
 # LogExpress
 ## 개요
 * 가볍고 빠르고 사용 방법이 단순한 로깅 라이브러리입니다.
 * JAVA6 부터 사용 가능하기 때문에 레거시 프로젝트에도 바로 적용할 수 있습니다.
 * 비동기 로거입니다. non-block 알고리즘을 사용합니다. Log4j2 와 logback 에서 지원하는 AsyncAppender 와 동일한 방식입니다. 원형 큐에 로그를 쌓았다가 백그라운드 스레드가 파일로 저장합니다.
 
+
 ## 사용하기
 ### gradle 프로젝트에 추가
 ```gradle
 dependencies {
     // LogExpress core 프로젝트.
-    implementation 'io.github.hancomins:LogExpress:1.0.2'
-    // SLF4j 지원. 1.7 기반
-    //implementation 'io.github.hancomins:LogExpressSLF4J:1.0.2'
+    implementation 'io.github.hancomins:LogExpressCore:1.0.3'
+    // SLF4j 1.7 지원.
+    //implementation 'io.github.hancomins:LogExpressSlf4j:1.0.3'
 }
 ```
 
@@ -51,7 +51,7 @@ dependencies {
 <br/><br/>
 
 ### 설정 파일
-* 설정 파일의 포맷은 ini 입니다.
+* 설정 파일의 포맷은 ini 입니다. 
 * 기본 파일명은 log-express.ini 입니다.
 * log-express.ini 파일은 리소스의 루트경로 혹은 프로젝트의 루트경로에 위치해야합니다. 하지만, 설정 파일의 경로를 변경하고 싶다면 jvm 옵션에 '-DLogExpress.configurationFile=파일경로' 를 추가하거나 프로세스 최초 시작지점에 아래와 같은 코드를 넣어주세요. <br/>
   ```java
@@ -116,38 +116,9 @@ dependencies {
   # 항상 파일 존재 여부를 확인하고 없으면 다시 생성합니다.
   # 기본값: false
   fileExistCheck=true
-
-  # 기본 로그 레벨을 설정합니다.
-  # trace, debug, info, warn, error,fatal, off 순으로 레벨이 낮아집니다. off 레벨에서는 어떤 로그도 출력되지 않습니다.
-  # 만약 writer 옵션에 레벨이 설정되지 않는다면 기본 로그 레벨로 초기화 됩니다.
-  # writer 옵션에서 정한 level 이 기본 로그 레벨보다 낮을 수 없습니다.
-  # 만약 writer 의 레벨이 info, 기본 레벨이 error 면 writer 레벨은 error 로 강제 조절됩니다. 
-  # 기본값: trace
-  level=trace
   
-  # 기본 ANSI 스타일을 설정합니다.
-  # 콘솔과 파일 로그에 ANSI 스타일을 적용할 수 있습니다.
-  # 각각의 writer 설정 내에도 style 옵션을 사용할 수 있습니다. 
-  style.console=true
-  style.file=false
   
-  # 색상과 폰트 스타일을 설정할 수 있습니다. 각 설정값은 세미콜론(;)으로 구분합니다.
-  # 만약, 두 개 이상의 색상이 설정되어 있다면, 마지막에 설정된 색은 배경색으로 적용됩니다.
-  # 색상: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE
-  # 폰트 스타일: BOLD, ITALIC, UNDERLINE, STRIKE
   
-  # 모든 레벨의 출력. 라인 패턴에서 지정한 {time}에 대하여 CYAN 색상을 적용합니다.
-  style.all.time=CYAN
-  # INFO 레벨의 출력. 라인 패턴에서 지정한 {level}에 대하여 GREEN 색상과 BOLD 스타일을 적용합니다. 
-  style.info.level=GREEN;BOL
-  # WARN 레벨의 출력. 라인 패턴에서 지정한 {level}에 대하여 YELLOW 색상과 BOLD 스타일을 적용합니다.    
-  style.warn.level=YELLOW;BOLD
-  # ERROR 레벨의 출력. 라인 패턴에서 지정한 {level}에 대하여 RED 색상과 BOLD 스타일을 적용합니다.
-  style.error.level=RED;BOLD
-  # FATAL 레벨의 출력. 라인 패턴에서 지정한 {level}에 대하여 BLACK 색상의 글자색,
-  # RED 색상의 배경색, BOLD 스타일을 적용합니다.
-  style.fatal.level=BLACK;RED;BOLD
-    
   
   
   
@@ -161,8 +132,7 @@ dependencies {
   markers=catalina,bootstrap
   
   # 로그 레벨을 설정합니다.
-
-  # trace, debug, info, warn, error,fatal, off 순으로 레벨이 낮아집니다. off 레벨에서는 어떤 로그도 출력되지 않습니다.
+  # trace, debug, info, warn, error, off 순으로 레벨이 낮아집니다. off 레벨에서는 어떤 로그도 출력되지 않습니다.
   # 기본값: info
   level=info
   
@@ -233,11 +203,10 @@ dependencies {
      # 사용 예 - System.properties에 임의로 정의된 Log.dir 값과 시스템 환경 변수 USER에 해당하는 값
      file=${Log.dir}/%USER%/log.out
   ```
-
 - 기본 프로퍼티 이름 
-  - ${LogExpress.path}:     LogExpress 라이브러리가 설치된 디렉터리 경로입니다. 이는 애플리케이션의 루트 경로가 될 수 있습니다.
+  - ${LogExpress.path}:  LogExpress 라이브러리가 설치된 디렉터리 경로입니다. 이는 애플리케이션의 루트 경로가 될 수 있습니다.
   - ${LogExpress.hostname}: 애플리케이션이 실행 중인 서버의 호스트 이름입니다. 네트워크 환경에서 서버를 식별하는 데 사용됩니다.
-  - ${LogExpress.pid}:      현재 실행 중인 프로세스의 ID입니다. 시스템에서 실행 중인 프로세스를 고유하게 식별하는 데 사용됩니다. 
+  - ${LogExpress.pid}: 현재 실행 중인 프로세스의 ID입니다. 시스템에서 실행 중인 프로세스를 고유하게 식별하는 데 사용됩니다. 
 
 ### 코드상에서 동적으로 설정 변경
 * 코드상에서 동적으로 설정 변경이 가능합니다. 로그 큐와 Worker 를 모두 종료시키고 새로 생성된 객체로 안전하게 교체(exchange)합니다. <br/>
@@ -262,9 +231,8 @@ dependencies {
 * 자세한 설정 변경 방법은 Configuration 클래스와 public 메서드의 주석을 참고하세요.
 
 ### 로그 라인 패턴 출력을 레벨 및 마커에 따라 제한하기
-
-* 로그 라인 패턴 마지막에 @ 를 사용하여 레벨 및 마커를 제한할 수 있습니다. @ 뒤에는 레벨 또는 마커 이름을 입력합니다.
-* 레벨은 TRACE, DEUBG, INFO, WARN, ERROR, FATAL, OFF 중 하나를 입력합니다. 만약 ERROR 레벨 이상의 로그만 출력하고 싶다면, @error 를 입력하세요.
+* 로그 라인 패턴 마지막에 @ 를 사용하여 레벨 및 마커를 제한할 수 있습니다. @ 뒤에는 레벨 또는 마커 이름을 입력합니다. 
+* 레벨은 DEUBG, INFO, WARN, ERROR, FATAL 중 하나를 입력합니다. 만약 ERROR 레벨 이상의 로그만 출력하고 싶다면, @error 를 입력하세요. 
 * 여러개의 레벨 또는 마커를 입력할 수 있습니다. 쉼표로 구분합니다. 레벨은 대소문자를 구분하지 않지만, 마커 이름은 대소문자 및 공백을 구분합니다.
 * 만약 마커의 이름이 레벨 이름과 같다면, 중복을 피하기 위해 마커 이름 앞 뒤에 따옴표(Qutation) 또는 작은 따옴표(Single Qutation)를 사용하세요.
 * 마커 이름 내부에 따옴표 혹은 작은 따옴표를 사용하려면, 역슬래시(\)를 사용하여 이스케이프 처리하세요.
@@ -277,6 +245,7 @@ dependencies {
     pattern={time::HH:mm:ss.SSS} [{level}] {method@error,'fatal','error',api}()  {message} {text::에러가 발생 하였습니다. @error} 
        
   ```
+  
 ### 로그 라인 패턴 요소별 길이 제한
 * 로그 메시지의 각 요소에 대해 표시할 텍스트 길이를 제한할 수 있습니다.
 * `[최소길이:최대길이]` 형식으로 대괄호 안에 길이를 지정합니다.
@@ -290,7 +259,6 @@ dependencies {
   pattern={time::HH:mm:ss.SSS} {message[ 10: ]}
   # 메시지를 끝에서부터 5자만 출력합니다.
   pattern={time::HH:mm:ss.SSS} {message[:-5]}
-
   ```
 * 출력 예시
   ```java
@@ -348,3 +316,4 @@ dependencies {
      LogExpress.debug("소켓 문제가 발생하였습니다.", exception);
   }
   ```
+   

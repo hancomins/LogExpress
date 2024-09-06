@@ -1,0 +1,75 @@
+
+
+buildscript {
+    dependencies {
+        classpath "io.github.gradle-nexus:publish-plugin:1.1.0"
+    }
+}
+
+plugins {
+    id 'java'
+    id 'distribution'
+}
+
+
+
+
+
+group 'com.hancomins'
+version getProperty("version")
+
+
+sourceCompatibility = 1.6
+compileJava {
+    sourceCompatibility=1.6
+    targetCompatibility=1.6
+}
+
+compileTestJava {
+    sourceCompatibility=1.6
+    targetCompatibility=1.6
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+
+project.jar.exclude('**/*.txt')
+project.jar.exclude('**/*.log')
+project.jar.exclude('**/*.ini')
+
+
+
+
+repositories {
+    mavenCentral()
+}
+
+
+test.onlyIf { !project.hasProperty("skipTests") }
+
+
+
+dependencies {
+
+    implementation fileTree(dir: '../LogExpressCore/build/libs/', include: ['*.jar'])
+    testImplementation group: 'junit', name: 'junit', version: '4.+'
+
+}
+
+task distAll {
+    group = 'distribution'
+    dependsOn ':LogExpressCore:dist'
+    dependsOn ':LogExpressSlf4j:dist'
+    doLast {
+        def distDir = "${projectDir}/build/dist"
+        mkdir distDir
+        // copy all the files from the subprojects
+
+        subprojects.each { project ->
+            copy {
+                from fileTree(dir: "${project.buildDir}/dist/", include: ["*.zip"])
+                into distDir
+            }
+        }
+    }
+}
