@@ -12,9 +12,9 @@
 ```gradle
 dependencies {
     // LogExpress core 프로젝트.
-    implementation 'io.github.hancomins:LogExpress:1.0.4'
+    implementation 'io.github.hancomins:LogExpress:1.0.5'
     // SLF4j 지원. SLF4j1.7 기반
-    //implementation 'io.github.hancomins:LogExpressSLF4J:1.0.4'
+    //implementation 'io.github.hancomins:LogExpressSLF4J:1.0.5'
 }
 ```
 
@@ -128,7 +128,7 @@ dependencies {
   # 기본 ANSI 스타일을 설정합니다.
   # 콘솔과 파일 로그에 ANSI 스타일을 적용할 수 있습니다.
   # 각각의 writer 설정 내에도 style 옵션을 사용할 수 있습니다. 
-  style.console=true
+  style.console=false
   style.file=false
   
   # 색상과 폰트 스타일을 설정할 수 있습니다. 각 설정값은 세미콜론(;)으로 구분합니다.
@@ -138,6 +138,11 @@ dependencies {
   
   # 모든 레벨의 출력. 라인 패턴에서 지정한 {time}에 대하여 CYAN 색상을 적용합니다.
   style.all.time=CYAN
+  # 값 앞에 + 를 붙이면 기존 스타일에 추가합니다.
+  style.error.time=+BOLD;RED
+  # 값이 없으면 기존의 모든 스타일을 제거합니다.
+  style.trace.time=
+  
   # INFO 레벨의 출력. 라인 패턴에서 지정한 {level}에 대하여 GREEN 색상과 BOLD 스타일을 적용합니다. 
   style.info.level=GREEN;BOL
   # WARN 레벨의 출력. 라인 패턴에서 지정한 {level}에 대하여 YELLOW 색상과 BOLD 스타일을 적용합니다.    
@@ -148,8 +153,9 @@ dependencies {
   # RED 색상의 배경색, BOLD 스타일을 적용합니다.
   style.fatal.level=BLACK;RED;BOLD
     
-  
-  
+  # 라인 패턴을 all 로 설정하면 라인 전체에 스타일이 적용됩니다.
+  # 아래 예제에서는 fatal 레벨의 모든 출력에 대하여 UNDERLINE 스타일을 적용합니다.
+  style.fatal.all=+UNDERLINE
   
   
   # writer는 logback의 appender와 유사합니다.
