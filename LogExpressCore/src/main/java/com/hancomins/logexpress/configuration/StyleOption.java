@@ -378,6 +378,26 @@ public class StyleOption implements Cloneable {
         return styles.toArray(new ANSIStyle[0]);
     }
 
+    /**
+     * Converts ANSI code to style names.<br>
+     * ANSI 코드를 스타일 이름으로 변환합니다.<br>
+     * If the ANSI code is null or empty, an empty string is returned.<br>
+     * ANSI 코드가 null 또는 빈 경우 빈 문자열이 반환됩니다.<br>
+     * If the ANSI code is not valid, an empty string is returned.<br>
+     * ANSI 코드가 유효하지 않은 경우 빈 문자열이 반환됩니다.<br>
+     * If the ANSI code is valid, the style names are returned as a string separated by semicolons.<br>
+     * ANSI 코드가 유효한 경우, 스타일 이름이 세미콜론으로 구분된 문자열로 반환됩니다.<br>
+     * The style names are in the order of ANSI color codes and font styles.<br>
+     * 스타일 이름은 ANSI 색상 코드 및 폰트 스타일 순서대로 정렬됩니다.<br>
+     * If the ANSI code contains multiple ANSI color codes, the first is the font color and the second is the background color.<br>
+     * ANSI 코드에 여러 ANSI 색상 코드가 포함되어 있는 경우, 첫번째는 폰트 색상, 두번째는 배경 색상입니다.<br>
+     * If the ANSI code contains ANSI font styles, they are added to the end of the color codes.<br>
+     * ANSI 코드에 ANSI 폰트 스타일이 포함되어 있는 경우, 색상 코드 뒤에 추가됩니다.<br>
+     * If the ANSI code contains invalid ANSI color codes or font styles, they are ignored.<br>
+     * ANSI 코드에 유효하지 않은 ANSI 색상 코드 또는 폰트 스타일이 포함되어 있는 경우 무시됩니다.<br>
+     * @param ansiCode
+     * @return
+     */
     public static String codeToStyleNames(String ansiCode) {
         if(ansiCode == null || ansiCode.isEmpty()) {
             return "";

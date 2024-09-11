@@ -80,7 +80,8 @@ javadoc {
                     'com/hancomins/logexpress/Level.java',
                     'com/hancomins/logexpress/configuration/Configuration.java',
                     'com/hancomins/logexpress/configuration/WriterOption.java',
-                    'com/hancomins/logexpress/configuration/WriterType.java']
+                    'com/hancomins/logexpress/configuration/StyleOption.java',
+                    'com/hancomins/logexpress/configuration/WriterType.java',]
 
 
 
