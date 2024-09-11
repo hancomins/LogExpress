@@ -144,7 +144,7 @@ dependencies {
   style.trace.time=
   
   # INFO 레벨의 출력. 라인 패턴에서 지정한 {level}에 대하여 GREEN 색상과 BOLD 스타일을 적용합니다. 
-  style.info.level=GREEN;BOL
+  style.info.level=GREEN;BOLD
   # WARN 레벨의 출력. 라인 패턴에서 지정한 {level}에 대하여 YELLOW 색상과 BOLD 스타일을 적용합니다.    
   style.warn.level=YELLOW;BOLD
   # ERROR 레벨의 출력. 라인 패턴에서 지정한 {level}에 대하여 RED 색상과 BOLD 스타일을 적용합니다.
