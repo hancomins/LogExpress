@@ -37,7 +37,7 @@ public class StyleOption implements Cloneable {
         AllStyles = Collections.unmodifiableList(styles);
     }
 
-    private final EnumMap<Level, EnumMap<LinePatternItemType, String>> colorCodeMap = new EnumMap<Level, EnumMap<LinePatternItemType, String>>(Level.class);
+    private final EnumMap<Level, EnumMap<LinePatternItemType, String>> ansiCodeMap = new EnumMap<Level, EnumMap<LinePatternItemType, String>>(Level.class);
 
     /**
      * Checks if console output is enabled.<br>
@@ -102,8 +102,8 @@ public class StyleOption implements Cloneable {
      *         현재 StyleOption 인스턴스<br>
      */
     public StyleOption reset() {
-        boolean changed = !colorCodeMap.isEmpty();
-        colorCodeMap.clear();
+        boolean changed = !ansiCodeMap.isEmpty();
+        ansiCodeMap.clear();
         return this;
     }
 
@@ -127,7 +127,7 @@ public class StyleOption implements Cloneable {
         if(linePatternType == null) {
             throw new IllegalArgumentException("linePatternType is null");
         }
-        EnumMap<LinePatternItemType, String> typeMap = colorCodeMap.get(level);
+        EnumMap<LinePatternItemType, String> typeMap = ansiCodeMap.get(level);
         if(typeMap == null) {
             return null;
         }
@@ -152,43 +152,90 @@ public class StyleOption implements Cloneable {
      *              로깅 레벨<br>
      * @param linePatternType the line pattern type<br>
      *                        라인 패턴 유형<br>
-     * @param style the primary ANSI style<br>
-     *              기본 ANSI 스타일<br>
-     * @param styles additional ANSI styles<br>
-     *               추가 ANSI 스타일<br>
+     * @param styles ANSI styles<br>
+     *               ANSI 스타일<br>
      * @return the current StyleOption instance<br>
      *         현재 StyleOption 인스턴스<br>
      * @throws IllegalArgumentException if level, linePatternType, or styles are null<br>
      *                                  level, linePatternType 또는 styles가 null인 경우<br>
      */
-    public StyleOption setStyle(Level level, LinePatternItemType linePatternType, ANSIStyle style, ANSIStyle... styles) {
+    public StyleOption setStyle(Level level, LinePatternItemType linePatternType, ANSIStyle... styles) {
+        return setStyle(false, level, linePatternType, styles);
+    }
+
+    /**
+     * Add the style for a specific logging level and line pattern type.<br>
+     * 특정 로깅 레벨 및 라인 패턴 유형에 대한 스타일을 추가합니다.<br>
+     * If more than one ANSI color is set, the first is the font color and the second is the background color.<br>
+     * ANSIColor 를 2개 이상 설정할 경우, 첫번째는 폰트 색상, 두번째는 배경 색상으로 설정됩니다.<br>
+     *
+     * @param level the logging level<br>
+     *              로깅 레벨<br>
+     * @param linePatternType the line pattern type<br>
+     *                        라인 패턴 유형<br>
+     * @param styles ANSI styles<br>
+     *               ANSI 스타일<br>
+     * @return the current StyleOption instance<br>
+     *         현재 StyleOption 인스턴스<br>
+     * @throws IllegalArgumentException if level, linePatternType, or styles are null<br>
+     *                                  level, linePatternType 또는 styles가 null인 경우<br>
+     */
+    public StyleOption addStyle(Level level, LinePatternItemType linePatternType, ANSIStyle... styles) {
+        return setStyle(true, level, linePatternType, styles);
+    }
+
+    private ANSIStyle[] removeNull(ANSIStyle... styles) {
+        if(styles == null) {
+            return new ANSIStyle[0];
+        }
+        List<ANSIStyle> styleList = new ArrayList<ANSIStyle>();
+        for(ANSIStyle style : styles) {
+            if(style == null) {
+                continue;
+            }
+            styleList.add(style);
+        }
+        return styleList.toArray(new ANSIStyle[0]);
+    }
+
+    private StyleOption setStyle(boolean isAppend, Level level, LinePatternItemType linePatternType, ANSIStyle... styles) {
+        styles = removeNull(styles);
         if(level == null) {
             throw new IllegalArgumentException("level is null");
         }
         if(linePatternType == null) {
             throw new IllegalArgumentException("linePatternType is null");
         }
-        if((style == null && styles == null) || (style == null && styles.length == 0)) {
-            throw new IllegalArgumentException("styles is null");
-        }
 
-        EnumMap<LinePatternItemType, String> typeMap = colorCodeMap.get(level);
+        EnumMap<LinePatternItemType, String> typeMap = ansiCodeMap.get(level);
         if(typeMap == null) {
             typeMap = new EnumMap<LinePatternItemType, String>(LinePatternItemType.class);
-            colorCodeMap.put(level, typeMap);
+            ansiCodeMap.put(level, typeMap);
         }
-        ANSIStyle[] mergeStyles;
+        if(!isAppend) {
+            typeMap.remove(linePatternType);
+        }
 
-        if(styles == null) {
-            mergeStyles = new ANSIStyle[1];
-            mergeStyles[0] = style;
-        } else if(style != null) {
-            mergeStyles = new ANSIStyle[styles.length + 1];
-            mergeStyles[0] = style;
-            System.arraycopy(styles, 0, mergeStyles, 1, styles.length);
-        } else {
-            mergeStyles = styles;
+        if(styles.length == 0) {
+            return this;
         }
+
+
+        ANSIStyle[] mergeStyles = styles;
+
+        if(isAppend) {
+            String alreadyCode = typeMap.get(linePatternType);
+            if (alreadyCode != null) {
+                String alreadyStylesNames = codeToStyleNames(alreadyCode);
+                ANSIStyle[] alreadyStyles = parseStyleNames(alreadyStylesNames);
+                ANSIStyle[] newStyles = new ANSIStyle[alreadyStyles.length + mergeStyles.length];
+                System.arraycopy(alreadyStyles, 0, newStyles, 0, alreadyStyles.length);
+                System.arraycopy(mergeStyles, 0, newStyles, alreadyStyles.length, mergeStyles.length);
+                mergeStyles = newStyles;
+            }
+        }
+
+
 
         String code = combineCode(mergeStyles);
         if(code == null) {
@@ -208,6 +255,7 @@ public class StyleOption implements Cloneable {
      *                        문자열로 된 라인 패턴 유형<br>
      * @param styles the styles as a string<br>
      *               문자열로 된 스타일<br>
+     *               만약 가장 앞에 '+'가 붙으면 기존 스타일에 추가합니다.<br>
      *               각 스타일은 세미콜론(;)으로 구분됩니다.<br>
      *               # 스타일 옵션<br>
      *               - ANSI 색상 코드 : BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE<br>
@@ -226,42 +274,68 @@ public class StyleOption implements Cloneable {
             throw new IllegalArgumentException("linePatternType is null");
         }
         if(styles == null) {
-            throw new IllegalArgumentException("color is null");
+            throw new IllegalArgumentException("style is null");
         }
         styles = styles.trim();
+        boolean isAppend = false;
+        if(styles.startsWith("+")) {
+            isAppend = true;
+            styles = styles.substring(1);
+        }
         Level levelEnum = Level.stringValueOrNull(level);
         if(levelEnum == null && !"all".equalsIgnoreCase(level)) {
             InLogger.ERROR("(StyleOption) Invalid Level : " + level);
             return this;
         }
         LinePatternItemType patternTypeEnum = LinePatternItemType.typeNameOf(linePatternType);
-        if(patternTypeEnum == null) {
-            InLogger.ERROR("(StyleOption) Invalid Line pattern Type : " + linePatternType);
-            return this;
-        }
+        boolean isAllPattern = false;
 
-        if("all".equalsIgnoreCase(level)) {
+        if(patternTypeEnum == null) {
+            if("all".equalsIgnoreCase(linePatternType)) {
+                isAllPattern = true;
+            } else {
+                InLogger.ERROR("(StyleOption) Invalid Line pattern Type : " + linePatternType);
+                return this;
+            }
+        }
+        boolean isAllLevel = "all".equalsIgnoreCase(level);
+
+
+        if(isAllLevel && !isAllPattern) {
             for(Level levelItem : Level.values()) {
-                setStyle(levelItem, patternTypeEnum, null, parseStyleNames(styles));
+                setStyle(isAppend, levelItem, patternTypeEnum, parseStyleNames(styles));
+            }
+            return this;
+        } else if(!isAllLevel && isAllPattern) {
+            for(LinePatternItemType linePattern : LinePatternItemType.values()) {
+                setStyle(isAppend, levelEnum, linePattern, parseStyleNames(styles));
+            }
+            return this;
+        } else if(isAllLevel) {
+            for(Level levelItem : Level.values()) {
+                for(LinePatternItemType linePattern : LinePatternItemType.values()) {
+                    setStyle(isAppend, levelItem, linePattern, parseStyleNames(styles));
+                }
             }
             return this;
         }
 
+
         this.isChanged = true;
-        return setStyle(levelEnum, patternTypeEnum, null, parseStyleNames(styles));
+        return setStyle(isAppend, levelEnum, patternTypeEnum, parseStyleNames(styles));
     }
 
     void copy(StyleOption other) {
         enableConsole = other.enableConsole;
         enableFile = other.enableFile;
-        colorCodeMap.clear();
-        for(Level level : other.colorCodeMap.keySet()) {
-            EnumMap<LinePatternItemType, String> typeMap = other.colorCodeMap.get(level);
+        ansiCodeMap.clear();
+        for(Level level : other.ansiCodeMap.keySet()) {
+            EnumMap<LinePatternItemType, String> typeMap = other.ansiCodeMap.get(level);
             EnumMap<LinePatternItemType, String> cloneTypeMap = new EnumMap<LinePatternItemType, String>(LinePatternItemType.class);
             for(LinePatternItemType type : typeMap.keySet()) {
                 cloneTypeMap.put(type, typeMap.get(type));
             }
-            colorCodeMap.put(level, cloneTypeMap);
+            ansiCodeMap.put(level, cloneTypeMap);
         }
         isChanged = other.isChanged;
     }
@@ -305,6 +379,9 @@ public class StyleOption implements Cloneable {
     }
 
     public static String codeToStyleNames(String ansiCode) {
+        if(ansiCode == null || ansiCode.isEmpty()) {
+            return "";
+        }
         StringBuilder sb = new StringBuilder();
         ansiCode = ansiCode.replace("\u001B[", "").replace("\u001b[", "");
         String[] colors = ansiCode.split(";");
@@ -331,6 +408,9 @@ public class StyleOption implements Cloneable {
     }
 
     private static String combineCode(ANSIStyle... styles) {
+        if(styles == null || styles.length == 0) {
+            return null;
+        }
         List<ANSIColor> colors = new ArrayList<ANSIColor>();
         List<ANSIFont> fonts = new ArrayList<ANSIFont>();
         for(ANSIStyle style : styles) {

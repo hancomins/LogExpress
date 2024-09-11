@@ -93,6 +93,92 @@ public class AnsiStyleTest {
 
 
 
+
+
+    }
+
+    @Test
+    public void testColorConsoleColorFileDefaultAllStyle() throws IOException {
+
+        String file = isWindows ?  "C:\\Temp\\testWriteColor.txt" : "/tmp/testWriteColor.txt";
+        File logFile = new File(file);
+        if(logFile.exists()) {
+            logFile.delete();
+        }
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream pw = new PrintStream(baos);
+        PrintStream origin = System.out;
+        System.setOut(pw);
+
+
+        Configuration configuration = LogExpress.cloneConfiguration();
+        WriterOption writerOption = configuration.getDefaultWriterOption();
+        writerOption.setFile(file);
+        @SuppressWarnings("UnusedAssignment")
+        StyleOption styleOption = writerOption.styleOption();
+        styleOption = configuration.defaultStyleOption();
+
+        String currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + "";
+        if(currentHour.length() == 1) {
+            currentHour = "0" + currentHour;
+        }
+        writerOption.setLinePattern("{time:hh} ITALIC [{level}] {message}");
+
+        styleOption.enableConsole(true).enableFile(true);
+
+        styleOption.setStyle("all","all", "+ITALIC;UNDERLINE;");
+
+        styleOption.setStyle("info","message", "+STRIKE");
+        styleOption.setStyle("all","time", "CYAN");
+        styleOption.setStyle("info","level", "BLACK;GREEN");
+
+        styleOption.setStyle("error","message", "red");
+        styleOption.setStyle("error","level", "BLACK;red");
+
+        styleOption.setStyle("warn","message", "yellow");
+        styleOption.setStyle("warn","level", "BLACK;yellow");
+
+
+
+
+        LogExpress.updateConfig(configuration);
+
+        Logger LOG = LogExpress.newLogger(AnsiStyleTest.class);
+        LOG.info("INFO MESSAGE");
+        LOG.error("ERROR MESSAGE");
+        LOG.warn("WARN MESSAGE");
+
+
+        try {
+            LogExpress.shutdown().await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        baos.flush();
+        System.setOut(origin);
+        String result = baos.toString();
+        String[] results = result.split("\n");
+
+        System.out.println(result);
+        //assertEquals(results[0], "\u001B[36m" + currentHour + "\u001B[0m" + " [\u001B[30;42mINFO\u001B[0m] \u001B[32mINFO MESSAGE\u001B[0m");
+        assertEquals(results[0], "\u001B[36m" + currentHour + "\u001B[0m\u001B[3;4m ITALIC [\u001B[0m\u001B[30;42mINFO\u001B[0m\u001B[3;4m] \u001B[0m\u001B[32;3;4;9mINFO MESSAGE\u001B[0m");
+        assertEquals(results[1], "\u001B[36m" + currentHour + "\u001B[0m\u001B[3;4m ITALIC [\u001B[0m\u001B[30;41mERROR\u001B[0m\u001B[3;4m] \u001B[0m\u001B[31mERROR MESSAGE\u001B[0m");
+        assertEquals(results[2], "\u001B[36m" + currentHour + "\u001B[0m\u001B[3;4m ITALIC [\u001B[0m\u001B[30;43mWARN\u001B[0m\u001B[3;4m] \u001B[0m\u001B[33mWARN MESSAGE\u001B[0m");
+        assertEquals(results[3], "\u001B[36m" + currentHour + "\u001B[0m\u001B[3;4m ITALIC [\u001B[0m\u001B[30;42mINFO\u001B[0m\u001B[3;4m] \u001B[0m\u001B[32;3;4;9mLOGExpress shutdown called.\u001B[0m");
+
+
+        String[] fileResults = readFileToArray(file);
+        assertEquals(fileResults[0], "\u001B[36m" + currentHour + "\u001B[0m\u001B[3;4m ITALIC [\u001B[0m\u001B[30;42mINFO\u001B[0m\u001B[3;4m] \u001B[0m\u001B[32;3;4;9mINFO MESSAGE\u001B[0m");
+        assertEquals(fileResults[1], "\u001B[36m" + currentHour + "\u001B[0m\u001B[3;4m ITALIC [\u001B[0m\u001B[30;41mERROR\u001B[0m\u001B[3;4m] \u001B[0m\u001B[31mERROR MESSAGE\u001B[0m");
+        assertEquals(fileResults[2], "\u001B[36m" + currentHour + "\u001B[0m\u001B[3;4m ITALIC [\u001B[0m\u001B[30;43mWARN\u001B[0m\u001B[3;4m] \u001B[0m\u001B[33mWARN MESSAGE\u001B[0m");
+        assertEquals(fileResults[3], "\u001B[36m" + currentHour + "\u001B[0m\u001B[3;4m ITALIC [\u001B[0m\u001B[30;42mINFO\u001B[0m\u001B[3;4m] \u001B[0m\u001B[32;3;4;9mLOGExpress shutdown called.\u001B[0m");
+
+
+
+
+
     }
 
     @Test

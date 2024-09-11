@@ -106,11 +106,13 @@ class LineCombiner {
     CharSequence combine(Line line, WriterType writerType) {
         StringBuilder stringBuilder = new StringBuilder();
         Level level = line.getLevel();
-        boolean allowColor = styleOption != null &&
+        boolean allowStyle = styleOption != null &&
                         ((writerType == null && (styleOption.isEnabledConsole() || styleOption.isEnabledFile())) ||
                         (writerType == WriterType.Console && styleOption.isEnabledConsole()) ||
                         (writerType == WriterType.File && styleOption.isEnabledFile()));
         boolean writeColor = false;
+
+
         for(int i = 0, n = formatItems.length; i < n; ++i) {
             LineFormatter.FormatItem item = formatItems[i];
             if(!level.isLowerThan(item.level)) {
@@ -119,7 +121,7 @@ class LineCombiner {
             if(!item.isMarkerAllowed(line.getMarker())) {
                 continue;
             }
-            if(allowColor) {
+            if(allowStyle) {
                 writeColor = false;
                 String colorCode = styleOption.getAnsiCode(level, item.type);
                 if(colorCode != null) {
@@ -147,6 +149,16 @@ class LineCombiner {
                     if(item.lenRange != null)
                         callerName = cutRange(callerName, item.lenRange).toString();
                     stringBuilder.append(callerName);
+                    break;
+                case CallerPackage:
+                    String callerPackage = line.getCallerFQCN() + "";
+                    int lastDotPackage = callerPackage.lastIndexOf('.');
+                    if(lastDotPackage != -1) {
+                        callerPackage = callerPackage.substring(0, lastDotPackage);
+                    }
+                    if(item.lenRange != null)
+                        callerPackage = cutRange(callerPackage, item.lenRange).toString();
+                    stringBuilder.append(callerPackage);
                     break;
                 case Marker:
                     if(item.lenRange != null)
@@ -183,6 +195,16 @@ class LineCombiner {
                     if(item.lenRange != null)
                         simpleClassName = cutRange(simpleClassName, item.lenRange).toString();
                     stringBuilder.append(simpleClassName);
+                    break;
+                case ClassPackage:
+                    String packageName = line.getStackTraceElement().getClassName();
+                    int lastDotClass = packageName.lastIndexOf('.');
+                    if(lastDotClass != -1) {
+                        packageName = packageName.substring(0, lastDotClass);
+                    }
+                    if(item.lenRange != null)
+                        packageName = cutRange(packageName, item.lenRange).toString();
+                    stringBuilder.append(packageName);
                     break;
                 case Line:
                     int lineNumber = line.getStackTraceElement().getLineNumber();
@@ -224,7 +246,6 @@ class LineCombiner {
                 stringBuilder.append(ANSIColor.ANSI_RESET);
             }
         }
-
         stringBuilder.append("\n");
         if(line.getError() != null) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream(512);

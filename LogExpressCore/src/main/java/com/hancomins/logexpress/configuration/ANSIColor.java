@@ -15,7 +15,6 @@ public enum ANSIColor implements ANSIStyle {
 
     private final String code;
     private final String backgroundCode;
-    private final String ansiCode;
     private final String ansiBackgroundCode;
 
 
@@ -39,7 +38,7 @@ public enum ANSIColor implements ANSIStyle {
             return YELLOW;
         } else if("BLUE".equals(color)) {
             return BLUE;
-        } else if("PURPLE".equals(color)) {
+        } else if("PURPLE".equals(color) || "MAGENTA".equals(color)) {
             return PURPLE;
         } else if("CYAN".equals(color)) {
             return CYAN;
@@ -53,7 +52,6 @@ public enum ANSIColor implements ANSIStyle {
     ANSIColor(String code, String backgroundCode) {
         this.code = code;
         this.backgroundCode = backgroundCode;
-        this.ansiCode = "\u001B[" + code + "m";
         this.ansiBackgroundCode = "\u001B[" + backgroundCode + "m";
     }
 

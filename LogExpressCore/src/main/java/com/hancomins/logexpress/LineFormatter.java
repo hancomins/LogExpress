@@ -130,7 +130,7 @@ class LineFormatter {
 							 item.setLevel(atQualifier.level).addMarkerQualifiers(atQualifier.markers);
 							 item.lenRange = lenRange;
 							 items.add(item);
-							 if (type == LinePatternItemType.Class || type == LinePatternItemType.Method || type == LinePatternItemType.ClassName || type == LinePatternItemType.Line || type == LinePatternItemType.File) {
+							 if (type == LinePatternItemType.Class || type == LinePatternItemType.ClassPackage || type == LinePatternItemType.Method || type == LinePatternItemType.ClassName || type == LinePatternItemType.Line || type == LinePatternItemType.File) {
 								 needStacktrace = true;
 							 }
 							 if (type == LinePatternItemType.Tid || type == LinePatternItemType.Thread) {

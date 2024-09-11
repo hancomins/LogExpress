@@ -6,8 +6,8 @@ public enum LinePatternItemType {
     Tid,
     Method,
     File,
-
     Class,
+    ClassPackage,
     ClassName,
     Line,
     Time,
@@ -17,10 +17,10 @@ public enum LinePatternItemType {
     Marker,
     Pid,
     Caller,
+    CallerPackage,
     CallerSimple;
 
-
-    private LinePatternItemType() {
+    LinePatternItemType() {
 
     }
 
@@ -28,6 +28,9 @@ public enum LinePatternItemType {
 
 
     public static LinePatternItemType typeNameOf(String type) {
+        if(type == null) {
+            return null;
+        }
         LinePatternItemType[] types = values();
         //noinspection ForLoopReplaceableByForEach
         for(int i = 0; i < types.length; ++i) {
@@ -35,10 +38,16 @@ public enum LinePatternItemType {
                 return types[i];
             }
         }
-        if(type.equalsIgnoreCase("class-name")) {
+        if("class-package".equalsIgnoreCase(type)) {
+            return ClassPackage;
+        }
+        if("caller-package".equalsIgnoreCase(type)) {
+            return CallerPackage;
+        }
+        if("class-name".equalsIgnoreCase(type) || "class-simple".equalsIgnoreCase(type)) {
             return ClassName;
         }
-        if(type.equalsIgnoreCase("caller-simple")) {
+        if("caller-simple".equalsIgnoreCase(type) || "caller-name".equalsIgnoreCase(type)) {
             return CallerSimple;
         }
 
@@ -46,6 +55,6 @@ public enum LinePatternItemType {
     }
 
     static String[] getTypeNameArray() {
-        return new String[] {"marker", "level", "thread","tid", "method", "class", "class-name","file", "line", "text", "message", "time", "hostname", "pid","caller","caller-simple"};
+        return new String[] {"marker", "level", "thread","tid", "method", "class", "class-name","class-package","file", "line", "text", "message", "time", "hostname", "pid","caller","caller-simple", "caller-package"};
     }
 }

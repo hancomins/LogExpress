@@ -1,5 +1,6 @@
 package com.hancomins.logexpress;
 
+import com.hancomins.logexpress.configuration.StyleOption;
 import org.junit.Test;
 
 import java.text.SimpleDateFormat;
@@ -236,6 +237,23 @@ public class LineFormatterTest {
         System.out.println(value);
         assertEquals(".          Right.\n", value); // 오른쪽 정렬된 메시지
     }
+
+    @Test
+    public void testClassAndCallerPackagePattern()
+    {
+        StyleOption styleOption = new StyleOption();
+        styleOption.setStyle("info", "class-package", "ITALIC;MAGENTA;BLACK");
+        styleOption.setStyle("info", "class-simple", "red;underline");
+        styleOption.setStyle("info", "caller-package", "black;bold;yellow");
+        styleOption.setStyle("info", "caller-name", "green;strike");
+        LineFormatter lineFormatter = LineFormatter.parse("{class-package}.{class-name} {caller-package}.{caller-simple}", styleOption);
+        LineCombiner lineCombiner = lineFormatter.getLineCombiner();
+
+        String value = lineCombiner.combine(new Line(lineFormatter,String.class,  Level.INFO, "center", "Center", null, 2)).toString();
+        System.out.println(value);
+        assertEquals("\u001B[35;40;3mcom.hancomins.logexpress\u001B[0m.\u001B[31;4mLineFormatterTest\u001B[0m \u001B[30;43;1mjava.lang\u001B[0m.\u001B[32;9mString\u001B[0m\n", value); // 중앙 정렬된 메시지
+    }
+
 
 
 

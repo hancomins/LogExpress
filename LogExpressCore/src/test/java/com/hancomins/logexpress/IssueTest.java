@@ -23,6 +23,7 @@ public class IssueTest {
         if (file.exists()) {
             file.delete();
         }
+        LogExpress.reset();
 
 
         Logger LOG = LogExpress.newLogger("com.test", "com.test");

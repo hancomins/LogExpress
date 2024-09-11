@@ -155,6 +155,18 @@ public class LogExpress {
 	}
 
 	/**
+	 * Resets the logger configuration.<br>
+	 * This method will shutdown the existing logger and start a new logger with the default configuration.<br>
+	 * After calling this method, the existing logger will be shut down after emptying all log queues.<br>
+	 * 로거 구성을 초기화합니다.<br>
+	 * 이 메서드를 호출하면 기존 구성으로 동작하던 로거는 로그 큐를 모두 비운 뒤에 종료됩니다.<br>
+	 * 이후 이전 설정으로 새로운 로거 객체가 생성되고 Writer 스레드가 시작됩니다.
+	 */
+	public static void reset() {
+		LogExpress.updateConfig(cloneConfiguration());
+	}
+
+	/**
 	 * Waits for the shutdown to complete.<br>
 	 * 종료가 완료될 때까지 대기합니다.
 	 */

@@ -17,6 +17,9 @@ import java.util.Map.Entry;
 
 @SuppressWarnings("unused")
 class ConfigurationParser {
+
+	private ConfigurationParser() {
+	}
 	
 	public static Configuration parse(File file) throws IOException {
 		FileReader fileReader = new FileReader(file);
@@ -34,8 +37,6 @@ class ConfigurationParser {
 	}
 
 	private static void parseStyleOption(Properties properties, StyleOption styleOption) {
-
-
 
 		String strEnableConsole = properties.getProperty("style.console", "");
 		String strEnableFile = properties.getProperty("style.file", "");
