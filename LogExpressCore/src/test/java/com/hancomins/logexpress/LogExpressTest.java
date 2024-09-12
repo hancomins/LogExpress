@@ -13,6 +13,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -24,6 +25,88 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.Assert.*;
 
 public class LogExpressTest {
+
+
+	@Test
+	public void anotherThreadUpdateTest() throws InterruptedException {
+		final Configuration configuration = LogExpress.cloneConfiguration();
+		LogExpress.updateConfig(configuration);
+
+		final Logger LOG = LogExpress.newLogger(LogExpressTest.class);
+
+		PrintStream old = System.out;
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		PrintStream printStream = new PrintStream(byteArrayOutputStream);
+		System.setOut(printStream);
+
+		final CountDownLatch countDownLatch = new CountDownLatch(100);
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				for(int i = 0; i < 20; ++i) {
+					try {
+						Thread.sleep(100);
+						LOG.info("Hello World!!" + i);
+						countDownLatch.countDown();
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			}
+		}).start();
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				Random random = new Random(System.nanoTime());
+				for(int i = 0; i < 80; ++i) {
+					try {
+						Thread.sleep(50);
+						Configuration configuration =  LogExpress.cloneConfiguration();
+						int value = random.nextInt(5);
+						if(value  == 0) {
+							configuration.defaultStyleOption().setStyle("all", "all", "BLUE");
+				 		} else if(value == 1) {
+							configuration.defaultStyleOption().setStyle("all", "all", "RED");
+						} else if(value == 2) {
+							configuration.defaultStyleOption().setStyle("all", "all", "GREEN");
+						} else if(value == 3) {
+							configuration.defaultStyleOption().setStyle("all", "all", "YELLOW");
+						} else {
+							configuration.defaultStyleOption().setStyle("all", "all", "MAGENTA");
+						}
+
+						LogExpress.updateConfig(configuration);
+						countDownLatch.countDown();
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			}
+		}).start();
+
+		try {
+			countDownLatch.await();
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+
+		LogExpress.shutdown().await();
+
+		System.setOut(old);
+		String logs = byteArrayOutputStream.toString();
+		// 라인 개수 확인
+		String[] lines = logs.split("\n");
+		for(int i = 0; i < lines.length; ++i) {
+			System.out.println(lines[i]);
+		}
+		assertEquals(21, lines.length);
+
+
+
+	}
+
 
 
 	@Test

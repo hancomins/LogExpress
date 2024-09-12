@@ -83,6 +83,8 @@ class LoggerContext {
 			//noinspection DataFlowIssue
 			defaultBaseLogger = new BaseLogger(defaultMarker,option);
 			defaultBaseLogger.setLineQueue(absLineQueue);
+			map.put(defaultMarker, defaultBaseLogger);
+
 		}  else {
 			defaultBaseLogger = baseLogger;
 			baseLogger.setLineQueue(absLineQueue);

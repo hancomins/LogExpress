@@ -14,7 +14,7 @@ public class LineFormatterTest {
     // 레벨 제한자 테스트
     @Test
     public void levelQualifierTest() {
-        LineFormatter lineFormatter = LineFormatter.parse("{time::hh  @ D e b u g,messages,\"error\",'info','c,k',c\\,j\\,k   }({message@ info, messages, 'c,k', 'c,j,k'  })({message@  warn  })({text:: END   @error})({text:::::::::: FATAL   @fatal})");
+        LineFormatter lineFormatter = LineFormatter.parse("{time::HH  @ D e b u g,messages,\"error\",'info','c,k',c\\,j\\,k   }({message@ info, messages, 'c,k', 'c,j,k'  })({message@  warn  })({text:: END   @error})({text:::::::::: FATAL   @fatal})");
         LineCombiner lineCombiner = lineFormatter.getLineCombiner();
         // 현재 시간을 hh:mm:ss 로 표시
         String time = new SimpleDateFormat("HH").format(new Date());

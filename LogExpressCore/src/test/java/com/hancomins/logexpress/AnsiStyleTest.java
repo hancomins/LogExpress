@@ -43,7 +43,7 @@ public class AnsiStyleTest {
         if(currentHour.length() == 1) {
             currentHour = "0" + currentHour;
         }
-        writerOption.setLinePattern("{time:hh} [{level}] {message}");
+        writerOption.setLinePattern("{time:HH} [{level}] {message}");
 
         styleOption.enableConsole(true).enableFile(true);
 
@@ -123,7 +123,7 @@ public class AnsiStyleTest {
         if(currentHour.length() == 1) {
             currentHour = "0" + currentHour;
         }
-        writerOption.setLinePattern("{time:hh} ITALIC [{level}] {message}");
+        writerOption.setLinePattern("{time:HH} ITALIC [{level}] {message}");
 
         styleOption.enableConsole(true).enableFile(true);
 
@@ -207,7 +207,7 @@ public class AnsiStyleTest {
         if(currentHour.length() == 1) {
             currentHour = "0" + currentHour;
         }
-        writerOption.setLinePattern("{time:hh} [{level}] {message}");
+        writerOption.setLinePattern("{time:HH} [{level}] {message}");
 
         styleOption.enableConsole(false).enableFile(true);
 
@@ -289,7 +289,7 @@ public class AnsiStyleTest {
         if(currentHour.length() == 1) {
             currentHour = "0" + currentHour;
         }
-        writerOption.setLinePattern("{time:hh} [{level}] {message}");
+        writerOption.setLinePattern("{time:HH} [{level}] {message}");
 
         styleOption.enableConsole(false).enableFile(false);
 
@@ -370,7 +370,7 @@ public class AnsiStyleTest {
         if(currentHour.length() == 1) {
             currentHour = "0" + currentHour;
         }
-        writerOption.setLinePattern("{time:hh} [{level}] {message}");
+        writerOption.setLinePattern("{time:HH} [{level}] {message}");
 
         styleOption.enableConsole(true).enableFile(false);
 
