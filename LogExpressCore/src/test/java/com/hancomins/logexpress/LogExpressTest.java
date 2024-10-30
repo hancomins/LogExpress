@@ -278,6 +278,8 @@ public class LogExpressTest {
 	}
 
 
+
+
 	@Test
 	public void unlimitIntervalTest() throws InterruptedException, IOException {
 		final File testFile = new File("unlimitIntervalTest.log");
@@ -437,10 +439,16 @@ public class LogExpressTest {
 		System.out.println("endFileWriteTime : " + endFileWriteTime);
 
 		assertEquals(32, atomicInteger.get());
-		assertEquals(future.isEnd(), true);
+        assertTrue(future.isEnd());
 		String logs = readFileToString(file);
 		assertEquals(testCase + 1, countLine(logs));
 
+		assertTrue(LogExpress.isShutdown());
+
+		LogExpress.info("Hello World!!");
+
+
+		assertFalse(LogExpress.isShutdown());
 
 
 		assertTrue(file.delete());
@@ -477,6 +485,9 @@ public class LogExpressTest {
 		bufferedReader.close();
 		return count;
 	}
+
+
+
 
 
 }

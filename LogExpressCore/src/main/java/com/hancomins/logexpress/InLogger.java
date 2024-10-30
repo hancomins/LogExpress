@@ -120,6 +120,8 @@ public class InLogger {
         writeLog("[logexpress::WARN] " + TimeFormat.format(new Date(CurrentTimeMillisGetter.currentTimeMillis())) + ' ' + message, e, false);
     }
 
+
+
     public static void WARN(String message, boolean closeToError)  {
         if(!enabled && !closeToError) return;
         writeLog("[logexpress::WARN] " + TimeFormat.format(new Date(CurrentTimeMillisGetter.currentTimeMillis())) + ' ' + message, null, closeToError);

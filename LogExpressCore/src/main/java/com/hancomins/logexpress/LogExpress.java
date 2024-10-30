@@ -33,6 +33,7 @@ public class LogExpress {
 	private static final AtomicReference<ShutdownFuture> ShutdownFutureRef = new AtomicReference<ShutdownFuture>();
 
 	private final static ReentrantLock lock = new ReentrantLock();
+	private final static Object reInitMonitor = new Object();
 
 	static AtomicReference<LoggerContext> LoggerContextRef = new AtomicReference<LoggerContext>();
 
@@ -596,11 +597,30 @@ public class LogExpress {
 		baseLogger().warn("", log, e, 1);
 	}
 
+	/**
+	 * Checks if the logger is shutdown.<br>
+	 * LogExpress 가 Shutdown 되었는지 확인합니다.
+	 * @return true if LogExpress is shutdown, false otherwise <br>
+	 * 	   LogExpress 가 Shutdown 되었으면 true, 그렇지 않으면 false
+	 */
+	public static boolean isShutdown() {
+		return LoggerContextRef.get() == null;
+	}
+
+
 	private static LoggerContext requireLoggerContext() {
 		LoggerContext loggerContext = LoggerContextRef.get();
-		// LoggerContext가 상태 예외 발생. "shutdown 된 상태입니다. updateConfig 를 호출하여 다시 초기화 해야 합니다." 메시지 출력.
 		if(loggerContext == null) {
-			throw new IllegalStateException("logexpress is currently shut down. Please use the 'logexpress.updateConfig(Configuration)' method to reinitialize it.");
+			synchronized (reInitMonitor) {
+				loggerContext = LoggerContextRef.get();
+				if(loggerContext == null) {
+					InLogger.INFO("LogExpress is shutdown. Reinitialize LogExpress.");
+					LogExpress.updateConfig(LogExpress.cloneConfiguration());
+					// 24.10.30 이전 동작. Shutdown 후에는 다시 초기화 하도록 변경함.
+					//throw new IllegalStateException("logexpress is currently shut down. Please use the 'logexpress.updateConfig(Configuration)' method to reinitialize it.");
+					loggerContext = LoggerContextRef.get();
+				}
+			}
 		}
 		return loggerContext;
 	}
