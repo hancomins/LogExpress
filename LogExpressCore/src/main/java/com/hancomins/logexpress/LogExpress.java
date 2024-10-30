@@ -124,6 +124,7 @@ public class LogExpress {
 			configure.close();
 			LoggerContext oldContext = LoggerContextRef.get();
 			ArrayList<BaseLogger> baseLoggers = oldContext.getLoggerList();
+			BaseLogger baseLogger =  oldContext.defaultLogger();
 			LoggerContext context = new LoggerContext(configure, baseLoggers);
 			LoggerContextRef.set(context);
 			ShutdownFuture shutdownFuture = oldContext.end();
@@ -203,6 +204,7 @@ public class LogExpress {
 			}
 		};
 	}
+
 
 	/**
 	 * Shuts down the logger.<br>

@@ -55,6 +55,6 @@ public enum LinePatternItemType {
     }
 
     static String[] getTypeNameArray() {
-        return new String[] {"marker", "level", "thread","tid", "method", "class", "class-name","class-package","file", "line", "text", "message", "time", "hostname", "pid","caller","caller-simple", "caller-package"};
+        return new String[] {"marker", "level", "thread","tid", "method", "class", "class-name","class-simple","class-package","file", "line", "text", "message", "time", "hostname", "pid","caller","caller-simple","caller-name", "caller-package"};
     }
 }

@@ -12,9 +12,9 @@
 ```gradle
 dependencies {
     // LogExpress core 프로젝트.
-    implementation 'io.github.hancomins:LogExpress:1.0.5'
+    implementation 'io.github.hancomins:LogExpress:1.0.6'
     // SLF4j 지원. SLF4j1.7 기반
-    //implementation 'io.github.hancomins:LogExpressSLF4J:1.0.5'
+    //implementation 'io.github.hancomins:LogExpressSLF4J:1.0.6'
 }
 ```
 
@@ -144,7 +144,7 @@ dependencies {
   style.trace.time=
   
   # INFO 레벨의 출력. 라인 패턴에서 지정한 {level}에 대하여 GREEN 색상과 BOLD 스타일을 적용합니다. 
-  style.info.level=GREEN;BOL
+  style.info.level=GREEN;BOLD
   # WARN 레벨의 출력. 라인 패턴에서 지정한 {level}에 대하여 YELLOW 색상과 BOLD 스타일을 적용합니다.    
   style.warn.level=YELLOW;BOLD
   # ERROR 레벨의 출력. 라인 패턴에서 지정한 {level}에 대하여 RED 색상과 BOLD 스타일을 적용합니다.
@@ -206,7 +206,7 @@ dependencies {
   #  - {tid}: 스레드 ID
   #  - {marker}: marker 이름
   #  - {message}: 로그 메시지
-  # !주의! 아래 옵션을 추가하면 로그 속도가 약 0.3배로 감소하며 더 많은 메모리를 사용합니다.
+  # !주의! 아래 옵션들을 추가하면 로그 속도가 약 30%로 감소하며 더 많은 메모리를 사용합니다.
   #  - {file}: 로그가 발생된 파일명
   #  - {class}: 로그가 발생된 클래스의 전체 패키지 경로
   #  - {class-name}: 로그가 발생된 클래스명 (패키지 경로 제외)
