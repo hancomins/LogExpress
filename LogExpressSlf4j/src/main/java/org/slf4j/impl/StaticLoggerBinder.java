@@ -8,9 +8,9 @@ import java.lang.reflect.Field;
 
 public class StaticLoggerBinder implements LoggerFactoryBinder {
 
-    private static static finalLoggerBinder SINGLETON = new StaticLoggerBinder();
+    private static final StaticLoggerBinder SINGLETON = new StaticLoggerBinder();
 
-    public static static finalLoggerBinder getSingleton() {
+    public static final StaticLoggerBinder getSingleton() {
         return SINGLETON;
     }
 
