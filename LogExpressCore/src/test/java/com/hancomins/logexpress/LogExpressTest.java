@@ -530,8 +530,15 @@ public class LogExpressTest {
 
 		LogExpress.info("Hello World!!");
 
+		assertTrue(LogExpress.isShutdown());
+
+		LogExpress.updateConfig(configuration.clone());
+
+		LogExpress.info("Hello World!!");
 
 		assertFalse(LogExpress.isShutdown());
+
+		LogExpress.shutdown().await();
 
 
 		assertTrue(file.delete());
