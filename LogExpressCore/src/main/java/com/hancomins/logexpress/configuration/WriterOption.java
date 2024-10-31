@@ -16,13 +16,13 @@ import com.hancomins.logexpress.Level;
  */
 public class WriterOption implements Cloneable {
 
-	public final static String FULL_PATTERN = "{time::HH:mm:ss.SSS} [{level}] {caller} &lt;{hostname}/PID:{pid}/{thread}:{tid}&gt; {marker} | ({file}) {class-name}.{method}():{line} | {message}";
-	public final static String DEFAULT_FILE_PATTERN = "./log.{hostname}.{date::yyyy-MM-dd}.{number}.txt";
+	public static final String FULL_PATTERN = "{time::HH:mm:ss.SSS} [{level}] {caller} &lt;{hostname}/PID:{pid}/{thread}:{tid}&gt; {marker} | ({file}) {class-name}.{method}():{line} | {message}";
+	public static final String DEFAULT_FILE_PATTERN = "./log.{hostname}.{date::yyyy-MM-dd}.{number}.txt";
 
-	public final static int DEFAULT_HISTORY = 60;
-	public final static int DEFAULT_MAXSIZE = 512;
-	public final static int DEFAULT_BUFFER_SIZE = 1024;
-	public final static int DEFAULT_ADDED_INDEX_OF_STACKTRACE_ELEMENTS = 1;
+	public static final int DEFAULT_HISTORY = 60;
+	public static final int DEFAULT_MAXSIZE = 512;
+	public static final int DEFAULT_BUFFER_SIZE = 1024;
+	public static final int DEFAULT_ADDED_INDEX_OF_STACKTRACE_ELEMENTS = 1;
 
 	private Level level = null;
 	@SuppressWarnings("RedundantArrayCreation")

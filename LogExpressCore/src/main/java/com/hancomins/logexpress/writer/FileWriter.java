@@ -17,7 +17,7 @@ public class FileWriter {
 	/**
 	 * 최소 버퍼 크기
 	 */
-	private final static int MIN_BUFFER_SIZE = 32;
+	private static final int MIN_BUFFER_SIZE = 32;
 
 	/**
 	 * 최대 파일 크기

@@ -20,17 +20,17 @@ import java.util.ArrayList;
  *
  * @author : Beom
  */
-@SuppressWarnings("unused")
+@SuppressWarnings("UnusedReturnValue")
 public final class Configuration implements Cloneable {
 
 
-	private final static Level DEFAULT_LEVEL = Level.TRACE;
+	private static final Level DEFAULT_LEVEL = Level.TRACE;
 
-	private final static String DEFAULT_CONFIG_FILE = "log-express.ini";
-	private final static int MIN_QUEUE_SIZE = 10;
-	public final static String PROPERTIES_KEY_FILE = "logexpress.configurationFile";
-	public final static int DEFAULT_QUEUE_SIZE = 128000;
-	public final static int DEFAULT_WRITER_WORKER_INTERVAL = 3000;
+	private static final String DEFAULT_CONFIG_FILE = "log-express.ini";
+	private static final int MIN_QUEUE_SIZE = 10;
+	public static final String PROPERTIES_KEY_FILE = "logexpress.configurationFile";
+	public static final int DEFAULT_QUEUE_SIZE = 128000;
+	public static final int DEFAULT_WRITER_WORKER_INTERVAL = 3000;
 
 	private boolean isDaemonThread = false;
 	private volatile boolean closed = false;
@@ -82,9 +82,12 @@ public final class Configuration implements Cloneable {
 	 * 모든 WriterOption을 초기화합니다.<br>
 	 * Initializes all WriterOptions.
 	 */
-	public void clearWriters() {
-		if(this.closed) return;
+
+    public Configuration clearWriters() {
+		if(this.closed) return this;
 		this.writerOptionList.clear();
+		return this;
+
 	}
 
 	/**
@@ -337,8 +340,9 @@ public final class Configuration implements Cloneable {
 	 * @param isDaemonThread 데몬 스레드 여부<br>
 	 *                       whether it is a daemon thread
 	 */
-	public void setDaemonThread(boolean isDaemonThread) {
+	public Configuration setDaemonThread(boolean isDaemonThread) {
 		this.isDaemonThread = isDaemonThread;
+		return this;
 	}
 
 	/**
@@ -359,9 +363,10 @@ public final class Configuration implements Cloneable {
 	 * @param defaultMarker 기본 마커 이름<br>
 	 *                      default marker name
 	 */
-	public void setDefaultMarker(String defaultMarker) {
-		if(this.closed) return;
+	public Configuration setDefaultMarker(String defaultMarker) {
+		if(this.closed) return this;
 		this.defaultMarker = defaultMarker;
+		return this;
 	}
 
 	/**
@@ -373,9 +378,10 @@ public final class Configuration implements Cloneable {
 	 * @param enable 종료 여부<br>
 	 *               whether to enable shutdown
 	 */
-	public void setAutoShutdown(boolean enable) {
-		if(this.closed) return;
+	public Configuration setAutoShutdown(boolean enable) {
+		if(this.closed) return this;
 		this.autoShutdown = enable;
+		return this;
 	}
 
 	/**
@@ -389,9 +395,10 @@ public final class Configuration implements Cloneable {
 	 * @param enable non-blocking 큐 사용 여부<br>
 	 *               whether to use non-blocking queue
 	 */
-	public void setNonBlockingMode(boolean enable) {
-		if(this.closed) return;
+	public Configuration setNonBlockingMode(boolean enable) {
+		if(this.closed) return this;
 		this.nonBlockingMode = enable;
+		return this;
 	}
 
 	/**
@@ -486,9 +493,10 @@ public final class Configuration implements Cloneable {
 	 * @param interval ms 단위의 주기<br>
 	 *                 interval in milliseconds
 	 */
-	public void setWorkerInterval(int interval) {
-		if(this.closed) return;
+	public Configuration setWorkerInterval(int interval) {
+		if(this.closed) return this;
 		this.writerWorkerInterval = interval <= 0 ? Integer.MAX_VALUE : interval;
+		return this;
 	}
 
 	/**
@@ -568,12 +576,13 @@ public final class Configuration implements Cloneable {
 	 * @param size 큐 사이즈<br>
 	 *             queue size
 	 */
-	public void setQueueSize(int size) {
-		if(this.closed) return;
+	public Configuration setQueueSize(int size) {
+		if(this.closed) return this;
 		if(size < 10) {
 			size = MIN_QUEUE_SIZE;
 		}
 		this.queueSize = size;
+		return this;
 	}
 
 	/**
@@ -615,9 +624,10 @@ public final class Configuration implements Cloneable {
 	 * @param debug 디버그 모드 사용 여부<br>
 	 *              whether to enable debug mode
 	 */
-	public void setDebugMode(boolean debug) {
-		if(this.closed) return;
+	public Configuration setDebugMode(boolean debug) {
+		if(this.closed) return this;
 		this.isDebug = debug;
+		return this;
 	}
 
 	/**
@@ -629,9 +639,10 @@ public final class Configuration implements Cloneable {
 	 * @param enable 파일 로그 사용 여부<br>
 	 *               whether to enable file logging
 	 */
-	public void enableFileLogInDebugMode(boolean enable) {
-		if(this.closed) return;
+	public Configuration enableFileLogInDebugMode(boolean enable) {
+		if(this.closed) return this;
 		this.debugFileLogEnabled = enable;
+		return this;
 	}
 
 	/**
@@ -643,9 +654,10 @@ public final class Configuration implements Cloneable {
 	 * @param enable 콘솔 로그 사용 여부<br>
 	 *               whether to enable console logging
 	 */
-	public void enableConsoleLogInDebugMode(boolean enable) {
-		if(this.closed) return;
+	public Configuration enableConsoleLogInDebugMode(boolean enable) {
+		if(this.closed) return this;
 		this.debugConsoleLogEnabled = enable;
+		return this;
 	}
 
 	/**
@@ -655,9 +667,10 @@ public final class Configuration implements Cloneable {
 	 * @param enable 로그 파일 사용 여부<br>
 	 *               whether to enable log file check
 	 */
-	public void setFileExistCheck(boolean enable) {
-		if(this.closed) return;
+	public Configuration setFileExistCheck(boolean enable) {
+		if(this.closed) return this;
 		this.isExistCheck = enable;
+		return this;
 	}
 
 	public boolean isFileExistCheck() {

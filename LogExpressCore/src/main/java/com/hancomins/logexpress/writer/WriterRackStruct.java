@@ -6,7 +6,7 @@ import java.util.TimeZone;
 
 final class WriterRackStruct {
 
-	private final static long ONE_DAY_MILLIS = 1000 * 60 * 60 * 24;
+	private static final long ONE_DAY_MILLIS = 1000 * 60 * 60 * 24;
 
 	final String marker;
 	private int fileMaxSize;

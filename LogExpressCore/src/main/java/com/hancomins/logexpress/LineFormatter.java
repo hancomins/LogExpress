@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 class LineFormatter {
 
-	private final static Pattern PATTERN_LEN_RANGE = Pattern.compile("\\[[' ']{0,}[0-9]{0,}[' ']{0,1}[:][' ']{0,}[-]{0,1}[0-9]{0,}[' ']{0,}\\]");
+	private static final Pattern PATTERN_LEN_RANGE = Pattern.compile("\\[[' ']{0,}[0-9]{0,}[' ']{0,1}[:][' ']{0,}[-]{0,1}[0-9]{0,}[' ']{0,}\\]");
 	
 	private boolean needStacktrace = false;
 	private boolean needThreadInfo = false;

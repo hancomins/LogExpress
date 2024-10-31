@@ -7,10 +7,7 @@ import com.hancomins.logexpress.queue.LineQueueFactory;
 import com.hancomins.logexpress.writer.OnTerminatedListener;
 import com.hancomins.logexpress.writer.WriteWorker;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -18,7 +15,9 @@ class LoggerContext {
 	
 	
 	private final AtomicReference<LinkedHashMap<String, BaseLogger>> markerLoggerMapRef = new AtomicReference<LinkedHashMap<String,BaseLogger>>(new LinkedHashMap<String, BaseLogger>());
-	
+
+	static final LoggerContext EMPTY = new LoggerContext();
+
 	
 	private Configuration configuration;
 	private BaseLogger defaultBaseLogger;
@@ -26,6 +25,10 @@ class LoggerContext {
 	private WriteWorker logWriter;
 
 	private AtomicBoolean end = new AtomicBoolean();
+
+	static {
+		EMPTY.defaultBaseLogger = BaseLogger.EMPTY;
+	}
 	
 
 	@SuppressWarnings("unused")
@@ -39,7 +42,7 @@ class LoggerContext {
 	}
 	
 	
-	LoggerContext(Configuration configure, ArrayList<BaseLogger> baseLoggers) {
+	LoggerContext(Configuration configure, List<BaseLogger> baseLoggers) {
 		configuration = configure;
 		init();
 		if(baseLoggers == null || baseLoggers.isEmpty()) {

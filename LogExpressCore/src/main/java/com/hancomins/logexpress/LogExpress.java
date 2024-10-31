@@ -5,6 +5,7 @@ import com.hancomins.logexpress.util.ModulePathFinder;
 import com.hancomins.logexpress.util.SysTool;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
@@ -32,8 +33,12 @@ public class LogExpress {
 
 	private static final AtomicReference<ShutdownFuture> ShutdownFutureRef = new AtomicReference<ShutdownFuture>();
 
-	private final static ReentrantLock lock = new ReentrantLock();
-	private final static Object reInitMonitor = new Object();
+	private static final ReentrantLock lock = new ReentrantLock();
+	private static final Object reInitMonitor = new Object();
+
+	private static final List<BaseLogger> CachedBaseLoggers = new ArrayList<BaseLogger>();
+	
+
 
 	static AtomicReference<LoggerContext> LoggerContextRef = new AtomicReference<LoggerContext>();
 
@@ -47,8 +52,9 @@ public class LogExpress {
 	 * Initializes the logger.<br>
 	 * 로거를 초기화합니다.
 	 */
-	private static void initLogger() {
-		LoggerContextRef.set(new LoggerContext(Configuration.fromDefaultConfigurationFile().close()));
+	private synchronized static void initLogger() {
+		LoggerContextRef.set(new LoggerContext(Configuration.fromDefaultConfigurationFile().close(), CachedBaseLoggers));
+		CachedBaseLoggers.clear();
 		System.setProperty(PROPERTY_PATH, ModulePathFinder.find(LogExpress.class).getAbsolutePath());
 		System.setProperty(PROPERTY_HOSTNAME, SysTool.hostname());
 		System.setProperty(PROPERTY_PID, SysTool.pid() + "");
@@ -67,6 +73,7 @@ public class LogExpress {
 			lock.lock();
 			if (LoggerContextRef.get() == null) {
 				initLogger();
+
 			}
 			LoggerContext loggerContext = LoggerContextRef.get();
 			if (loggerContext == null) {
@@ -111,7 +118,6 @@ public class LogExpress {
 		} else {
 			InLogger.disable();
 		}
-
 		waitForShutdown();
 		try {
 			if (LoggerContextRef.get() == null) {
@@ -123,9 +129,9 @@ public class LogExpress {
 			}
 			configure.close();
 			LoggerContext oldContext = LoggerContextRef.get();
-			ArrayList<BaseLogger> baseLoggers = oldContext.getLoggerList();
-			BaseLogger baseLogger =  oldContext.defaultLogger();
-			LoggerContext context = new LoggerContext(configure, baseLoggers);
+			List<BaseLogger> oldLoggers = oldContext.getLoggerList();
+			//BaseLogger baseLogger =  oldContext.defaultLogger();
+			LoggerContext context = new LoggerContext(configure, oldLoggers);
 			LoggerContextRef.set(context);
 			ShutdownFuture shutdownFuture = oldContext.end();
 			shutdownFuture.addOnEndCallback(new Runnable() {
@@ -226,16 +232,21 @@ public class LogExpress {
 			if (InLogger.isEnabled()) {
 				InLogger.INFO("LOGExpress shutdown called.");
 			}
-			LoggerContext context = LoggerContextRef.get();
+			final LoggerContext context = LoggerContextRef.get();
 			ShutdownFuture shutdownFuture = context.end();
 			ShutdownFutureRef.set(shutdownFuture);
 			shutdownFuture.addOnEndCallback(new Runnable() {
 				@Override
 				public void run() {
-					// 디버그 로그를 출력한다.
-					resultFuture.onEnd();
+					CachedBaseLoggers.clear();
+					CachedBaseLoggers.addAll(context.getLoggerList());
+					for(BaseLogger logger : CachedBaseLoggers) {
+						logger.parking();
+					}
 					LoggerContextRef.set(null);
 					ShutdownFutureRef.set(null);
+					// 디버그 로그를 출력한다.
+					resultFuture.onEnd();
 				}
 			});
 			return new ShutdownFutureFacade(resultFuture);
@@ -342,6 +353,7 @@ public class LogExpress {
 	 */
 	public static BaseLogger baseLogger() {
 		LoggerContext context = requireLoggerContext();
+
 		return context.defaultLogger();
 	}
 
@@ -613,16 +625,8 @@ public class LogExpress {
 	private static LoggerContext requireLoggerContext() {
 		LoggerContext loggerContext = LoggerContextRef.get();
 		if(loggerContext == null) {
-			synchronized (reInitMonitor) {
-				loggerContext = LoggerContextRef.get();
-				if(loggerContext == null) {
-					InLogger.INFO("LogExpress is shutdown. Reinitialize LogExpress.");
-					LogExpress.updateConfig(LogExpress.cloneConfiguration());
-					// 24.10.30 이전 동작. Shutdown 후에는 다시 초기화 하도록 변경함.
-					//throw new IllegalStateException("logexpress is currently shut down. Please use the 'logexpress.updateConfig(Configuration)' method to reinitialize it.");
-					loggerContext = LoggerContextRef.get();
-				}
-			}
+			InLogger.WARN("Logexpress is currently shut down. Please use the 'logexpress.updateConfig(Configuration)' method to reinitialize it.", false);
+			return LoggerContext.EMPTY;
 		}
 		return loggerContext;
 	}

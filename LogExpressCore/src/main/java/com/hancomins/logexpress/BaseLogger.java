@@ -3,6 +3,7 @@
 
 package com.hancomins.logexpress;
 
+import com.hancomins.logexpress.configuration.Configuration;
 import com.hancomins.logexpress.configuration.StyleOption;
 import com.hancomins.logexpress.configuration.WriterOption;
 import com.hancomins.logexpress.queue.AbsLineQueue;
@@ -10,9 +11,11 @@ import com.hancomins.logexpress.queue.AbsLineQueue;
 
 @SuppressWarnings({"NonAtomicOperationOnVolatileField", "unused"})
 public class BaseLogger implements Logger {
+
+	static final BaseLogger EMPTY = new BaseLogger("", Configuration.newConfiguration().newWriterOption("NONE").setLevel(Level.OFF));
+
 	
-	
-	protected final static int DEF_ELEMENT_IDX = 2; 
+	protected static final int DEF_ELEMENT_IDX = 2; 
 	
 	private final String marker;
 	private volatile LineFormatter formatter = null;
@@ -26,7 +29,10 @@ public class BaseLogger implements Logger {
 	private boolean isTrace = false;
 	private boolean isWarn = false;
 	private boolean isFatal = false;
-	
+
+	static {
+		EMPTY.parking();
+	}
 	
 
 	protected BaseLogger(String marker, WriterOption option) {
@@ -44,9 +50,19 @@ public class BaseLogger implements Logger {
 		setLevel(level);
 		initFormatter(option.getPattern(), option.styleOption());
 		stackTraceElementsIndex = DEF_ELEMENT_IDX + option.getStackTraceDepth();
-
 	}
-	
+
+	/**
+	 * LogExpress 에서 shutdown 시 호출됩니다.
+	 */
+	void parking() {
+		absLineQueue = new AbsLineQueue(0) {
+			@Override
+			public Line pop() {
+				return null;
+			}
+		};
+	}
 	
 	
 	protected AbsLineQueue getLineQueue() {

@@ -207,7 +207,7 @@ public class FileNamePattern {
 	}
 	
 	
-	final static class PatternItem {
+	static final class PatternItem {
 		
 		String text = "";
 		ItemType type = ItemType.Path;

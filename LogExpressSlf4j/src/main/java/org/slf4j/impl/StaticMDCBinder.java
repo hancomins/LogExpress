@@ -5,12 +5,12 @@ import org.slf4j.spi.MDCAdapter;
 
 public class StaticMDCBinder {
 
-    public static final StaticMDCBinder SINGLETON = new StaticMDCBinder();
+    public static static finalMDCBinder SINGLETON = new StaticMDCBinder();
 
     private StaticMDCBinder() {
     }
 
-    public static final StaticMDCBinder getSingleton() {
+    public static static finalMDCBinder getSingleton() {
         return SINGLETON;
     }
 

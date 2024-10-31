@@ -12,13 +12,13 @@ public class InLogger {
 
 
 
-    private final static String KEY_DIR = "logexpress.inLogPath";
-    private final static String FILE_NAME = "logexpress";
-    private final static SimpleDateFormat DateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    private final static SimpleDateFormat TimeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
+    private static final String KEY_DIR = "logexpress.inLogPath";
+    private static final String FILE_NAME = "logexpress";
+    private static final SimpleDateFormat DateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static final SimpleDateFormat TimeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
 
-    private final static ReentrantLock lock = new ReentrantLock();
-    private final static int LOCK_TIMEOUT = 5000;
+    private static final ReentrantLock lock = new ReentrantLock();
+    private static final int LOCK_TIMEOUT = 5000;
 
     private static boolean enabled = true;
     private static boolean isWriteFile = false;
